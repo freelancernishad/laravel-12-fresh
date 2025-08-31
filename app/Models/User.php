@@ -80,4 +80,29 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
 
 
+
+    public function photos()
+    {
+        return $this->hasMany(UserPhoto::class);
+    }
+
+    public function primaryPhoto()
+    {
+        return $this->hasOne(UserPhoto::class)->where('is_primary', true);
+    }
+
+    protected $appends = [
+        'profile_picture'
+    ];
+
+    // Accessor for profile picture
+    public function getProfilePictureAttribute()
+    {
+        return $this->primaryPhoto?->path;
+    }
+
+
+
+
+
 }
