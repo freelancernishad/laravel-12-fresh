@@ -47,10 +47,28 @@ public function register(Request $request)
         'password' => Hash::make($request->password),
     ]);
 
+    // Log user registration
+    logUserActivity(
+        activity: 'User Registration',
+        category: 'Authentication',
+        userId: $user->id,
+        request: $request,
+        isSuccess: true,
+        extraDetails: ['method' => 'register endpoint']
+    );
+
     // Generate a JWT token
     try {
         $token = JWTAuth::fromUser($user, ['guard' => 'user']);
     } catch (JWTException $e) {
+        logUserActivity(
+            activity: 'JWT Token Generation Failed',
+            category: 'Authentication',
+            userId: $user->id,
+            request: $request,
+            isSuccess: false,
+            extraDetails: ['error' => $e->getMessage()]
+        );
         return response()->json(['error' => 'Could not create token'], 500);
     }
 
@@ -67,6 +85,14 @@ public function register(Request $request)
             $emailSent = false;
             $emailMessage = 'Registration successful, but we could not send the verification email. Please try again later.';
             Log::error('User verification email failed: ' . $e->getMessage());
+            logUserActivity(
+                activity: 'Email Verification Failed',
+                category: 'Email',
+                userId: $user->id,
+                request: $request,
+                isSuccess: false,
+                extraDetails: ['error' => $e->getMessage()]
+            );
         }
     } else {
         $otp = random_int(100000, 999999);
@@ -81,6 +107,14 @@ public function register(Request $request)
             $emailSent = false;
             $emailMessage = 'Registration successful, but we could not send the OTP. Please try again later.';
             Log::error('User OTP email failed: ' . $e->getMessage());
+            logUserActivity(
+                activity: 'OTP Email Failed',
+                category: 'Email',
+                userId: $user->id,
+                request: $request,
+                isSuccess: false,
+                extraDetails: ['error' => $e->getMessage()]
+            );
         }
     }
 
@@ -103,61 +137,104 @@ public function register(Request $request)
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
-    {
+public function login(Request $request)
+{
+    // Handle Google login
+    if ($request->access_token) {
+        $googleAuthService = new GoogleAuthService();
+        return $googleAuthService->login($request);
+    }
 
+    // Handle Apple login
+    if ($request->identity_token) {
+        $appleAuthService = new AppleAuthService();
+        return $appleAuthService->login($request);
+    }
 
-        if($request->access_token){
-            $googleAuthService = new GoogleAuthService();
-            return $googleAuthService->login($request);
-        }
+    // Validate credentials
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|string|email',
+        'password' => 'required|string',
+    ]);
 
-
-        if($request->identity_token){
-            $appleAuthService = new AppleAuthService();
-            return $appleAuthService->login($request);
-        }
-
-
-
-
-
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+    if ($validator->fails()) {
+        // Log failed login attempt
+        logUserActivity('Login Attempt Failed', 'Authentication', null, $request, false, [
+            'reason' => 'Validation failed',
+            'errors' => $validator->errors()->all(),
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
 
-        $credentials = $request->only('email', 'password');
+    $credentials = $request->only('email', 'password');
+    $user = User::where('email', $request->email)->first();
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-
-            // Custom payload data, including email verification status
-            $payload = [
-                'email' => $user->email,
-                'name' => $user->name,
-                'email_verified' => !is_null($user->email_verified_at), // Checks verification status
-            ];
-
-            try {
-                // Generate a JWT token with custom claims
-                $token = JWTAuth::fromUser($user, ['guard' => 'user']);
-            } catch (JWTException $e) {
-                return response()->json(['error' => 'Could not create token'], 500);
-            }
-
-            return response()->json([
-                'token' => $token,
-                'user' => $payload,
-            ], 200);
-        }
+    // Check if user exists
+    if (!$user) {
+        logUserActivity('Login Failed', 'Authentication', null, $request, false, [
+            'reason' => 'User not found',
+            'email' => $request->email
+        ]);
 
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
+
+    // Check if user is blocked
+    if ($user->is_blocked) {
+        logUserActivity('Login Blocked', 'Authentication', $user->id, $request, false, [
+            'reason' => 'User is blocked'
+        ]);
+
+        return response()->json(['message' => 'Your account is blocked. Contact support.'], 403);
+    }
+
+    // Check if user is active
+    if (!$user->is_active) {
+        logUserActivity('Login Inactive', 'Authentication', $user->id, $request, false, [
+            'reason' => 'User account is inactive'
+        ]);
+
+        return response()->json(['message' => 'Your account is not active.'], 403);
+    }
+
+    // Attempt authentication
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
+
+        // Custom payload
+        $payload = [
+            'email' => $user->email,
+            'name' => $user->name,
+            'email_verified' => !is_null($user->email_verified_at),
+        ];
+
+        try {
+            $token = JWTAuth::fromUser($user, ['guard' => 'user']);
+        } catch (JWTException $e) {
+            logUserActivity('Login Token Failed', 'Authentication', $user->id, $request, false, [
+                'reason' => 'JWT token generation failed',
+            ]);
+
+            return response()->json(['error' => 'Could not create token'], 500);
+        }
+
+        // Log successful login
+        logUserActivity('Login Successful', 'Authentication', $user->id, $request, true);
+
+        return response()->json([
+            'token' => $token,
+            'user' => $payload,
+        ], 200);
+    }
+
+    // Log failed login
+    logUserActivity('Login Failed', 'Authentication', $user->id, $request, false, [
+        'reason' => 'Invalid credentials'
+    ]);
+
+    return response()->json(['message' => 'Invalid credentials'], 401);
+}
 
 
 
@@ -177,64 +254,118 @@ public function register(Request $request)
      *
      * @return \Illuminate\Http\JsonResponse
      */
-public function logout(Request $request)
-{
-    try {
-        $token = JWTAuth::getToken();
-        if (!$token) {
+    public function logout(Request $request)
+    {
+        try {
+            $token = JWTAuth::getToken();
+            if (!$token) {
+                logUserActivity(
+                    'Logout Attempt Without Token',
+                    'Authentication',
+                Auth::id() ?? null,
+                    $request,
+                    false,
+                    ['reason' => 'Token not provided']
+                );
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Token not provided.'
+                ], 401);
+            }
+
+        
+
+            logUserActivity(
+            'User Logout',
+                'Authentication',
+                Auth::id(),
+                $request,
+                true,
+                ['token' => $token]
+            );
+            JWTAuth::invalidate($token);
+            return response()->json([
+                'success' => true,
+                'message' => 'Logged out successfully.'
+            ], 200);
+        } catch (JWTException $e) {
+            logUserActivity(
+                activity: 'Logout Failed',
+                category: 'Authentication',
+                userId: Auth::id() ?? null,
+                request: $request,
+                isSuccess: false,
+                extraDetails: ['error' => $e->getMessage()]
+            );
+
             return response()->json([
                 'success' => false,
-                'message' => 'Token not provided.'
-            ], 401);
+                'message' => 'Failed to logout, token invalidation failed: ' . $e->getMessage()
+            ], 500);
         }
-
-        JWTAuth::invalidate($token);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Logged out successfully.'
-        ], 200);
-    } catch (JWTException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to logout, token invalidation failed: ' . $e->getMessage()
-        ], 500);
     }
-}
+
 
   /**
      * Change the password of the authenticated user.
      */
-    public function changePassword(Request $request)
-    {
-        // Validate input using Validator
-        $validator = Validator::make($request->all(), [
-            'current_password' => 'required',
-            'new_password' => 'required|min:8|confirmed',
-        ]);
+  public function changePassword(Request $request)
+{
+    // Validate input using Validator
+    $validator = Validator::make($request->all(), [
+        'current_password' => 'required',
+        'new_password' => 'required|min:8|confirmed',
+    ]);
 
-        // Return validation errors if any
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation error.',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+    // Return validation errors if any
+    if ($validator->fails()) {
+        logUserActivity(
+            activity: 'Password Change Failed (Validation)',
+            category: 'Account',
+            userId: Auth::id(),
+            request: $request,
+            isSuccess: false,
+            extraDetails: ['errors' => $validator->errors()->toArray()]
+        );
 
-        $authUser = Auth::user();
-        $user = User::find($authUser->id);
-
-        // Check if the current password matches
-        if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json(['message' => 'Current password is incorrect.'], 400);
-        }
-
-        // Update the password
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-
-        return response()->json(['message' => 'Password updated successfully.']);
+        return response()->json([
+            'message' => 'Validation error.',
+            'errors' => $validator->errors()
+        ], 422);
     }
+
+    $authUser = Auth::user();
+    $user = User::find($authUser->id);
+
+    // Check if the current password matches
+    if (!Hash::check($request->current_password, $user->password)) {
+        logUserActivity(
+            activity: 'Password Change Failed (Wrong Current Password)',
+            category: 'Account',
+            userId: $user->id,
+            request: $request,
+            isSuccess: false,
+            extraDetails: ['reason' => 'Current password mismatch']
+        );
+
+        return response()->json(['message' => 'Current password is incorrect.'], 400);
+    }
+
+    // Update the password
+    $user->password = Hash::make($request->new_password);
+    $user->save();
+
+    logUserActivity(
+        activity: 'Password Changed Successfully',
+        category: 'Account',
+        userId: $user->id,
+        request: $request,
+        isSuccess: true
+    );
+
+    return response()->json(['message' => 'Password updated successfully.']);
+}
 
 
     /**

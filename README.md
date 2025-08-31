@@ -139,3 +139,34 @@ composer require intervention/image
 
 ```
 
+
+
+## 📊 Excel Import/Export Setup
+
+This project uses Intervention Image for image manipulation (resizing, cropping, etc.).
+
+### Installation & Configuration
+```bash
+# 1. Install Maatwebsite Excel package
+composer require maatwebsite/excel
+
+# 2. Publish the configuration (optional)
+php artisan vendor:publish --provider="Maatwebsite\Excel\ExcelServiceProvider"
+
+# 3. Configuration in .env (if needed)
+# Example: set chunk size or temporary storage path
+EXCEL_CHUNK_SIZE=1000
+EXCEL_TEMP_PATH=storage_path('framework/cache')
+```
+
+
+
+## 📊 User Agent
+
+### Installation & Configuration
+```bash
+
+composer require jenssegers/agent
+```
+
+

@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin\UserManagement;
 
 use App\Models\User;
 use Illuminate\Support\Str;
+use App\Exports\UsersExport;
+use App\Imports\UsersImport;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Admin\AdminUserResource;
 use App\Http\Resources\Admin\AdminUserCollection;
@@ -205,4 +208,30 @@ public function index(Request $request)
         $user->delete(); // Soft delete if `SoftDeletes` trait is used
         return response()->json(['message' => 'User deleted']);
     }
+
+
+    public function export()
+    {
+        return Excel::download(new UsersExport, 'users.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx,csv'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+            'errors' => $validator->errors(),
+            'isError' => true,
+            'status_code' => 422
+            ], 422);
+        }
+        Excel::import(new UsersImport, $request->file('file'));
+        return response()->json(['message' => 'Users imported successfully']);
+    }
+
+
+
 }
