@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Admin\AdminUserResource;
 use App\Http\Resources\Admin\AdminUserCollection;
 
@@ -69,6 +70,54 @@ public function index(Request $request)
         $user = User::findOrFail($id);
         return new AdminUserResource($user);
     }
+
+
+    public function update(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'Message' => 'User not found',
+                'isError' => true,
+                'status_code' => 404
+            ], 404);
+        }
+
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $id,
+            'is_active' => 'sometimes|boolean',
+            'is_blocked' => 'sometimes|boolean',
+            'notes' => 'nullable|string|max:1000',
+            'phone' => 'nullable|string|max:20'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+            'errors' => $validator->errors(),
+            'isError' => true,
+            'status_code' => 422
+            ], 422);
+        }
+
+        // Update fields
+        $user->fill($request->only([
+            'name', 'email', 'role', 'is_active', 'is_blocked', 'notes', 'phone'
+        ]));
+
+        $user->save();
+
+        return response()->json([
+            'data' => new AdminUserResource($user),
+            'Message' => 'User updated successfully',
+            'isError' => false,
+            'status_code' => 200
+        ]);
+    }
+
+
 
     // Activate / Deactivate
     public function toggleActive($id)
