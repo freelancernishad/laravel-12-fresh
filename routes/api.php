@@ -68,3 +68,9 @@ if (file_exists($MediaRoutes = __DIR__.'/Common/Media/MediaRoutes.php')) {
     require $MediaRoutes;
 }
 
+
+// Load AdminUserRoutes
+if (file_exists($AdminUserRoutes = __DIR__.'/Admins/UserManagement/UserManagementRoutes.php')) {
+    require $AdminUserRoutes;
+}
+
