@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\FileSystem;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -39,6 +39,35 @@ class FileUploadService
             return config('AWS_FILE_LOAD_BASE') . $filePath;
         } catch (\Exception $e) {
             Log::error('Error uploading file to S3: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+
+
+    /**
+     * Upload raw content to S3.
+     *
+     * @param string $content
+     * @param string $path
+     * @return string
+     * @throws \Exception
+     */
+    public function uploadContentToS3(string $content, string $path): string
+    {
+        try {
+            $stored = Storage::disk('s3')->put($path, $content);
+
+            if (!$stored) {
+                Log::error('Failed to upload content to S3', ['path' => $path]);
+                throw new \Exception('Failed to upload content to S3');
+            }
+
+            Log::info('File content uploaded to S3', ['file_path' => $path]);
+
+            return config('AWS_FILE_LOAD_BASE') . $path;
+        } catch (\Exception $e) {
+            Log::error('Error uploading content to S3: ' . $e->getMessage());
             throw $e;
         }
     }

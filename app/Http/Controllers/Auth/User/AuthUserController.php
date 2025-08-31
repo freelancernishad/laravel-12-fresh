@@ -10,6 +10,7 @@ use App\Mail\OtpNotification;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -27,64 +28,73 @@ class AuthUserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+public function register(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8|confirmed',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 400);
+    }
 
-        // Create the user
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+    // Create the user
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+    ]);
 
-        // Generate a JWT token for the newly created user
+    // Generate a JWT token
+    try {
+        $token = JWTAuth::fromUser($user, ['guard' => 'user']);
+    } catch (JWTException $e) {
+        return response()->json(['error' => 'Could not create token'], 500);
+    }
+
+    // Email verification handling
+    $verify_url = $request->verify_url ?? null;
+    $emailSent = true;
+    $emailMessage = '';
+
+    if ($verify_url) {
         try {
-            $token = JWTAuth::fromUser($user, ['guard' => 'user']);
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'Could not create token'], 500);
-        }
-
-        // Generate verification URL (if applicable)
-        $verify_url = $request->verify_url ?? null; // Optional verify URL from the request
-
-        // Notify user for email verification
-        if ($verify_url) {
             Mail::to($user->email)->send(new VerifyEmail($user, $verify_url));
-        }else{
-            // Generate a 6-digit numeric OTP
-            $otp = random_int(100000, 999999); // Generate OTP
-            $user->otp = Hash::make($otp); // Store hashed OTP
-            $user->otp_expires_at = now()->addMinutes(5); // Set OTP expiration time
-            $user->save();
-
-            // Notify user with the OTP
-            Mail::to($user->email)->send(new OtpNotification($otp));
-
+            $emailMessage = 'Registration successful. Verification email has been sent.';
+        } catch (\Exception $e) {
+            $emailSent = false;
+            $emailMessage = 'Registration successful, but we could not send the verification email. Please try again later.';
+            Log::error('User verification email failed: ' . $e->getMessage());
         }
+    } else {
+        $otp = random_int(100000, 999999);
+        $user->otp = Hash::make($otp);
+        $user->otp_expires_at = now()->addMinutes(5);
+        $user->save();
 
+        try {
+            Mail::to($user->email)->send(new OtpNotification($otp));
+            $emailMessage = 'Registration successful. OTP has been sent to your email.';
+        } catch (\Exception $e) {
+            $emailSent = false;
+            $emailMessage = 'Registration successful, but we could not send the OTP. Please try again later.';
+            Log::error('User OTP email failed: ' . $e->getMessage());
+        }
+    }
 
-
-        // Define payload data
-        $payload = [
+    return response()->json([
+        'token' => $token,
+        'user' => [
             'email' => $user->email,
             'name' => $user->name,
-            'email_verified' => $user->hasVerifiedEmail(), // Check verification status
-        ];
+            'email_verified' => $user->hasVerifiedEmail(),
+        ],
+        'message' => $emailMessage,
+    ], 201);
+}
 
-        return response()->json([
-            'token' => $token,
-            'user' => $payload,
-        ], 201);
-    }
 
 
     /**

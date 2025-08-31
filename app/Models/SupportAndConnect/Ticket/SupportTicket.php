@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use App\Services\FileUploadService;
+
 use Illuminate\Database\Eloquent\Model;
+use App\Services\FileSystem\FileUploadService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SupportTicket extends Model

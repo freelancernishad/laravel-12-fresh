@@ -23,18 +23,41 @@ class MediaFileResource extends JsonResource
 
             $versions[$version->label] = $data;
 
-            // Also store thumbnail separately if found
             if ($version->label === 'thumbnail') {
                 $thumbnail = $data;
             }
+        }
+
+        // Determine uploader
+        if ($this->uploadedByUser) {
+            $uploadedType = 'user';
+            $uploader = [
+                'id' => $this->uploadedByUser->id,
+                'name' => $this->uploadedByUser->name,
+                'email' => $this->uploadedByUser->email,
+            ];
+        } elseif ($this->uploadedByAdmin) {
+            $uploadedType = 'admin';
+            $uploader = [
+                'id' => $this->uploadedByAdmin->id,
+                'name' => $this->uploadedByAdmin->name,
+                'email' => $this->uploadedByAdmin->email,
+            ];
+        } else {
+            $uploadedType = 'others';
+            $uploader = null;
         }
 
         return [
             'id' => $this->id,
             'name' => $this->name,
             'original_url' => $this->original_url,
-            'thumbnail' => $thumbnail, // 👈 directly added here
+            'thumbnail' => $thumbnail,
             'versions' => $versions,
+            'uploaded' => [
+                'type' => $uploadedType,
+                'details' => $uploader,
+            ],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

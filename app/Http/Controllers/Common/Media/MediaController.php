@@ -6,20 +6,45 @@ use Illuminate\Http\Request;
 use App\Models\Media\MediaFile;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Media\MediaFileVersion;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\MediaFileResource;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\MediaFileCollection;
+use App\Services\FileSystem\FileUploadService;
 
 class MediaController extends Controller
 {
 
-
 public function index(Request $request)
 {
+
+
     $query = MediaFile::with(['versions' => function ($q) {
-        $q->where('label', 'original');
+        // $q->where('label', 'original');
     }])->latest();
+
+
+    // return response()->json(['data' => Auth::guard('user')->user()]);
+    // Role-based filtering
+    if (Auth::guard('api')->check()) {
+        // Users see only their own uploads
+        $query->where('uploaded_by_user_id', Auth::guard('api')->id());
+
+    } elseif (Auth::guard('admin')->check()) {
+        // Admins
+        if ($request->filled('uploaded_by_user_id')) {
+            // Show only uploads by a specific user
+            $query->where('uploaded_by_user_id', $request->uploaded_by_user_id);
+        } elseif (!$request->boolean('view_all')) {
+            // If view_all is not true, show only uploads by this admin
+            $query->where('uploaded_by_admin_id', Auth::guard('admin')->id());
+        }
+        // else: view_all=true, show everything
+    }else{
+        $query->whereNull('uploaded_by_user_id')->whereNull('uploaded_by_admin_id');
+    }
 
     // Filter by MediaFile name
     if ($request->filled('name')) {
@@ -28,7 +53,7 @@ public function index(Request $request)
 
     // Filter by original version properties
     $query->whereHas('versions', function ($q) use ($request) {
-        $q->where('label', 'original');
+        // $q->where('label', 'original');
 
         if ($request->filled('size')) {
             $q->where('size', $request->size);
@@ -56,12 +81,11 @@ public function index(Request $request)
         } else {
             // Sorting by size or dimensions from original version
             $query->join('media_file_versions as v', function ($join) {
-                $join->on('media_files.id', '=', 'v.media_file_id')
-                     ->where('v.label', 'original');
+                $join->on('media_files.id', '=', 'v.media_file_id');
             });
 
             $query->orderBy('v.' . $sortBy, $request->input('sort_order', 'asc'))
-                  ->select('media_files.*'); // avoid selecting join table fields
+                  ->select('media_files.*');
         }
     }
 
@@ -73,6 +97,8 @@ public function index(Request $request)
         'data' => new MediaFileCollection($mediaFiles),
     ]);
 }
+
+
 
 
 public function show($id)
@@ -91,101 +117,115 @@ public function show($id)
 }
 
 
-    public function upload(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|image|max:10240', // 10MB
-        ]);
+public function upload(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'file' => 'required|image|max:10240', // 10MB
+    ]);
 
-        if (!extension_loaded('gd')) {
-            Log::error("GD library is NOT available!");
-            return response()->json([
-                'Message' => 'GD library not available',
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
 
-            ], 500);
-        }
+    if (!extension_loaded('gd')) {
+        Log::error("GD library is NOT available!");
+        return response()->json(['Message' => 'GD library not available'], 500);
+    }
 
-        $file = $request->file('file');
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $extension = strtolower($file->getClientOriginalExtension());
-        $filename = uniqid() . '.' . $extension;
-        $disk = 'public';
-        $path = 'uploads/images/';
+    $file = $request->file('file');
+    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+    $extension = strtolower($file->getClientOriginalExtension());
+    $filename = uniqid() . '.' . $extension;
 
-        // Save original
-        Storage::disk($disk)->put($path . $filename, file_get_contents($file));
-        $originalUrl = Storage::url($path . $filename);
+    $uploaded_by_user_id = null;
+    $uploaded_by_admin_id = null;
+    if (Auth::guard('user')->check()) {
+        $uploaded_by_user_id = Auth::guard('user')->id();
+    } elseif (Auth::guard('admin')->check()) {
+        $uploaded_by_admin_id = Auth::guard('admin')->id();
+    }
 
-        $media = MediaFile::create([
-            'name' => $originalName,
-            'original_url' => $originalUrl,
-        ]);
+    // Upload original file to S3
+    $originalUrl = (new FileUploadService())->uploadFileToS3($file, 'uploads/images');
 
-        // Define required sizes
-        $sizes = [
-            'original' => null,      // keep full size
-            'thumbnail' => [150, 150],
-            'medium' => [300, 300],
-            'large' => [600, 600],          // proportional
-            'extra_large' => [1200, 1200],  // proportional
-            'xlarge' => [1800, 1800],       // proportional
-            'square_50' => [50, 50],
-            'square_100' => [100, 100],
-            'square_200' => [200, 200],
-            'square_400' => [400, 400],
-            'square_600' => [600, 600],
-            'square_800' => [800, 800],
-            'square_1000' => [1000, 1000],
-        ];
+    // Create MediaFile record
+    $media = MediaFile::create([
+        'name' => $originalName,
+        'original_url' => $originalUrl,
+        'uploaded_by_user_id' => $uploaded_by_user_id,
+        'uploaded_by_admin_id' => $uploaded_by_admin_id,
+    ]);
 
-        foreach ($sizes as $label => $dimensions) {
-            if ($label === 'original') {
-                $sizeInBytes = $file->getSize();
-                $sizeType = $this->formatSize($sizeInBytes);
-                [$width, $height] = getimagesize($file->getPathname());
-                $url = $originalUrl;
+    // Define required sizes
+    $sizes = [
+        'original' => null,
+        'thumbnail' => [150, 150],
+        'medium' => [300, 300],
+        'large' => [600, 600],
+        'extra_large' => [1200, 1200],
+        'xlarge' => [1800, 1800],
+        'square_50' => [50, 50],
+        'square_100' => [100, 100],
+        'square_200' => [200, 200],
+        'square_400' => [400, 400],
+        'square_600' => [600, 600],
+        'square_800' => [800, 800],
+        'square_1000' => [1000, 1000],
+    ];
+
+    foreach ($sizes as $label => $dimensions) {
+        if ($label === 'original') {
+            $sizeInBytes = $file->getSize();
+            $sizeType = $this->formatSize($sizeInBytes);
+            [$width, $height] = getimagesize($file->getPathname());
+            $url = $originalUrl;
+        } else {
+            // Resize image
+            if (str_starts_with($label, 'square_')) {
+                [$resizedContent, $width, $height] = $this->resizeImageGDSquare(
+                    $file->getPathname(),
+                    $dimensions[0],
+                    $extension
+                );
             } else {
-                $versionFilename = $label . '_' . $filename;
-
-                // For square sizes, resize exactly; for others, keep ratio
-                if (str_starts_with($label, 'square_')) {
-                    [$resizedContent, $width, $height] = $this->resizeImageGDSquare(
-                        $file->getPathname(),
-                        $dimensions[0],
-                        $extension
-                    );
-                } else {
-                    [$resizedContent, $width, $height] = $this->resizeImageGDKeepRatio(
-                        $file->getPathname(),
-                        $dimensions[0],
-                        $dimensions[1],
-                        $extension
-                    );
-                }
-
-                Storage::disk($disk)->put($path . $versionFilename, $resizedContent);
-                $sizeInBytes = Storage::disk($disk)->size($path . $versionFilename);
-                $sizeType = $this->formatSize($sizeInBytes);
-                $url = Storage::url($path . $versionFilename);
+                [$resizedContent, $width, $height] = $this->resizeImageGDKeepRatio(
+                    $file->getPathname(),
+                    $dimensions[0],
+                    $dimensions[1],
+                    $extension
+                );
             }
 
-            MediaFileVersion::create([
-                'media_file_id' => $media->id,
-                'label' => $label,
-                'url' => $url,
-                'size' => $sizeInBytes,
-                'size_type' => $sizeType,
-                'type' => $file->getMimeType(),
-                'dimensions' => $width . 'x' . $height,
-            ]);
+            // Upload resized content to S3
+            $url = (new FileUploadService())->uploadContentToS3(
+                $resizedContent,
+                'uploads/images/' . $label . '_' . $filename
+            );
+
+            $sizeInBytes = strlen($resizedContent);
+            $sizeType = $this->formatSize($sizeInBytes);
         }
 
-        $media->load('versions');
-
-        return response()->json([
-            'data' => new MediaFileResource($media),
+        // Save MediaFileVersion
+        MediaFileVersion::create([
+            'media_file_id' => $media->id,
+            'label' => $label,
+            'url' => $url,
+            'size' => $sizeInBytes,
+            'size_type' => $sizeType,
+            'type' => $file->getMimeType(),
+            'dimensions' => $width . 'x' . $height,
         ]);
     }
+
+    $media->load('versions');
+
+    return response()->json([
+        'data' => new MediaFileResource($media),
+    ]);
+}
+
+
 
     private function formatSize($bytes)
     {
