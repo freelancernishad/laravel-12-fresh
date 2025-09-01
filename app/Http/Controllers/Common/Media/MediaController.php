@@ -23,8 +23,15 @@ public function index(Request $request)
 {
 
 
-    $query = MediaFile::with(['versions' => function ($q) {
+    $query = MediaFile::with(['versions' => function ($q) use ($request) {
         // $q->where('label', 'original');
+        if ($request->filled('versions')) {
+            // Accept comma-separated string or array
+            $labels = is_array($request->versions) ? $request->versions : explode(',', $request->versions);
+            $q->whereIn("label", $labels);
+        }
+
+
     }])->latest();
 
 
@@ -56,6 +63,9 @@ public function index(Request $request)
     // Filter by original version properties
     $query->whereHas('versions', function ($q) use ($request) {
         // $q->where('label', 'original');
+
+
+
 
         if ($request->filled('size')) {
             $q->where('size', $request->size);

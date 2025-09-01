@@ -16,6 +16,9 @@ Route::prefix('/user')->group(function () {
         Route::put('profile', [UserController::class, 'update']);
 
         Route::post('profile-picture', [UserController::class, 'updateProfilePicture']);
+
+        Route::post('photos', [UserController::class, 'updatePhotos']);
+        Route::post('photos/set-primary', [UserController::class, 'setPrimaryPhoto']);
     });
 });
 
