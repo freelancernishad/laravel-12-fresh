@@ -79,3 +79,9 @@ if (file_exists($TwilioRoutes = __DIR__.'/Common/Twilio/TwilioRoutes.php')) {
     require $TwilioRoutes;
 }
 
+
+// Load UserManagementRoutes
+if (file_exists($UserManagementRoutes = __DIR__.'/Users/UserManagement/UserManagementRoutes.php')) {
+    require $UserManagementRoutes;
+}
+
