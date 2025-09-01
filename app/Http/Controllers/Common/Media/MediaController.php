@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common\Media;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Media\MediaFile;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,7 @@ use App\Http\Resources\MediaFileResource;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\MediaFileCollection;
 use App\Services\FileSystem\FileUploadService;
+use Illuminate\Support\Facades\Http;
 
 class MediaController extends Controller
 {
@@ -119,9 +121,18 @@ public function show($id)
 
 public function upload(Request $request)
 {
+    // Validate: at least one must be provided
     $validator = Validator::make($request->all(), [
-        'file' => 'required|image|max:10240', // 10MB
+        'file' => 'required_without:file_url|nullable|image|max:10240',
+        'file_url' => 'required_without:file|nullable|url',
     ]);
+
+    // Manually enforce that at least one is present
+    if (!$request->hasFile('file') && !$request->filled('file_url')) {
+        return response()->json([
+            'message' => 'Either file or file_url is required.'
+        ], 422);
+    }
 
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
@@ -132,23 +143,52 @@ public function upload(Request $request)
         return response()->json(['Message' => 'GD library not available'], 500);
     }
 
-    $file = $request->file('file');
-    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-    $extension = strtolower($file->getClientOriginalExtension());
-    $filename = uniqid() . '.' . $extension;
+    // Determine file source
+    if ($request->hasFile('file')) {
+        $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+    } else {
+        // Handle remote file
+        $response = Http::get($request->file_url);
 
-    $uploaded_by_user_id = null;
-    $uploaded_by_admin_id = null;
-    if (Auth::guard('user')->check()) {
-        $uploaded_by_user_id = Auth::guard('user')->id();
-    } elseif (Auth::guard('admin')->check()) {
-        $uploaded_by_admin_id = Auth::guard('admin')->id();
+        if (!$response->successful()) {
+            return response()->json(['message' => 'Failed to fetch image from URL'], 400);
+        }
+
+        // Try to guess extension from content-type
+        $contentType = $response->header('Content-Type');
+        $extension = match ($contentType) {
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            default => 'jpg',
+        };
+
+        $originalName = pathinfo(parse_url($request->file_url, PHP_URL_PATH), PATHINFO_FILENAME);
+        $tempPath = storage_path('app/temp_' . Str::random(10) . '.' . $extension);
+        file_put_contents($tempPath, $response->body());
+
+        // Create UploadedFile instance from temp file
+        $file = new \Illuminate\Http\UploadedFile(
+            $tempPath,
+            basename($tempPath),
+            $contentType,
+            null,
+            true
+        );
     }
 
-    // Upload original file to S3
+    $filename = uniqid() . '.' . $extension;
+
+    // Track uploader
+    $uploaded_by_user_id = Auth::guard('user')->id() ?? null;
+    $uploaded_by_admin_id = Auth::guard('admin')->id() ?? null;
+
+    // Upload original to S3
     $originalUrl = (new FileUploadService())->uploadFileToS3($file, 'uploads/images');
 
-    // Create MediaFile record
+    // Save media metadata
     $media = MediaFile::create([
         'name' => $originalName,
         'original_url' => $originalUrl,
@@ -156,7 +196,7 @@ public function upload(Request $request)
         'uploaded_by_admin_id' => $uploaded_by_admin_id,
     ]);
 
-    // Define required sizes
+    // Image sizes
     $sizes = [
         'original' => null,
         'thumbnail' => [150, 150],
@@ -180,7 +220,6 @@ public function upload(Request $request)
             [$width, $height] = getimagesize($file->getPathname());
             $url = $originalUrl;
         } else {
-            // Resize image
             if (str_starts_with($label, 'square_')) {
                 [$resizedContent, $width, $height] = $this->resizeImageGDSquare(
                     $file->getPathname(),
@@ -196,7 +235,6 @@ public function upload(Request $request)
                 );
             }
 
-            // Upload resized content to S3
             $url = (new FileUploadService())->uploadContentToS3(
                 $resizedContent,
                 'uploads/images/' . $label . '_' . $filename
@@ -206,7 +244,6 @@ public function upload(Request $request)
             $sizeType = $this->formatSize($sizeInBytes);
         }
 
-        // Save MediaFileVersion
         MediaFileVersion::create([
             'media_file_id' => $media->id,
             'label' => $label,
@@ -218,12 +255,18 @@ public function upload(Request $request)
         ]);
     }
 
+    // Clean up temp file if URL used
+    if (isset($tempPath)) {
+        @unlink($tempPath);
+    }
+
     $media->load('versions');
 
     return response()->json([
         'data' => new MediaFileResource($media),
     ]);
 }
+
 
 
 
