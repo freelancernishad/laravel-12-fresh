@@ -15,8 +15,7 @@ Route::prefix('/user')->group(function () {
         // Update logged-in user profile
         Route::put('profile', [UserController::class, 'update']);
 
-        // Reset/change password
-        Route::post('reset-password', [UserController::class, 'resetPassword']);
+        Route::post('profile-picture', [UserController::class, 'updateProfilePicture']);
     });
 });
 

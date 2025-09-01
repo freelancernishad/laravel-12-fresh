@@ -52,5 +52,32 @@ class UserController extends Controller
         ]);
     }
 
-   
+    public function updateProfilePicture(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'photo_url' => 'required|url'
+        ]);
+
+        // Unset previous primary photo
+        $user->photos()->where('is_primary', true)->update(['is_primary' => false]);
+
+        // Create new photo and set as primary
+        $photo = $user->photos()->create([
+            'path' => $request->photo_url,
+            'is_primary' => true,
+        ]);
+
+        // Refresh the user to update the appended attribute
+        $user->refresh();
+
+        return response()->json([
+            'message' => 'Profile picture updated successfully',
+            'profile_picture' => $user->profile_picture
+        ]);
+    }
+
+
+
 }
