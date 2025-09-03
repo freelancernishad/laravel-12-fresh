@@ -21,7 +21,7 @@ return new class extends Migration
             $table->boolean('is_success')->default(true); // success/failure
             $table->timestamps();
 
-            $table->index(['user_id', 'activity', 'created_at']);
+            $table->index(['user_id', 'activity']);
         });
     }
 
