@@ -3,8 +3,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AuthenticateUser;
-use App\Http\Controllers\Api\Webhook\StripeWebhookController;
 use App\Http\Controllers\User\Plan\Stripe\PlanSubscriptionController;
+use App\Http\Controllers\Common\Gateways\Stripe\StripeWebhookController;
 
 
 Route::prefix('/user')->group(function () {

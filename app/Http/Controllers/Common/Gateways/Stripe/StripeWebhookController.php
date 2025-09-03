@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Webhook;
+namespace App\Http\Controllers\Common\Gateways\Stripe;
 
 use Stripe\Stripe;
 use Stripe\Webhook;
