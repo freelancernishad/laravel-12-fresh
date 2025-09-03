@@ -11,7 +11,9 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->morphs('payable'); // payable_type + payable_id
+            $table->string('payable_type', 191);
+            $table->unsignedBigInteger('payable_id');
+            $table->index(['payable_type', 'payable_id']);
             $table->decimal('amount', 12, 2)->default(0);
             $table->string('currency', 10)->default('USD');
             $table->string('payment_method')->nullable(); // stripe, paypal, card, etc.
