@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('user_activity_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
-            $table->string('activity',191);        // e.g., "Login", "Profile Update"
+            $table->string('activity');        // e.g., "Login", "Profile Update"
             $table->string('category')->nullable(); // e.g., "Authentication", "Profile", "Transaction"
             $table->string('ip')->nullable();
             $table->string('device')->nullable();
@@ -19,10 +19,9 @@ return new class extends Migration
             $table->string('browser')->nullable();
             $table->text('details')->nullable(); // JSON for extra info
             $table->boolean('is_success')->default(true); // success/failure
-            $table->string('created_at', 191)->nullable();
-            $table->string('updated_at', 191)->nullable();
+            $table->timestamps();
 
-            $table->index(['user_id', 'activity', 'created_at']);
+            // $table->index(['user_id', 'activity', 'created_at']);
         });
     }
 
