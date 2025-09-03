@@ -186,3 +186,17 @@ TWILIO_AUTH_TOKEN=your_auth_token
 TWILIO_PHONE_NUMBER=+1234567890
 ```
 
+
+## Install Stripe SDK
+
+### Installation & Configuration
+```bash
+composer require stripe/stripe-php
+```
+
+### Configure .env
+```bash
+STRIPE_SECRET=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+

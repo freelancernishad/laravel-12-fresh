@@ -85,3 +85,9 @@ if (file_exists($UserManagementRoutes = __DIR__.'/Users/UserManagement/UserManag
     require $UserManagementRoutes;
 }
 
+
+// Load PlanPurchaseRoutes
+if (file_exists($PlanPurchaseRoutes = __DIR__.'/Users/Plans/PlanPurchaseRoutes.php')) {
+    require $PlanPurchaseRoutes;
+}
+
