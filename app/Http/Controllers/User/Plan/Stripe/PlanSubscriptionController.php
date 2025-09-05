@@ -96,7 +96,7 @@ class PlanSubscriptionController extends Controller
             $subscription = PlanSubscription::findOrFail($subscriptionId);
 
             // Verify ownership
-            if ($subscription->user_id !== Auth::id()) {
+            if ($subscription->user_id != Auth::id()) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
