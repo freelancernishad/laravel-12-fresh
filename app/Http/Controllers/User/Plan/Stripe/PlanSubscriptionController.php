@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User\Plan\Stripe;
 use Stripe\Stripe;
 use App\Models\Plan\Plan;
 use Illuminate\Http\Request;
+use App\Helpers\StripeHelper;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,8 @@ class PlanSubscriptionController extends Controller
         $validator = Validator::make($request->all(), [
             'plan_id' => 'required|exists:plans,id',
             'payment_type' => 'nullable|in:single,subscription',
+            'success_url' => 'required|url',
+            'cancel_url' => 'required|url',
         ]);
 
         if ($validator->fails()) {
@@ -29,38 +32,40 @@ class PlanSubscriptionController extends Controller
         }
 
         $plan = Plan::findOrFail($request->plan_id);
-        $user = Auth::user();
 
-        // Default to single if payment_type not provided
         $paymentType = $request->payment_type ?? 'single';
         $mode = $paymentType === 'single' ? 'payment' : 'subscription';
 
-        Stripe::setApiKey(config('STRIPE_SECRET'));
+        // Prepare line items
+        $lineItems = [[
+            'price_data' => [
+                'currency' => 'usd',
+                'unit_amount' => (int)($plan->discounted_price * 100),
+                'product_data' => [
+                    'name' => $plan->name,
+                    'description' => $mode === 'subscription'
+                        ? 'Recurring Subscription Plan'
+                        : 'One-Time Purchase',
+                ],
+            ],
+            'quantity' => 1,
+        ]];
+
+        // Prepare dynamic metadata
+        $metadata = [
+            'plan_id' => $plan->id,
+            'payment_type' => 'plan_subscription', // Dynamic type
+            'mode' => $mode,
+        ];
 
         try {
-            $session = StripeSession::create([
-                'payment_method_types' => ['card'],
-                'mode' => $mode,
-                'customer_email' => $user->email,
-                'line_items' => [[
-                    'price_data' => [
-                        'currency' => 'usd',
-                        'unit_amount' => (int)($plan->discounted_price * 100), // convert to cents
-                        'product_data' => [
-                            'name' => $plan->name,
-                            'description' => $mode === 'subscription' ? 'Recurring Subscription Plan' : 'One-Time Purchase',
-                        ],
-                    ],
-                    'quantity' => 1,
-                ]],
-                'metadata' => [
-                    'user_id' => $user->id,
-                    'plan_id' => $plan->id,
-                    'payment_type' => 'plan_subscription', // always send for webhook handling
-                    'mode' => $mode, // optional, useful for distinguishing
-                ],
-                'success_url' => url('/payment/success?session_id={CHECKOUT_SESSION_ID}'),
-                'cancel_url' => url('/payment/cancel'),
+            $stripeHelper = new StripeHelper();
+            $session = $stripeHelper->createCheckoutSession([
+                'request' => $request,
+                'lineItems' => $lineItems,
+                'metadata' => $metadata,
+                'success_url' => $request->success_url ?? url('/payment/success'),
+                'cancel_url' => $request->cancel_url ?? url('/payment/cancel'),
             ]);
 
             return response()->json([
@@ -68,9 +73,8 @@ class PlanSubscriptionController extends Controller
                 'id' => $session->id,
                 'mode' => $mode,
             ]);
-
         } catch (\Exception $e) {
-            Log::error("Stripe checkout session creation failed: " . $e->getMessage());
+            Log::error("Purchase failed: " . $e->getMessage());
             return response()->json([
                 'error' => 'Unable to create Stripe checkout session'
             ], 500);
