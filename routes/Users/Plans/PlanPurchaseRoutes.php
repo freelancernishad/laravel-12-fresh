@@ -12,7 +12,7 @@ Route::prefix('/user')->group(function () {
 
 
     Route::post('/plans/purchase', [PlanSubscriptionController::class, 'PurchasePlan']);
-
+    Route::post('/subscriptions/{subscriptionId}/cancel', [PlanSubscriptionController::class, 'cancelSubscription']);
 
 });
 });

@@ -9,6 +9,7 @@ use App\Helpers\StripeHelper;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Plan\PlanSubscription;
 use Illuminate\Support\Facades\Validator;
 use Stripe\Checkout\Session as StripeSession;
 
@@ -80,4 +81,42 @@ class PlanSubscriptionController extends Controller
             ], 500);
         }
     }
+
+
+     /**
+     * Cancel a subscription
+     *
+     * @param Request $request
+     * @param int $subscriptionId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function cancelSubscription(Request $request, int $subscriptionId)
+    {
+        try {
+            $subscription = PlanSubscription::findOrFail($subscriptionId);
+
+            // Verify ownership
+            if ($subscription->user_id !== Auth::id()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            $cancelImmediately = $request->input('immediately', false);
+            $result = $subscription->cancelSubscription($cancelImmediately);
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+                'status' => $result['status'],
+                'end_date' => $subscription->end_date,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+
+
 }

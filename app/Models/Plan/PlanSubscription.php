@@ -5,6 +5,8 @@ namespace App\Models\Plan;
 use App\Models\User;
 use App\Models\Feature;
 use App\Models\Payment;
+use App\Helpers\StripeHelper;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -125,4 +127,49 @@ class PlanSubscription extends Model
     {
         return !empty($this->stripe_subscription_id) && !empty($this->billing_interval);
     }
+
+
+
+      /**
+     * Cancel the subscription in Stripe and update local record
+     *
+     * @param bool $cancelImmediately Whether to cancel immediately or at period end
+     * @return array
+     * @throws \Exception
+     */
+    public function cancelSubscription(bool $cancelImmediately = false): array
+    {
+        if (!$this->stripe_subscription_id) {
+            throw new \Exception('This subscription is not linked to Stripe');
+        }
+
+        if (!in_array($this->status, ['active', 'canceling'])) {
+            throw new \Exception('Subscription cannot be canceled in its current status');
+        }
+
+        try {
+            // Cancel in Stripe
+            $result = StripeHelper::cancelSubscription($this->stripe_subscription_id, $cancelImmediately);
+
+            // Update local record
+            $this->status = $result['status'];
+            if ($result['status'] === 'canceling') {
+                $this->end_date = now()->timestamp($result['current_period_end']);
+            } else {
+                $this->end_date = now();
+            }
+            $this->save();
+
+            return $result;
+
+        } catch (\Exception $e) {
+            Log::error("Failed to cancel subscription #{$this->id}: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+
+
+
+
 }

@@ -5,6 +5,7 @@ use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Stripe\Subscription as StripeSubscription;
 
 class StripeHelper
 {
@@ -103,4 +104,51 @@ class StripeHelper
             throw $e;
         }
     }
+
+
+
+
+       /**
+     * Cancel a Stripe subscription
+     *
+     * @param string $subscriptionId Stripe subscription ID
+     * @param bool $cancelImmediately Whether to cancel immediately or at period end
+     * @return array
+     * @throws \Exception
+     */
+    public static function cancelSubscription(string $subscriptionId, bool $cancelImmediately = false): array
+    {
+        // Set Stripe API key
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        try {
+            // Retrieve the subscription
+            $subscription = StripeSubscription::retrieve($subscriptionId);
+
+            if ($cancelImmediately) {
+                // Cancel immediately
+                $subscription->cancel();
+                $status = 'canceled';
+                $message = 'Subscription canceled immediately';
+            } else {
+                // Cancel at period end
+                $subscription->cancel_at_period_end = true;
+                $subscription->save();
+                $status = 'canceling';
+                $message = 'Subscription will be canceled at the end of the current billing period';
+            }
+
+            return [
+                'success' => true,
+                'status' => $status,
+                'message' => $message,
+                'current_period_end' => $subscription->current_period_end,
+            ];
+
+        } catch (\Exception $e) {
+            Log::error("Failed to cancel Stripe subscription: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
 }

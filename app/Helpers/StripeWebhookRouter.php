@@ -123,6 +123,7 @@ class StripeWebhookRouter
     {
         $paymentType = $subscription->metadata->payment_type ?? null;
 
+        Log::info("Subscription deleted: {$subscription->id}, payment_type: {$paymentType}");
         if ($paymentType === 'plan_subscription') {
             PlanSubscriptionHandler::handle($subscription);
         } else {
