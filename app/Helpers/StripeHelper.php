@@ -119,7 +119,7 @@ class StripeHelper
     public static function cancelSubscription(string $subscriptionId, bool $cancelImmediately = false): array
     {
         // Set Stripe API key
-        Stripe::setApiKey(config('services.stripe.secret'));
+        Stripe::setApiKey(config('STRIPE_SECRET'));
 
         try {
             // Retrieve the subscription
