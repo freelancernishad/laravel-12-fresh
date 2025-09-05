@@ -154,7 +154,11 @@ class PlanSubscription extends Model
             // Update local record
             $this->status = $result['status'];
             if ($result['status'] === 'canceling') {
-                $this->end_date = now()->timestamp($result['current_period_end']);
+                if (!empty($result['current_period_end'])) {
+                    $this->end_date = \Carbon\Carbon::createFromTimestamp($result['current_period_end']);
+                } else {
+                    $this->end_date = now();
+                }
             } else {
                 $this->end_date = now();
             }
