@@ -109,7 +109,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
     public function payments()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Payment::class)->where('status', 'succeeded');
     }
 
 

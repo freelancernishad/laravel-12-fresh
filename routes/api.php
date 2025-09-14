@@ -87,7 +87,20 @@ if (file_exists($UserManagementRoutes = __DIR__.'/Users/UserManagement/UserManag
 
 
 // Load PlanPurchaseRoutes
-if (file_exists($PlanPurchaseRoutes = __DIR__.'/Users/Plans/PlanPurchaseRoutes.php')) {
+if (file_exists($PlanPurchaseRoutes = __DIR__.'/Users/Subscriptions/PlanPurchaseRoutes.php')) {
     require $PlanPurchaseRoutes;
 }
+
+
+// Load UserPaymentsRoutes
+if (file_exists($UserPaymentsRoutes = __DIR__.'/Users/Transaction/UserPaymentsRoutes.php')) {
+    require $UserPaymentsRoutes;
+}
+
+
+// Load AdminSubscriptionsRoutes
+if (file_exists($AdminSubscriptionsRoutes = __DIR__.'/Admins/Subscriptions/AdminSubscriptionsRoutes.php')) {
+    require $AdminSubscriptionsRoutes;
+}
+
 

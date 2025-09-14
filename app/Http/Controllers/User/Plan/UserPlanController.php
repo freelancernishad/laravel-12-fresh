@@ -33,6 +33,16 @@ class UserPlanController extends Controller
         return response()->json($subscriptions);
     }
 
+    public function getUserPayments(Request $request)
+    {
+        $user = $request->user();
+
+        $payments = $user->payments()
+            ->latest('created_at')
+            ->paginate(10);
+
+        return response()->json($payments);
+    }
 
 
 }

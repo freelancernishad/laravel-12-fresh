@@ -14,6 +14,7 @@ Route::prefix('/user')->group(function () {
         Route::get('/plan/active', [UserPlanController::class, 'getActivePlan']);
         Route::get('/plan/history', [UserPlanController::class, 'getSubscriptionHistory']);
 
+
         Route::post('/plans/purchase', [PlanSubscriptionController::class, 'PurchasePlan']);
         Route::post('/subscriptions/{subscriptionId}/cancel', [PlanSubscriptionController::class, 'cancelSubscription']);
 
