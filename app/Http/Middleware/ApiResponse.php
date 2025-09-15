@@ -23,33 +23,8 @@ class ApiResponse
             return $next($request);
         }
 
-
-
-    try {
-           // Capture the response
+        // Capture the response
         $response = $next($request);
-    } catch (\Throwable $e) {
-        // Catch all exceptions, including database errors
-        $formattedResponse = [
-            'data' => [],
-            'Message' => $e->getMessage(), // Main message
-            'isError' => true,
-            'error' => [
-                'code' => method_exists($e, 'getCode') ? $e->getCode() : 500,
-                'message' => class_basename($e), // e.g., QueryException
-                'errMsg' => $e->getMessage(),   // actual DB error
-            ],
-            'status_code' => 500,
-        ];
-
-        // Log the exception
-        Log::error($e);
-
-        return response()->json($formattedResponse, 200);
-    }
-
-
-
 
         // Check if the response is a valid Response object
         if ($response instanceof Response) {
@@ -67,20 +42,20 @@ class ApiResponse
                 'Message' => $responseData['message'] ?? $responseData['data']['message'] ?? null, // Move 'message' to root as 'Message
                 'isError' => false,
                 'error' => null,
-                'status_code' => $response->status(),
+                'status_code' => $response->getStatusCode(),
             ];
 
             // Check if the response status indicates an error (>=400)
-            if ($response->status() >= 400) {
+            if ($response->getStatusCode() >= 400) {
                 $formattedResponse['isError'] = true;
 
                 // Extract the first error message from response data
-                $errorMessage = $this->getFirstErrorMessage($responseData, $response->status());
+                $errorMessage = $this->getFirstErrorMessage($responseData, $response->getStatusCode());
 
                 // Set the error details in the response structure
                 $formattedResponse['error'] = [
-                    'code' => $response->status(),
-                    'message' => Response::$statusTexts[$response->status()] ?? 'Unknown error',
+                    'code' => $response->getStatusCode(),
+                    'message' => Response::$statusTexts[$response->getStatusCode()] ?? 'Unknown error',
                     'errMsg' => $errorMessage,
                 ];
 
@@ -88,7 +63,7 @@ class ApiResponse
                 $formattedResponse['data'] = [];
 
                 // Adjust status code if necessary
-                $formattedResponse['status_code'] = $response->status();
+                $formattedResponse['status_code'] = $response->getStatusCode();
             }
 
             // Return a 200 status code with the formatted response for consistency
