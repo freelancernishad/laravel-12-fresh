@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\ServiceProvider;
 use App\Models\SystemSetting;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,20 +19,26 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         try {
-            // Load all system settings into config
-            $settings = SystemSetting::all()->pluck('value', 'key');
+            // Check DB connection
+            DB::connection()->getPdo();
+            $databaseName = DB::connection()->getDatabaseName();
 
+            Log::info("✅ Database connected successfully: " . $databaseName);
+            // Or for console: echo "Database connected: $databaseName\n";
+
+            // Load system settings
+            $settings = SystemSetting::all()->pluck('value', 'key');
             foreach ($settings as $key => $value) {
                 Config::set($key, $value);
-                $_ENV[$key] = $value; // Optional for global environment override
+                $_ENV[$key] = $value; // optional
             }
 
-            // Explicitly configure email settings
+            // Configure mail
             $this->configureMailSettings($settings);
 
-        } catch (QueryException $e) {
-            // Log the error but continue running the application
-            \Log::error('Error loading system settings: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error("❌ Database connection failed or system settings not loaded: " . $e->getMessage());
+            // Optionally, you can also echo for dev: echo "Database connection failed: " . $e->getMessage();
         }
     }
 
