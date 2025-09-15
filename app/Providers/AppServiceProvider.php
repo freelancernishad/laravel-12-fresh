@@ -2,12 +2,10 @@
 
 namespace App\Providers;
 
-use App\Models\SystemSetting;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\ServiceProvider;
+use App\Models\SystemSetting;
+use Illuminate\Database\QueryException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,26 +17,20 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         try {
-            // Check DB connection
-            DB::connection()->getPdo();
-            $databaseName = DB::connection()->getDatabaseName();
+            // Load all system settings into config
+            $settings = SystemSetting::all()->pluck('value', 'key');
 
-            Log::info("✅ Database connected successfully: " . $databaseName);
-            // Or for console: echo "Database connected: $databaseName\n";
+            foreach ($settings as $key => $value) {
+                Config::set($key, $value);
+                $_ENV[$key] = $value; // Optional for global environment override
+            }
 
-            // Load system settings
-            // $settings = SystemSetting::all()->pluck('value', 'key');
-            // foreach ($settings as $key => $value) {
-            //     Config::set($key, $value);
-            //     $_ENV[$key] = $value; // optional
-            // }
+            // Explicitly configure email settings
+            $this->configureMailSettings($settings);
 
-            // // Configure mail
-            // $this->configureMailSettings($settings);
-
-        } catch (\Exception $e) {
-            Log::error("❌ Database connection failed or system settings not loaded: " . $e->getMessage());
-            // Optionally, you can also echo for dev: echo "Database connection failed: " . $e->getMessage();
+        } catch (QueryException $e) {
+            // Log the error but continue running the application
+            \Log::error('Error loading system settings: ' . $e->getMessage());
         }
     }
 
