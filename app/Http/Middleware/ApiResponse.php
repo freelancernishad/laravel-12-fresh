@@ -23,8 +23,33 @@ class ApiResponse
             return $next($request);
         }
 
-        // Capture the response
+
+
+    try {
+           // Capture the response
         $response = $next($request);
+    } catch (\Throwable $e) {
+        // Catch all exceptions, including database errors
+        $formattedResponse = [
+            'data' => [],
+            'Message' => $e->getMessage(), // Main message
+            'isError' => true,
+            'error' => [
+                'code' => method_exists($e, 'getCode') ? $e->getCode() : 500,
+                'message' => class_basename($e), // e.g., QueryException
+                'errMsg' => $e->getMessage(),   // actual DB error
+            ],
+            'status_code' => 500,
+        ];
+
+        // Log the exception
+        Log::error($e);
+
+        return response()->json($formattedResponse, 200);
+    }
+
+
+
 
         // Check if the response is a valid Response object
         if ($response instanceof Response) {
