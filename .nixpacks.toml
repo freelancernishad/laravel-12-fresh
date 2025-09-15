@@ -1,0 +1,5 @@
+[phases.build]
+nixPkgs = ["php82", "php82Extensions.gd"]
+
+[phases.setup]
+nixPkgs = ["php", "phpExtensions.gd"]
