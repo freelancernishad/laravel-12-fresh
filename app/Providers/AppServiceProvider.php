@@ -27,14 +27,14 @@ class AppServiceProvider extends ServiceProvider
             // Or for console: echo "Database connected: $databaseName\n";
 
             // Load system settings
-            $settings = SystemSetting::all()->pluck('value', 'key');
-            foreach ($settings as $key => $value) {
-                Config::set($key, $value);
-                $_ENV[$key] = $value; // optional
-            }
+            // $settings = SystemSetting::all()->pluck('value', 'key');
+            // foreach ($settings as $key => $value) {
+            //     Config::set($key, $value);
+            //     $_ENV[$key] = $value; // optional
+            // }
 
-            // Configure mail
-            $this->configureMailSettings($settings);
+            // // Configure mail
+            // $this->configureMailSettings($settings);
 
         } catch (\Exception $e) {
             Log::error("❌ Database connection failed or system settings not loaded: " . $e->getMessage());
