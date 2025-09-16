@@ -24,7 +24,7 @@ class ApiResponse
         }
 
         // Capture the response
-       return  $response = $next($request);
+        $response = $next($request);
 
         // Check if the response is a valid Response object
         if ($response instanceof Response) {
