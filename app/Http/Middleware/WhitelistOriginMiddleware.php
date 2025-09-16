@@ -16,7 +16,7 @@ class WhitelistOriginMiddleware
      */
     public function handle($request, Closure $next)
     {
-
+ return $next($request);
 
         $allowedAllOrigin = AllowedOrigin::where('origin_url', '*')->exists();
         if($allowedAllOrigin){
