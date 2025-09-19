@@ -104,3 +104,17 @@ if (file_exists($AdminSubscriptionsRoutes = __DIR__.'/Admins/Subscriptions/Admin
 }
 
 
+
+// Load BlogCategoryRoutes
+if (file_exists($BlogCategoryRoutes = __DIR__.'/Common/Blogs/BlogCategoryRoutes.php')) {
+    require $BlogCategoryRoutes;
+}
+
+
+// Load BlogPostRoutes
+if (file_exists($BlogPostRoutes = __DIR__.'/Common/Blogs/BlogPostRoutes.php')) {
+    require $BlogPostRoutes;
+}
+
+
+
