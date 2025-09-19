@@ -29,33 +29,31 @@ class ApiResponse
         // Check if the response is a valid Response object
         if ($response instanceof Response) {
             // Decode the response content if it's JSON
-            Log::info($response->getContent());
             $responseData = json_decode($response->getContent(), true) ?? [];
-            Log::info($responseData);
 
 
-
+            // Extract the first error message from response data
+            $errorMessage = $this->getFirstErrorMessage($responseData, $response->status());
 
             // Initialize the formatted response structure
             $formattedResponse = [
                 'data' => $this->extractData($responseData), // Extract data dynamically
-                'Message' => $responseData['message'] ?? $responseData['data']['message'] ?? null, // Move 'message' to root as 'Message
+                'Message' => $responseData['message'] ?? $responseData['data']['message'] ?? $errorMessage, // Move 'message' to root as 'Message
                 'isError' => false,
                 'error' => null,
-                'status_code' => $response->getStatusCode(),
+                'status_code' => $response->status(),
             ];
 
             // Check if the response status indicates an error (>=400)
-            if ($response->getStatusCode() >= 400) {
+            if ($response->status() >= 400) {
                 $formattedResponse['isError'] = true;
 
-                // Extract the first error message from response data
-                $errorMessage = $this->getFirstErrorMessage($responseData, $response->getStatusCode());
+
 
                 // Set the error details in the response structure
                 $formattedResponse['error'] = [
-                    'code' => $response->getStatusCode(),
-                    'message' => Response::$statusTexts[$response->getStatusCode()] ?? 'Unknown error',
+                    'code' => $response->status(),
+                    'message' => Response::$statusTexts[$response->status()] ?? 'Unknown error',
                     'errMsg' => $errorMessage,
                 ];
 
@@ -63,7 +61,7 @@ class ApiResponse
                 $formattedResponse['data'] = [];
 
                 // Adjust status code if necessary
-                $formattedResponse['status_code'] = $response->getStatusCode();
+                $formattedResponse['status_code'] = $response->status();
             }
 
             // Return a 200 status code with the formatted response for consistency
@@ -82,37 +80,56 @@ class ApiResponse
      */
     private function extractData(array $responseData)
     {
-        // Return if it's a list (numerically indexed array)
-        if (array_keys($responseData) === range(0, count($responseData) - 1)) {
+        // Log::info($responseData);
+
+        // Check if the response contains a token
+        if (isset($responseData['app']) && isset($responseData['database']) && isset($responseData['server'])) {
+            // If a token is present, return the original response
             return $responseData;
         }
 
-        // Token or specific structures
-        if (isset($responseData['app'], $responseData['database'], $responseData['server'])) {
-            return $responseData;
-        }
-
+        // Check if the response contains a token
         if (isset($responseData['token']) || isset($responseData['id'])) {
+            // If a token is present, return the original response
             return $responseData;
         }
+            // Check if the response contains a token
 
-        if (isset($responseData['success'], $responseData['message']) && count($responseData) === 2) {
-            return [];
+        // Check if the response has exactly 4 elements
+        if (count($responseData) >= 4) {
+            // Remove 'success' and 'message' keys if they exist
+            $filteredData = array_filter($responseData, function ($key) {
+                return !in_array($key, ['success', 'message']);
+            }, ARRAY_FILTER_USE_KEY);
+
+            return $filteredData;
         }
 
+
+
+
+        if (isset($responseData['success']) &&
+            isset($responseData['message']) &&
+            count($responseData) === 2) {
+            return []; // Return an empty array
+        }
+
+        // If the response has a 'data' key
         if (isset($responseData['data'])) {
+            // If 'data' contains actual data, return it
             return $responseData['data'];
         }
 
+        // If the response has a nested key like 'service', use it
         foreach ($responseData as $key => $value) {
             if ($key !== 'message' && $key !== 'success' && is_array($value)) {
                 return $value;
             }
         }
 
+        // If no specific key is found, return the entire response
         return $responseData;
     }
-
 
     /**
      * Extract the first error message from the response data.
@@ -169,6 +186,9 @@ class ApiResponse
             return $responseData['error']['message'] ?? 'An error occurred';
         }
 
+        if($statusCode === 200 || $statusCode === 201){
+            return 'Success';
+        }
         // Default error message
         return 'An error occurred';
     }

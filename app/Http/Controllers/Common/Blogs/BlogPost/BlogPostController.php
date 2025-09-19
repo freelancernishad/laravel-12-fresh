@@ -21,7 +21,10 @@ public function index()
         return $article;
     });
 
-    return response()->json($articles, 200);
+    return response()->json([
+        "message" => "Articles retrieved successfully",
+        "data" => $articles
+    ], 200);
 }
 
 
@@ -70,7 +73,7 @@ public function index()
             return response()->json(['message' => 'Article not found'], 404);
         }
 
-        return response()->json($article, 200);
+        return response()->json(['message' => 'Article retrieved successfully', 'article' => $article], 200);
     }
 
     /**
@@ -173,10 +176,14 @@ public function index()
     public function getArticlesByCategory(Request $request)
     {
         // Validate the incoming request for category ID or slug.
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'category_id' => 'nullable|exists:blog_categories,id',
             'slug' => 'nullable|exists:blog_categories,slug'
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
 
         $categoryId = $request->input('category_id');
         $categorySlug = $request->input('slug');
@@ -200,7 +207,7 @@ public function index()
                 $query->whereIn('blog_categories.id', $category->descendantsAndSelf()->pluck('id'));
             })->get();
 
-            return response()->json($articles, 200);
+            return response()->json(["message" => "Articles retrieved successfully", "data" => $articles], 200);
         }
 
         // If category slug is provided, fetch articles by category slug, including child categories.
@@ -217,7 +224,7 @@ public function index()
                 $query->whereIn('blog_categories.id', $category->descendantsAndSelf()->pluck('id'));
             })->get();
 
-            return response()->json($articles, 200);
+            return response()->json(["message" => "Articles retrieved successfully", "data" => $articles], 200);
         }
     }
 

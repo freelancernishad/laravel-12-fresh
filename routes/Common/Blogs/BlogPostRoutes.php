@@ -31,6 +31,9 @@ Route::prefix('user')->group(function () {
 });
 
 
-Route::prefix('media')->group(function () {
+Route::prefix('blogs/articles')->group(function () {
+    Route::get('/', [BlogPostController::class, 'index']);
+    Route::get('{id}', [BlogPostController::class, 'show']);
+    Route::get('/by-category/with-child-articles', [BlogPostController::class, 'getArticlesByCategory']);
 
 });

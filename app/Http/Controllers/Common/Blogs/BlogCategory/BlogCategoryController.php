@@ -39,7 +39,11 @@ class BlogCategoryController extends Controller
         }
 
         $category = BlogCategory::create($request->only(['name', 'slug', 'parent_id']));
-        return response()->json($category, 201);
+
+        return response()->json([
+            'message' => 'Category created successfully',
+            'data' => $category
+        ], 201);
     }
 
     /**
@@ -53,7 +57,7 @@ class BlogCategoryController extends Controller
             return response()->json(['message' => 'Category not found'], 404);
         }
 
-        return response()->json($category, 200);
+        return response()->json(['message' => 'Category retrieved successfully', 'data' => $category], 200);
     }
 
     /**
@@ -123,7 +127,8 @@ class BlogCategoryController extends Controller
     public function list()
     {
         $categories = BlogCategory::all();
-        return response()->json($categories, 200);
+
+        return response()->json(['message' => 'Categories retrieved successfully', 'data' => $categories], 200);
     }
 
 
