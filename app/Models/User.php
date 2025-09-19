@@ -25,6 +25,12 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'password',
         'otp',
         'otp_expires_at',
+
+        'is_active',
+        'is_blocked',
+        'role',
+        'notes',
+        'last_login_at',
     ];
 
     /**
@@ -49,6 +55,9 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
+            'is_blocked' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -76,8 +85,13 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
             'name' => $this->name,
             'email' => $this->email,
             'email_verified' => !is_null($this->email_verified_at),
+            'is_active' => $this->is_active,
+            'is_blocked' => $this->is_blocked,
+            'role' => $this->role,
+            'last_login_at' => optional($this->last_login_at)->toDateTimeString(),
         ];
     }
+
 
 
 

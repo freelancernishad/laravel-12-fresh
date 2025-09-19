@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Services\Login\AppleAuthService;
+use App\Http\Resources\LoginRegisterUserResource;
 use App\Services\Login\GoogleAuthService;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -45,8 +46,11 @@ public function register(Request $request)
         'name' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
+        'last_login_at' => now(),
+        'is_blocked' => false,
+        'is_active' => true,
+        'role' => 'user',
     ]);
-
     // Log user registration
     logUserActivity(
         activity: 'User Registration',
@@ -118,15 +122,7 @@ public function register(Request $request)
         }
     }
 
-    return response()->json([
-        'token' => $token,
-        'user' => [
-            'email' => $user->email,
-            'name' => $user->name,
-            'email_verified' => $user->hasVerifiedEmail(),
-        ],
-        'message' => $emailMessage,
-    ], 201);
+    return response()->json(new LoginRegisterUserResource($user, $token), 201);
 }
 
 
@@ -172,12 +168,7 @@ public function login(Request $request)
 
     // Check if user exists
     if (!$user) {
-        logUserActivity('Login Failed', 'Authentication', null, $request, false, [
-            'reason' => 'User not found',
-            'email' => $request->email
-        ]);
-
-        return response()->json(['message' => 'Invalid credentials'], 401);
+        return response()->json(['message' => 'User not found'], 401);
     }
 
     // Check if user is blocked
@@ -201,13 +192,8 @@ public function login(Request $request)
     // Attempt authentication
     if (Auth::attempt($credentials)) {
         $user = Auth::user();
-
-        // Custom payload
-        $payload = [
-            'email' => $user->email,
-            'name' => $user->name,
-            'email_verified' => !is_null($user->email_verified_at),
-        ];
+       $user->last_login_at = now();
+        $user->save();
 
         try {
             $token = JWTAuth::fromUser($user, ['guard' => 'user']);
@@ -222,10 +208,9 @@ public function login(Request $request)
         // Log successful login
         logUserActivity('Login Successful', 'Authentication', $user->id, $request, true);
 
-        return response()->json([
-            'token' => $token,
-            'user' => $payload,
-        ], 200);
+
+
+        return response()->json(new LoginRegisterUserResource($user, $token), 200);
     }
 
     // Log failed login
@@ -274,7 +259,7 @@ public function login(Request $request)
                 ], 401);
             }
 
-        
+
 
             logUserActivity(
             'User Logout',
