@@ -82,6 +82,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function getJWTCustomClaims(): array
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'email_verified' => !is_null($this->email_verified_at),
@@ -89,6 +90,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
             'is_blocked' => $this->is_blocked,
             'role' => $this->role,
             'last_login_at' => optional($this->last_login_at)->toDateTimeString(),
+            "guard" => "user",
+            "model" => User::class
         ];
     }
 

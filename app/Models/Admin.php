@@ -46,10 +46,13 @@ class Admin extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function getJWTCustomClaims(): array
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'username' => $this->username,
             'email_verified' => !is_null($this->email_verified_at),
+            "guard" => "admin",
+            "model" => Admin::class
         ];
     }
 }
