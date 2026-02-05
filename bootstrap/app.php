@@ -13,6 +13,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(\App\Http\Middleware\ApiResponse::class);
+        $middleware->append(\App\Http\Middleware\CompressionMiddleware::class);
         // $middleware->append(\App\Http\Middleware\Cors::class);
         $middleware->append(\App\Http\Middleware\WhitelistOriginMiddleware::class);
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);

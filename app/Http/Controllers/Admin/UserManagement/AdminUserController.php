@@ -166,17 +166,23 @@ public function index(Request $request)
         $action = $request->input('action'); // activate, deactivate, block, unblock
         $userIds = $request->input('user_ids', []);
 
-        $users = User::whereIn('id', $userIds)->get();
-
-        foreach ($users as $user) {
-            if ($action === 'activate') $user->is_active = true;
-            if ($action === 'deactivate') $user->is_active = false;
-            if ($action === 'block') $user->is_blocked = true;
-            if ($action === 'unblock') $user->is_blocked = false;
-            $user->save();
+        if (empty($userIds)) {
+            return response()->json(['message' => 'No users selected'], 400);
         }
 
-        return response()->json(['message' => 'Bulk action completed']);
+        $updateData = match ($action) {
+            'activate' => ['is_active' => true],
+            'deactivate' => ['is_active' => false],
+            'block' => ['is_blocked' => true],
+            'unblock' => ['is_blocked' => false],
+            default => null,
+        };
+
+        if ($updateData) {
+            User::whereIn('id', $userIds)->update($updateData);
+        }
+
+        return response()->json(['message' => 'Bulk action completed successfully']);
     }
 
     // Delete user (soft delete recommended)
