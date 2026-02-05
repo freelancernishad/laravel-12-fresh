@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Common\Blogs\BlogPostStoreRequest;
 
 class BlogPostController extends Controller
 {
@@ -31,20 +32,8 @@ public function index()
     /**
      * Store a newly created article in storage.
      */
-    public function store(Request $request)
+    public function store(BlogPostStoreRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'slug' => 'required|string|unique:blog_posts,slug',
-            'content' => 'required|string',
-            'category_ids' => 'required|array|exists:blog_categories,id',
-            'banner_image' => 'nullable|string', // Validate the banner image
-            'status' => 'nullable|in:draft,published,archived',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
 
 
         // Create the article
@@ -79,20 +68,8 @@ public function index()
     /**
      * Update the specified article in storage.
      */
-    public function update(Request $request, $id)
+    public function update(BlogPostStoreRequest $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'slug' => 'required|string|unique:blog_posts,slug,' . $id,
-            'content' => 'required|string',
-            'category_ids' => 'required|array|exists:blog_categories,id',
-            'banner_image' => 'nullable|string', // Validate the banner image
-            'status' => 'nullable|in:draft,published,archived',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
 
         $article = Article::find($id);
 
@@ -134,9 +111,14 @@ public function index()
      */
     public function addCategory(Request $request, $id)
     {
-        $request->validate([
+        // Keeping inline validation for small methods if appropriate, but standard is FormRequest
+        $validator = Validator::make($request->all(), [
             'category_id' => 'required|exists:blog_categories,id',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
 
         $article = Article::find($id);
 
@@ -154,9 +136,13 @@ public function index()
      */
     public function removeCategory(Request $request, $id)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'category_id' => 'required|exists:blog_categories,id',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
 
         $article = Article::find($id);
 

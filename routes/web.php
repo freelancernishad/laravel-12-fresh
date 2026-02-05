@@ -6,7 +6,32 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Common\SystemSettings\SystemSettingController;
 
 Route::get('/', function () {
-    return view('welcome');
+    $dbConnected = false;
+    $dbName = 'Unknown';
+    try {
+        DB::connection()->getPdo();
+        $dbConnected = true;
+        $dbName = DB::connection()->getDatabaseName();
+    } catch (\Exception $e) {
+        $dbConnected = false;
+    }
+
+    $projectInfo = [
+        'php_version' => PHP_VERSION,
+        'laravel_version' => app()->version(),
+        'db_connected' => $dbConnected,
+        'db_name' => $dbName,
+        'server_time' => now()->toDateTimeString(),
+    ];
+
+    // AI Info
+    $aiInfo = [
+        'name' => 'zsi.ai',
+        'tagline' => 'Advanced Agentic Intelligence for ZilMoney',
+        'capabilities' => ['Autonomous Task Execution', 'Smart Code Refactoring', 'API Optimization'],
+    ];
+
+    return view('welcome', compact('projectInfo', 'aiInfo'));
 });
 
 Route::get('/db-check', function () {

@@ -14,42 +14,19 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AppleAuthService
 {
-    /**
-     * Handle Apple OAuth login/registration.
-     *
-     * @param Request $request
-     * @return array
-     */
     public function login(Request $request)
     {
-        // Validate the request
-        $validator = Validator::make($request->all(), [
-            'identity_token' => 'required|string',
-            'name' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return [
-                'success' => false,
-                'errors' => $validator->errors(),
-                'status' => 422,
-            ];
-        }
-
         try {
             $identityToken = $request->identity_token;
             $name = $request->name;
 
             // Decode the Apple Identity Token
             $appleUserInfo = $this->decodeAppleIdentityToken($identityToken);
-            Log::info($appleUserInfo);
 
             if (!$appleUserInfo || !isset($appleUserInfo['email'])) {
-                return [
-                    'success' => false,
-                    'error' => 'Invalid Apple token',
-                    'status' => 400,
-                ];
+                return response()->json([
+                    'error' => 'Invalid or expired Apple identity token.',
+                ], 400);
             }
 
             // Check if the user already exists
@@ -74,30 +51,25 @@ class AppleAuthService
             try {
                 $token = JWTAuth::fromUser($user, ['guard' => 'user']);
             } catch (JWTException $e) {
-                return [
-                    'success' => false,
-                    'error' => 'Could not create token',
-                    'status' => 500,
-                ];
+                return response()->json([
+                    'error' => 'Could not generate JWT token for Apple login.',
+                ], 500);
             }
 
-            return [
+            return response()->json([
                 'success' => true,
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user' => $user,
                 'profile_completion' => $user->profile_completion,
                 'message' => 'Login successful via Apple',
-                'status' => 200,
-            ];
+            ], 200);
 
         } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'error' => 'Apple Login failed',
+            return response()->json([
+                'error' => 'Apple Login failed due to an internal error.',
                 'details' => $e->getMessage(),
-                'status' => 500,
-            ];
+            ], 500);
         }
     }
 

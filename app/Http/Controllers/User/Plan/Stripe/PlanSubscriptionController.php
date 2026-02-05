@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Plan\PlanSubscription;
 use Illuminate\Support\Facades\Validator;
 use Stripe\Checkout\Session as StripeSession;
+use App\Http\Requests\User\Plan\Stripe\PurchasePlanRequest;
 
 class PlanSubscriptionController extends Controller
 {
@@ -19,18 +20,8 @@ class PlanSubscriptionController extends Controller
      * Create Stripe Checkout Session
      * Handles both one-time payments and recurring subscriptions
      */
-    public function PurchasePlan(Request $request)
+    public function PurchasePlan(PurchasePlanRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'plan_id' => 'required|exists:plans,id',
-            'payment_type' => 'nullable|in:single,subscription',
-            'success_url' => 'required|url',
-            'cancel_url' => 'required|url',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
         $plan = Plan::findOrFail($request->plan_id);
 

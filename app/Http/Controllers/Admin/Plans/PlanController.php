@@ -7,6 +7,7 @@ use App\Models\Plan\Plan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Admin\Plans\AdminPlanStoreRequest;
 
 class PlanController extends Controller
 {
@@ -32,23 +33,8 @@ class PlanController extends Controller
     }
 
     // Create a new plan
-    public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string',
-        'duration' => 'required|string',
-        'original_price' => 'required|numeric',
-        'monthly_price' => 'nullable|numeric',
-        'discount_percentage' => 'required|numeric|min:0|max:100',
-        'features' => 'required|array',
-        'features.*.key' => 'required|string|exists:plan_features,key',
-        'features.*.value' => 'required|string',
-        'features.*.amount' => 'nullable|numeric',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
+    public function store(AdminPlanStoreRequest $request)
+    {
 
     $plan = Plan::create([
         'name' => $request->name,
@@ -66,29 +52,9 @@ class PlanController extends Controller
 }
 
 
- public function update(Request $request, $id)
+    public function update(AdminPlanStoreRequest $request, $id)
 {
     $plan = Plan::find($id);
-
-    if (!$plan) {
-        return response()->json(['message' => 'Plan not found'], 404);
-    }
-
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string',
-        'duration' => 'required|string',
-        'original_price' => 'required|numeric',
-        'monthly_price' => 'nullable|numeric',
-        'discount_percentage' => 'required|numeric|min:0|max:100',
-        'features' => 'required|array',
-        'features.*.key' => 'required|string|exists:plan_features,key',
-        'features.*.value' => 'required|string',
-        'features.*.amount' => 'nullable|numeric',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
 
     // Update the plan
     $plan->update([

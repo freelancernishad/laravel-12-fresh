@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Common\Twilio;
 use App\Http\Controllers\Controller;
 
-use Illuminate\Http\Request;
 use App\Services\Twilio\TwilioService;
+use App\Http\Requests\Common\Twilio\TwilioSendRequest;
 
 class TwilioController extends Controller
 {
@@ -18,12 +18,8 @@ class TwilioController extends Controller
     /**
      * Send SMS globally
      */
-    public function send(Request $request)
+    public function send(TwilioSendRequest $request)
     {
-        $request->validate([
-            'phone' => 'required|string',
-            'message' => 'required|string',
-        ]);
 
         $sent = $this->twilio->sendSMS($request->phone, $request->message);
 

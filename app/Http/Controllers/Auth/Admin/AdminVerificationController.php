@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Auth\Admin\AdminVerifyOtpRequest;
+use App\Http\Requests\Auth\Admin\AdminResendVerificationRequest;
 
 class AdminVerificationController extends Controller
 {
@@ -57,15 +59,8 @@ class AdminVerificationController extends Controller
         ], 200);
     }
 
-    public function verifyOtp(Request $request)
+    public function verifyOtp(AdminVerifyOtpRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'otp' => 'required|digits:6',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
 
 
         $authAdmin = Auth::guard('admin')->user();
@@ -120,16 +115,8 @@ class AdminVerificationController extends Controller
         return response()->json(['error' => 'Invalid OTP'], 400);
     }
 
-    public function resendVerificationLink(Request $request)
+    public function resendVerificationLink(AdminResendVerificationRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:admins,email',
-            'verify_url' => 'nullable|url',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
         $admin = Admin::where('email', $request->email)->first();
 

@@ -16,24 +16,17 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Http\Requests\Auth\Admin\AdminRegisterRequest;
+use App\Http\Requests\Auth\Admin\AdminLoginRequest;
+use App\Http\Requests\Auth\Admin\AdminChangePasswordRequest;
 
 class AdminAuthController extends Controller
 {
  /**
      * Register a new admin with OTP/email verification.
      */
-public function register(Request $request)
+public function register(AdminRegisterRequest $request)
 {
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:admins',
-        'password' => 'required|string|min:8|confirmed',
-        'verify_url' => 'nullable|url',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 400);
-    }
 
     $admin = Admin::create([
         'name' => $request->name,
@@ -97,16 +90,8 @@ public function register(Request $request)
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
+    public function login(AdminLoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
         $credentials = $request->only('email', 'password');
 
@@ -182,21 +167,8 @@ public function register(Request $request)
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function changePassword(Request $request)
+    public function changePassword(AdminChangePasswordRequest $request)
     {
-        // Validate input using Validator
-        $validator = Validator::make($request->all(), [
-            'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|confirmed',
-        ]);
-
-        // Return validation errors if any
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
 
         // Get the currently authenticated admin
         $admin = Auth::guard('admin')->user();

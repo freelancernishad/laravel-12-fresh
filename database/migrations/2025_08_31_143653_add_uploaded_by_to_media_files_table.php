@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddUploadedByToMediaFilesTable extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -25,4 +25,4 @@ class AddUploadedByToMediaFilesTable extends Migration
             $table->dropColumn(['uploaded_by_user_id', 'uploaded_by_admin_id']);
         });
     }
-}
+};

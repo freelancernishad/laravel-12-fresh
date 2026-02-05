@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Http\Requests\Auth\ResendVerificationRequest;
 
 class VerificationController extends Controller
 {
@@ -71,15 +73,8 @@ class VerificationController extends Controller
 
 
 
-    public function verifyOtp(Request $request)
+    public function verifyOtp(VerifyOtpRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'otp' => 'required|digits:6', // Validate OTP as 6 digits
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
 
 
         $AuthUser = Auth::user();
@@ -158,18 +153,8 @@ class VerificationController extends Controller
 
 
 
-    public function resendVerificationLink(Request $request)
+    public function resendVerificationLink(ResendVerificationRequest $request)
     {
-        // Validate the request
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email',
-            // Optionally validate verify_url if it's part of the request
-            'verify_url' => 'nullable|url',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
         // Find the user by email
         $user = User::where('email', $request->email)->first();

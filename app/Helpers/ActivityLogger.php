@@ -19,7 +19,7 @@ if (!function_exists('logUserActivity')) {
         $request = $request ?? request();
 
         UserActivityLog::create([
-            'user_id' => $userId ?? Auth::user()->id,
+            'user_id' => $userId ?? (Auth::check() ? Auth::user()->id : null),
             'activity' => $activity,
             'category' => $category,
             'ip' => $request->ip(),

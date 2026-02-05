@@ -18,8 +18,8 @@ use App\Http\Resources\MediaFileResource;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\MediaFileCollection;
 use App\Services\FileSystem\FileUploadService;
-use App\Http\Resources\MediaFileExportResource;
 use App\Http\Resources\MediaFileExportCollection;
+use App\Http\Requests\Common\Media\MediaUploadRequest;
 
 
 class MediaController extends Controller
@@ -138,25 +138,8 @@ public function show($id)
 }
 
 
-public function upload(Request $request)
-{
-
-    // Validate: at least one must be provided
-    $validator = Validator::make($request->all(), [
-        'file' => 'required_without:file_url|nullable|image|max:10240',
-        'file_url' => 'required_without:file|nullable|url',
-    ]);
-
-    // Manually enforce that at least one is present
-    if (!$request->hasFile('file') && !$request->filled('file_url')) {
-        return response()->json([
-            'message' => 'Either file or file_url is required.'
-        ], 422);
-    }
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
+    public function upload(MediaUploadRequest $request)
+    {
 
     if (!extension_loaded('gd')) {
         Log::error("GD library is NOT available!");

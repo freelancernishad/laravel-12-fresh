@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Admin; // Assuming you have an Admin model
+use App\Http\Requests\Common\Notifications\NotificationStoreRequest;
 
 class NotificationController extends Controller
 {
@@ -90,34 +91,16 @@ class NotificationController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      **/
-    public function createForUser(Request $request)
+    public function createForUser(NotificationStoreRequest $request)
     {
         // Check if the authenticated user is an admin
         $admin = Auth::guard('admin')->user();
-
+ 
         if (!$admin) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Only admins can create notifications for users.',
             ], 403);
-        }
-
-        // Validate the request using Validator
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
-            'message' => 'required|string',
-            'type' => 'nullable|string',
-            'related_model' => 'nullable|string',
-            'related_model_id' => 'nullable|integer',
-        ]);
-
-        // Check if validation fails
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed.',
-                'errors' => $validator->errors(),
-            ], 422);
         }
 
         // Create the notification (do not set admin_id)

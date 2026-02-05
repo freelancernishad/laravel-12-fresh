@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Plan\PlanFeature;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Admin\Plans\AdminFeatureStoreRequest;
 
 class FeatureController extends Controller
 {
@@ -15,19 +16,9 @@ class FeatureController extends Controller
         return response()->json(PlanFeature::all());
     }
 
-    public function store(Request $request)
+    public function store(AdminFeatureStoreRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'key' => 'required|string|unique:plan_features',
-            'title_template' => 'required|string',
-            'unit' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validated();
 
         $feature = PlanFeature::create($validated);
         return response()->json($feature, 201);
@@ -38,15 +29,11 @@ class FeatureController extends Controller
         return response()->json(PlanFeature::findOrFail($id));
     }
 
-    public function update(Request $request, $id)
+    public function update(AdminFeatureStoreRequest $request, $id)
     {
         $feature = PlanFeature::findOrFail($id);
 
-        $validated = $request->validate([
-            'key' => 'sometimes|string|unique:features,key,' . $feature->id,
-            'title_template' => 'sometimes|string',
-            'unit' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         $feature->update($validated);
         return response()->json($feature);

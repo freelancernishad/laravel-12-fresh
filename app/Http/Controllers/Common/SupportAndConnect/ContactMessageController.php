@@ -8,27 +8,15 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SupportAndConnect\Contacts\ContactMessage;
+use App\Http\Requests\Common\SupportAndConnect\ContactMessageSendRequest;
 
 class ContactMessageController extends Controller
 {
-public function send(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'full_name' => 'required|string',
-        'email'     => 'required|email',
-        'subject'   => 'required|string',
-        'message'   => 'required|string',
-    ]);
+    public function send(ContactMessageSendRequest $request)
+    {
 
-    if ($validator->fails()) {
-        return response()->json([
-            'success' => false,
-            'errors' => $validator->errors(),
-        ], 422);
-    }
-
-    $validated = $validator->validated();
-    $message = ContactMessage::create($validated);
+        $validated = $request->validated();
+        $message = ContactMessage::create($validated);
 
     try {
        $user = (object) [

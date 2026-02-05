@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,58 +19,78 @@ class ApiResponse
      */
     public function handle(Request $request, Closure $next)
     {
-        // Skip ApiResponse middleware for the /files/{path} route
-        if ($request->is('files/*')) {
-            return $next($request);
-        }
-
         // Capture the response
         $response = $next($request);
 
-        // Check if the response is a valid Response object
-        if ($response instanceof Response) {
-            // Decode the response content if it's JSON
-            $responseData = json_decode($response->getContent(), true) ?? [];
-
-
-            // Extract the first error message from response data
-            $errorMessage = $this->getFirstErrorMessage($responseData, $response->status());
-
-            // Initialize the formatted response structure
-            $formattedResponse = [
-                'data' => $this->extractData($responseData), // Extract data dynamically
-                'Message' => $responseData['message'] ?? $responseData['data']['message'] ?? $errorMessage, // Move 'message' to root as 'Message
-                'isError' => false,
-                'error' => null,
-                'status_code' => $response->status(),
-            ];
-
-            // Check if the response status indicates an error (>=400)
-            if ($response->status() >= 400) {
-                $formattedResponse['isError'] = true;
-
-
-
-                // Set the error details in the response structure
-                $formattedResponse['error'] = [
-                    'code' => $response->status(),
-                    'message' => Response::$statusTexts[$response->status()] ?? 'Unknown error',
-                    'errMsg' => $errorMessage,
-                ];
-
-                // Clear the data field for error responses
-                $formattedResponse['data'] = [];
-
-                // Adjust status code if necessary
-                $formattedResponse['status_code'] = $response->status();
-            }
-
-            // Return a 200 status code with the formatted response for consistency
-            return response()->json($formattedResponse, 200);
+        // Skip non-JSON responses (e.g., file downloads, images)
+        if (!$this->shouldProcess($response)) {
+            return $response;
         }
 
-        // If the response is not an instance of Response, return it as is
-        return $response;
+        // Decode the response content
+        $responseData = json_decode($response->getContent(), true);
+
+        // If JSON decoding failed, return the original response
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return $response;
+        }
+
+        // Capture original status code
+        $statusCode = $response->status();
+
+        // Extract the first error message from response data
+        $errorMessage = $this->getFirstErrorMessage($responseData, $statusCode);
+
+        // Initialize the formatted response structure
+        $formattedResponse = [
+            'data' => $this->extractData($responseData),
+            'Message' => $responseData['message'] ?? $responseData['data']['message'] ?? $errorMessage,
+            'isError' => false,
+            'error' => null,
+            'status_code' => $statusCode,
+        ];
+
+        // Check if the response status indicates an error (>=400)
+        if ($statusCode >= 400) {
+            $formattedResponse['isError'] = true;
+            $formattedResponse['error'] = [
+                'code' => $statusCode,
+                'message' => Response::$statusTexts[$statusCode] ?? 'Unknown error',
+                'errMsg' => $errorMessage,
+            ];
+
+            // Only clear data if it's not already set to something meaningful
+            // (e.g., validation errors might want to keep their 'errors' data)
+            if (empty($formattedResponse['data'])) {
+                $formattedResponse['data'] = [];
+            }
+        }
+
+        // Return the formatted response, PRESERVING the original status code
+        return response()->json($formattedResponse, $statusCode);
+    }
+
+    /**
+     * Determine if the response should be processed by this middleware.
+     */
+    private function shouldProcess($response): bool
+    {
+        if (!$response instanceof Response && !($response instanceof \Illuminate\Http\JsonResponse)) {
+            return false;
+        }
+
+        // Skip for specific routes
+        if (RequestFacade::is('files/*')) {
+            return false;
+        }
+
+        // Check Content-Type
+        $contentType = $response->headers->get('Content-Type');
+        if (!str_contains($contentType, 'application/json')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

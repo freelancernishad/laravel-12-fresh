@@ -9,6 +9,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\User\UserResource;
+use App\Http\Requests\User\UserUpdateProfileRequest;
+use App\Http\Requests\User\UserUpdateProfilePictureRequest;
+use App\Http\Requests\User\UserUpdatePhotosRequest;
+use App\Http\Requests\User\UserSetPrimaryPhotoRequest;
 
 class UserController extends Controller
 {
@@ -20,23 +24,9 @@ class UserController extends Controller
     }
 
     // Update own profile
-    public function update(Request $request)
+    public function update(UserUpdateProfileRequest $request)
     {
         $user = $request->user();
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'notes' => 'nullable|string|max:1000',
-            // other fields user can edit
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-                'isError' => true,
-                'status_code' => 422
-            ], 422);
-        }
 
         $user->fill($request->only([
             'name', 'email', 'notes'
@@ -52,13 +42,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function updateProfilePicture(Request $request)
+    public function updateProfilePicture(UserUpdateProfilePictureRequest $request)
     {
         $user = $request->user();
-
-        $request->validate([
-            'photo_url' => 'required|url'
-        ]);
 
         // Unset previous primary photo
         $user->photos()->where('is_primary', true)->update(['is_primary' => false]);
@@ -78,26 +64,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function updatePhotos(Request $request)
+    public function updatePhotos(UserUpdatePhotosRequest $request)
     {
         $user = $request->user();
-
-        $validator = Validator::make($request->all(), [
-            'photos' => 'required|array|min:1',
-            'photos.*' => 'required|url', // each item must be a valid URL
-        ], [
-            'photos.required' => 'You must provide at least one photo URL.',
-            'photos.*.required' => 'Each photo must have a URL.',
-            'photos.*.url' => 'Each photo URL must be valid.',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-                'isError' => true,
-                'status_code' => 422
-            ], 422);
-        }
 
         $photosCreated = [];
 
@@ -116,21 +85,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function setPrimaryPhoto(Request $request)
+    public function setPrimaryPhoto(UserSetPrimaryPhotoRequest $request)
     {
         $user = $request->user();
-
-        $validator = Validator::make($request->all(), [
-            'photo_id' => 'required|integer|exists:user_photos,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-                'isError' => true,
-                'status_code' => 422
-            ], 422);
-        }
 
         $photoId = $request->photo_id;
 

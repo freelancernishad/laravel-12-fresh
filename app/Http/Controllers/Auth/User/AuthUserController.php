@@ -20,6 +20,9 @@ use App\Http\Resources\LoginRegisterUserResource;
 use App\Services\Login\GoogleAuthService;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\ChangePasswordRequest;
 
 class AuthUserController extends Controller
 {
@@ -29,17 +32,8 @@ class AuthUserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-public function register(Request $request)
+public function register(RegisterRequest $request)
 {
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8|confirmed',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 400);
-    }
 
     // Create the user
     $user = User::create([
@@ -133,7 +127,7 @@ public function register(Request $request)
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-public function login(Request $request)
+public function login(LoginRequest $request)
 {
     // Handle Google login
     if ($request->access_token) {
@@ -145,22 +139,6 @@ public function login(Request $request)
     if ($request->identity_token) {
         $appleAuthService = new AppleAuthService();
         return $appleAuthService->login($request);
-    }
-
-    // Validate credentials
-    $validator = Validator::make($request->all(), [
-        'email' => 'required|string|email',
-        'password' => 'required|string',
-    ]);
-
-    if ($validator->fails()) {
-        // Log failed login attempt
-        logUserActivity('Login Attempt Failed', 'Authentication', null, $request, false, [
-            'reason' => 'Validation failed',
-            'errors' => $validator->errors()->all(),
-        ]);
-
-        return response()->json(['errors' => $validator->errors()], 422);
     }
 
     $credentials = $request->only('email', 'password');
@@ -295,30 +273,8 @@ public function login(Request $request)
   /**
      * Change the password of the authenticated user.
      */
-  public function changePassword(Request $request)
+  public function changePassword(ChangePasswordRequest $request)
 {
-    // Validate input using Validator
-    $validator = Validator::make($request->all(), [
-        'current_password' => 'required',
-        'new_password' => 'required|min:8|confirmed',
-    ]);
-
-    // Return validation errors if any
-    if ($validator->fails()) {
-        logUserActivity(
-            activity: 'Password Change Failed (Validation)',
-            category: 'Account',
-            userId: Auth::id(),
-            request: $request,
-            isSuccess: false,
-            extraDetails: ['errors' => $validator->errors()->toArray()]
-        );
-
-        return response()->json([
-            'message' => 'Validation error.',
-            'errors' => $validator->errors()
-        ], 422);
-    }
 
     $authUser = Auth::user();
     $user = User::find($authUser->id);

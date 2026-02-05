@@ -6,6 +6,7 @@ use App\Models\Blog\BlogCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Common\Blogs\BlogCategoryStoreRequest;
 
 class BlogCategoryController extends Controller
 {
@@ -21,22 +22,8 @@ class BlogCategoryController extends Controller
     /**
      * Store a newly created category in storage.
      */
-    public function store(Request $request)
+    public function store(BlogCategoryStoreRequest $request)
     {
-        // Validate status change
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|unique:blog_categories,slug',
-            'parent_id' => 'nullable|exists:blog_categories,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
 
         $category = BlogCategory::create($request->only(['name', 'slug', 'parent_id']));
 

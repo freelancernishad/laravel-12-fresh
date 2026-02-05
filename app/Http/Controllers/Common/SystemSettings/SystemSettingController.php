@@ -8,26 +8,12 @@ use App\Jobs\RefreshConfigCache;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Common\SystemSettingStoreRequest;
 
 class SystemSettingController extends Controller
 {
-    public function storeOrUpdate(Request $request)
+    public function storeOrUpdate(SystemSettingStoreRequest $request)
     {
-        // Validation rules for the input
-        $rules = [
-            '*' => 'required|array', // Each item must be an array
-            '*.key' => 'required|string', // Each key must be a string
-            '*.value' => 'required|string', // Each value must be a string
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        // If validation fails, return error response
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
-        }
 
         // Retrieve settings from the request
         $settingsData = $request->all();

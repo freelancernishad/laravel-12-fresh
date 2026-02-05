@@ -14,24 +14,8 @@ use Illuminate\Support\Facades\Validator;
 
 class GoogleAuthService
 {
-    /**
-     * Handle Google OAuth login/registration.
-     */
     public function login(Request $request)
     {
-        // Validate the access token
-        $validator = Validator::make($request->all(), [
-            'access_token' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return [
-                'success' => false,
-                'errors' => $validator->errors(),
-                'status' => 422
-            ];
-        }
-
         try {
             // Fetch user data from Google API
             $response = Http::get('https://www.googleapis.com/oauth2/v3/userinfo', [
@@ -39,11 +23,9 @@ class GoogleAuthService
             ]);
 
             if ($response->failed() || !isset($response['email'])) {
-                return [
-                    'success' => false,
-                    'error' => 'Invalid access token.',
-                    'status' => 400
-                ];
+                return response()->json([
+                    'error' => 'Invalid access token or Google API error.',
+                ], 400);
             }
 
             $userData = $response->json();
@@ -64,8 +46,8 @@ class GoogleAuthService
             // Authenticate the user
             Auth::login($user);
 
-            // Payload for JWT
-            $payload = [
+            // Payload for JWT (can be used for additional claims if needed)
+            $userPayload = [
                 'email' => $user->email,
                 'name' => $user->name,
                 'category' => $user->category ?? 'default',
@@ -75,27 +57,22 @@ class GoogleAuthService
             try {
                 $token = JWTAuth::fromUser($user, ['guard' => 'user']);
             } catch (JWTException $e) {
-                return [
-                    'success' => false,
-                    'error' => 'Could not create token',
-                    'status' => 500
-                ];
+                return response()->json([
+                    'error' => 'Could not create JWT token',
+                ], 500);
             }
 
-            return [
+            return response()->json([
                 'success' => true,
                 'token' => $token,
-                'user' => $payload,
-                'status' => 200
-            ];
+                'user' => $userPayload,
+            ], 200);
 
         } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'error' => 'An error occurred during authentication.',
+            return response()->json([
+                'error' => 'An error occurred during Google authentication.',
                 'details' => $e->getMessage(),
-                'status' => 500
-            ];
+            ], 500);
         }
     }
 }

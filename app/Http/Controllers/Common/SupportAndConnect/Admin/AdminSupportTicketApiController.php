@@ -7,6 +7,8 @@ use App\Models\SupportTicket;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Common\SupportAndConnect\Admin\SupportTicketReplyRequest;
+use App\Http\Requests\Common\SupportAndConnect\Admin\SupportTicketStatusRequest;
 
 class AdminSupportTicketApiController extends Controller
 {
@@ -25,19 +27,8 @@ class AdminSupportTicketApiController extends Controller
     }
 
     // Reply to a support ticket
-    public function reply(Request $request, $id)
+    public function reply(SupportTicketReplyRequest $request, $id)
     {
-        // Validate the request
-        $validator = Validator::make($request->all(), [
-            'reply' => 'required|string',
-            'status' => 'required|string|in:open,closed,pending,replay', // Define allowed statuses
-            'reply_id' => 'nullable|exists:replies,id', // Check if the parent reply exists
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx|max:2048', // Validate attachment
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
         // Find the support ticket by ID
         $ticket = SupportTicket::findOrFail($id);
@@ -76,16 +67,8 @@ class AdminSupportTicketApiController extends Controller
     }
 
     // Update ticket status
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(SupportTicketStatusRequest $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'status' => 'required|string|in:open,closed,pending,replay', // Define allowed statuses
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx|max:2048', // Validate attachment
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
         $ticket = SupportTicket::findOrFail($id);
         $ticket->status = $request->status;

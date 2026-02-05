@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Auth\Admin\AdminSendResetLinkRequest;
+use App\Http\Requests\Auth\Admin\AdminResetPasswordRequest;
 
 class AdminPasswordResetController extends Controller
 {
@@ -22,17 +24,8 @@ class AdminPasswordResetController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function sendResetLinkEmail(Request $request)
+    public function sendResetLinkEmail(AdminSendResetLinkRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:admins,email',
-            'redirect_url' => 'required|url'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         $email = $request->input('email');
         $resetUrlBase = $request->input('redirect_url');
 
@@ -68,17 +61,8 @@ class AdminPasswordResetController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function reset(Request $request)
+    public function reset(AdminResetPasswordRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'token' => 'required',
-            'email' => 'required|email|exists:admins,email',
-            'password' => 'required|confirmed|min:8',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
         $response = Password::broker('admins')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),

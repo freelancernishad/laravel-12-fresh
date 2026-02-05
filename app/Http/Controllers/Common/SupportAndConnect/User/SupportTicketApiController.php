@@ -7,6 +7,7 @@ use App\Models\SupportTicket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Common\SupportAndConnect\SupportTicketStoreRequest;
 
 class SupportTicketApiController extends Controller
 {
@@ -18,18 +19,8 @@ class SupportTicketApiController extends Controller
     }
 
     // Create a new support ticket
-    public function store(Request $request)
+    public function store(SupportTicketStoreRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string',
-            'priority' => 'nullable|string',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx|max:2048', // Validate attachment
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
         // Create the ticket
         $ticket = SupportTicket::create([
@@ -60,23 +51,12 @@ class SupportTicketApiController extends Controller
     }
 
     // Update a support ticket (if needed)
-    public function update(Request $request, SupportTicket $ticket)
+    public function update(SupportTicketStoreRequest $request, SupportTicket $ticket)
     {
         // Ensure the ticket belongs to the authenticated user
      
         if ($ticket->user_id != Auth::id()) {
             return response()->json(['message' => 'Unauthorized access.'], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'subject' => 'nullable|string|max:255',
-            'message' => 'nullable|string',
-            'priority' => 'nullable|string',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx|max:2048', // Validate attachment
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         // Update the ticket details

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRepliesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +14,16 @@ class CreateRepliesTable extends Migration
         Schema::create('replies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('support_ticket_id')->constrained('support_tickets')->onDelete('cascade');
-            $table->foreignId('admin_id')->nullable()->constrained('admins')->onDelete('set null'); // Assuming Admin table exists
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade'); // Assuming User table exists
+            $table->foreignId('admin_id')->nullable()->constrained('admins')->onDelete('set null');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->text('reply');
-            $table->foreignId('reply_id')->nullable()->constrained('replies')->onDelete('cascade'); // Parent reply
+            $table->foreignId('reply_id')->nullable();
             $table->string('attachment')->nullable();
             $table->timestamps();
+        });
+
+        Schema::table('replies', function (Blueprint $table) {
+            $table->foreign('reply_id')->references('id')->on('replies')->onDelete('cascade');
         });
     }
 
@@ -30,4 +34,4 @@ class CreateRepliesTable extends Migration
     {
         Schema::dropIfExists('replies');
     }
-}
+};

@@ -13,6 +13,10 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Admin\AdminUserResource;
 use App\Http\Resources\Admin\AdminUserCollection;
+use App\Http\Requests\Admin\UserManagement\AdminUserUpdateRequest;
+use App\Http\Requests\Admin\UserManagement\AdminUserResetPasswordRequest;
+use App\Http\Requests\Admin\UserManagement\AdminUserBulkActionRequest;
+use App\Http\Requests\Admin\UserManagement\AdminUserImportRequest;
 
 class AdminUserController extends Controller
 {
@@ -75,35 +79,9 @@ public function index(Request $request)
     }
 
 
-    public function update(Request $request, $id)
+    public function update(AdminUserUpdateRequest $request, $id)
     {
         $user = User::find($id);
-
-        if (!$user) {
-            return response()->json([
-                'Message' => 'User not found',
-                'isError' => true,
-                'status_code' => 404
-            ], 404);
-        }
-
-        // Validation
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $id,
-            'is_active' => 'sometimes|boolean',
-            'is_blocked' => 'sometimes|boolean',
-            'notes' => 'nullable|string|max:1000',
-            'phone' => 'nullable|string|max:20'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-            'errors' => $validator->errors(),
-            'isError' => true,
-            'status_code' => 422
-            ], 422);
-        }
 
         // Update fields
         $user->fill($request->only([
@@ -147,7 +125,7 @@ public function index(Request $request)
     }
 
     // Reset password
-    public function resetPassword(Request $request, $id)
+    public function resetPassword(AdminUserResetPasswordRequest $request, $id)
     {
         $user = User::findOrFail($id);
         $newPassword = $request->input('password', Str::random(10));
@@ -183,7 +161,7 @@ public function index(Request $request)
     }
 
     // Bulk action
-    public function bulkAction(Request $request)
+    public function bulkAction(AdminUserBulkActionRequest $request)
     {
         $action = $request->input('action'); // activate, deactivate, block, unblock
         $userIds = $request->input('user_ids', []);
@@ -215,19 +193,8 @@ public function index(Request $request)
         return Excel::download(new UsersExport, 'users.xlsx');
     }
 
-    public function import(Request $request)
+    public function import(AdminUserImportRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'file' => 'required|mimes:xlsx,csv'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-            'errors' => $validator->errors(),
-            'isError' => true,
-            'status_code' => 422
-            ], 422);
-        }
         Excel::import(new UsersImport, $request->file('file'));
         return response()->json(['message' => 'Users imported successfully']);
     }
