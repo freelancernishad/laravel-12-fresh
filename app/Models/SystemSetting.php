@@ -29,6 +29,18 @@ class SystemSetting extends Model
      */
     public static function setValue($key, $value)
     {
-        return static::updateOrCreate(['key' => $key], ['value' => $value]);
+        $setting = static::updateOrCreate(['key' => $key], ['value' => $value]);
+        static::clearCache();
+        return $setting;
+    }
+
+    /**
+     * Clear the system settings cache.
+     *
+     * @return void
+     */
+    public static function clearCache()
+    {
+        \Illuminate\Support\Facades\Cache::forget('system_settings');
     }
 }

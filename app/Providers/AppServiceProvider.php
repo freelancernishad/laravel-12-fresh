@@ -17,20 +17,25 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         try {
-            // Load all system settings into config
-            $settings = SystemSetting::all()->pluck('value', 'key');
+            // Load all system settings into config with caching
+            $settings = \Illuminate\Support\Facades\Cache::rememberForever('system_settings', function () {
+                return SystemSetting::all()->pluck('value', 'key');
+            });
 
             foreach ($settings as $key => $value) {
                 Config::set($key, $value);
-                $_ENV[$key] = $value; // Optional for global environment override
+                // $_ENV[$key] = $value; // We don't need to manually set $_ENV as Laravel uses config() for most things
             }
 
-            // Explicitly configure email settings
-            $this->configureMailSettings($settings);
+            // Explicitly configure email settings if present
+            if ($settings->isNotEmpty()) {
+                $this->configureMailSettings($settings);
+            }
 
         } catch (QueryException $e) {
-            // Log the error but continue running the application
             \Log::error('Error loading system settings: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            \Log::error('Unexpected error loading system settings: ' . $e->getMessage());
         }
     }
 
