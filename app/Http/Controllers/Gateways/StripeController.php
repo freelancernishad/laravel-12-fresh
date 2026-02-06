@@ -23,11 +23,12 @@ class StripeController extends Controller
     {
         $user = Auth::user();
         $items = $request->input('items', []); // Format: [['price_data' => [...], 'quantity' => 1]]
-        $successUrl = $request->input('success_url', url('/success'));
-        $cancelUrl = $request->input('cancel_url', url('/cancel'));
+        $successUrl = $request->input('success_url', url('/payment/success'));
+        $cancelUrl = $request->input('cancel_url', url('/payment/cancel'));
+        $saveCard = $request->boolean('save_card', false);
 
         try {
-            $session = $this->stripeService->createCheckoutSession($user, $items, $successUrl, $cancelUrl);
+            $session = $this->stripeService->createCheckoutSession($user, $items, $successUrl, $cancelUrl, $saveCard);
             return response()->json(['id' => $session->id, 'url' => $session->url]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);

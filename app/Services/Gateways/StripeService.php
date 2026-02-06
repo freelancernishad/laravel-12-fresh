@@ -47,18 +47,28 @@ class StripeService
     /**
      * Create a Checkout Session for one-time payments.
      */
-    public function createCheckoutSession(User $user, array $items, string $successUrl, string $cancelUrl)
+     /** Create a Checkout Session for one-time payments.
+     */
+    public function createCheckoutSession(User $user, array $items, string $successUrl, string $cancelUrl, bool $saveCard = false)
     {
         $customer = $this->createOrGetCustomer($user);
 
-        $session = CheckoutSession::create([
+        $params = [
             'customer' => $customer->id,
             'payment_method_types' => ['card'],
             'line_items' => $items,
             'mode' => 'payment',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
-        ]);
+        ];
+
+        if ($saveCard) {
+            $params['payment_intent_data'] = [
+                'setup_future_usage' => 'off_session', 
+            ];
+        }
+
+        $session = CheckoutSession::create($params);
 
         \App\Models\StripeLog::create([
             'user_id' => $user->id,
