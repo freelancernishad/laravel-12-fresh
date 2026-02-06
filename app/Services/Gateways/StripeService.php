@@ -284,19 +284,45 @@ class StripeService
             $paymentMethod = $session->setup_intent->payment_method;
         }
 
-        if ($paymentMethod && $paymentMethod->type === 'card') {
-            return [
-                'type' => 'card',
+        if (!$paymentMethod) {
+            return null;
+        }
+
+        $details = [
+            'type' => $paymentMethod->type,
+            'name' => $paymentMethod->billing_details->name,
+            'email' => $paymentMethod->billing_details->email,
+            'phone' => $paymentMethod->billing_details->phone,
+            'address' => $paymentMethod->billing_details->address ? $paymentMethod->billing_details->address->toArray() : null,
+        ];
+
+        if ($paymentMethod->type === 'card') {
+            $details = array_merge($details, [
                 'brand' => $paymentMethod->card->brand,
                 'last4' => $paymentMethod->card->last4,
                 'exp_month' => $paymentMethod->card->exp_month,
                 'exp_year' => $paymentMethod->card->exp_year,
-                'card_holder' => $paymentMethod->billing_details->name,
                 'country' => $paymentMethod->card->country,
                 'funding' => $paymentMethod->card->funding, // credit, debit, prepaid
-            ];
+                'wallet' => $paymentMethod->card->wallet ? $paymentMethod->card->wallet->type : null, // apple_pay, google_pay
+            ]);
+        } elseif ($paymentMethod->type === 'us_bank_account') {
+            $details = array_merge($details, [
+                'bank_name' => $paymentMethod->us_bank_account->bank_name,
+                'last4' => $paymentMethod->us_bank_account->last4,
+                'account_holder_type' => $paymentMethod->us_bank_account->account_holder_type, // individual, company
+                'routing_number' => $paymentMethod->us_bank_account->routing_number,
+            ]);
+        } elseif ($paymentMethod->type === 'sepa_debit') {
+            $details = array_merge($details, [
+                'bank_code' => $paymentMethod->sepa_debit->bank_code,
+                'last4' => $paymentMethod->sepa_debit->last4,
+                'country' => $paymentMethod->sepa_debit->country,
+            ]);
         }
+        
+        // Add more types as needed (alipay, paypal, etc.)
 
-        return null;
+        return $details;
     }
 }
