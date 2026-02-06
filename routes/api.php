@@ -116,5 +116,12 @@ if (file_exists($BlogPostRoutes = __DIR__.'/Common/Blogs/BlogPostRoutes.php')) {
     require $BlogPostRoutes;
 }
 
+// Load StripeRoutes
+if (file_exists($StripeRoutes = __DIR__.'/Gateways/stripe.php')) {
+    Route::prefix('payment/stripe')->group(function () use ($StripeRoutes) {
+        require $StripeRoutes;
+    });
+}
+
 
 

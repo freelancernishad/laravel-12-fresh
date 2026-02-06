@@ -25,6 +25,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'password',
         'otp',
         'otp_expires_at',
+        'stripe_id',
 
         'is_active',
         'is_blocked',

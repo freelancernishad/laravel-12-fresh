@@ -30,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
             // Explicitly configure email settings if present
             if ($settings->isNotEmpty()) {
                 $this->configureMailSettings($settings);
+                $this->configureStripeSettings($settings);
             }
 
         } catch (QueryException $e) {
@@ -70,5 +71,18 @@ class AppServiceProvider extends ServiceProvider
 
         Config::set('mail.from.address', $settings->get('MAIL_FROM_ADDRESS'));
         Config::set('mail.from.name', $settings->get('MAIL_FROM_NAME'));
+    }
+
+    /**
+     * Configure Stripe settings dynamically.
+     *
+     * @param \Illuminate\Support\Collection $settings
+     * @return void
+     */
+    protected function configureStripeSettings($settings)
+    {
+        Config::set('services.stripe.key', $settings->get('STRIPE_KEY'));
+        Config::set('services.stripe.secret', $settings->get('STRIPE_SECRET'));
+        Config::set('services.stripe.webhook', $settings->get('STRIPE_WEBHOOK_SECRET'));
     }
 }
