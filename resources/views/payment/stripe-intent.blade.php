@@ -27,7 +27,7 @@
 </head>
 <body class="bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-50 min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-lg animate-fade-in">
+    <div id="main-container" class="w-full max-w-lg animate-fade-in transition-all duration-500">
         <!-- Main Card -->
         <div class="glass-panel rounded-2xl shadow-2xl overflow-hidden relative">
             <!-- Decorative Header Gradient -->
@@ -46,75 +46,88 @@
                     </div>
                 </div>
                 
-                <form id="payment-form" class="space-y-6">
-                    <!-- Saved Cards Section -->
-                    <div id="saved-cards-container" class="hidden transition-all duration-300">
-                        <div class="flex items-center justify-between mb-3 px-1">
-                            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Saved Cards</h3>
-                            <span class="text-xs text-blue-600 font-medium cursor-pointer hover:underline">Manage</span>
-                        </div>
-                        <div id="saved-cards-list" class="space-y-3 mb-5">
-                            <!-- Cards will be injected here -->
-                        </div>
+                <form id="payment-form">
+                    <div id="layout-grid" class="grid grid-cols-1 gap-8">
                         
-                        <!-- Divider logic -->
-                        <div class="relative py-2">
-                            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
-                            <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-400 font-medium">OR</span></div>
-                        </div>
+                        <!-- LEFT COLUMN: Payment Methods -->
+                        <div id="methods-column" class="hidden space-y-4">
+                            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Select Method</h3>
+                            
+                            <!-- Saved Cards List -->
+                            <div id="saved-cards-list" class="space-y-3">
+                                <!-- Cards injected here -->
+                            </div>
 
-                        <!-- Option to switch to new card -->
-                        <div class="mt-2">
-                            <label class="group relative flex items-center p-3 cursor-pointer rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-200">
+                            <div class="relative py-2">
+                                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
+                                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-400 font-medium">OR</span></div>
+                            </div>
+
+                            <!-- Add New Card Option -->
+                            <label class="group relative flex items-center p-4 cursor-pointer rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-200 bg-white shadow-sm">
                                 <input type="radio" name="payment_method" value="new" checked class="custom-radio peer sr-only">
                                 <div class="w-full h-full absolute inset-0 rounded-xl border-2 border-transparent peer-checked:border-blue-500 pointer-events-none transition-all duration-200 peer-checked:bg-blue-50/50"></div>
                                 <div class="w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 mr-3 flex items-center justify-center transition-colors radio-circle relative z-10">
                                    <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 radio-dot"></div>
                                 </div>
-                                <span class="font-semibold text-gray-700 group-hover:text-blue-700 transition-colors relative z-10">Add New Card</span>
+                                <span class="font-semibold text-gray-700 group-hover:text-blue-700 transition-colors relative z-10">Pay with New Card</span>
                             </label>
                         </div>
-                    </div>
 
-                    <!-- New Card Section -->
-                    <div id="new-card-section" class="transition-all duration-300">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Card Details</label>
-                            <div id="payment-element" class="min-h-[40px] p-1">
-                                <!-- Stripe Elements will be inserted here -->
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center">
-                            <label class="flex items-center space-x-3 cursor-pointer group">
-                                <div class="relative flex items-center">
-                                    <input type="checkbox" id="save-card" class="peer sr-only form-checkbox">
-                                    <div class="w-5 h-5 bg-white border-2 border-gray-300 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
-                                    <svg class="w-3 h-3 text-white absolute top-1 left-1 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                        <!-- RIGHT COLUMN: Payment Details -->
+                        <div id="details-column" class="space-y-6">
+                            
+                            <!-- Case 1: New Card Form -->
+                            <div id="new-card-section" class="transition-all duration-300">
+                                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Card Details</label>
+                                    <div id="payment-element" class="min-h-[40px] p-1">
+                                        <!-- Stripe Elements -->
+                                    </div>
                                 </div>
-                                <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors select-none">Save this card securely for future payments</span>
-                            </label>
+                                
+                                <div class="mt-4 flex items-center">
+                                    <label class="flex items-center space-x-3 cursor-pointer group">
+                                        <div class="relative flex items-center">
+                                            <input type="checkbox" id="save-card" class="peer sr-only form-checkbox">
+                                            <div class="w-5 h-5 bg-white border-2 border-gray-300 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
+                                            <svg class="w-3 h-3 text-white absolute top-1 left-1 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                        <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors select-none">Save this card securely</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Case 2: Selected Saved Card Summary -->
+                            <div id="saved-card-summary" class="hidden animate-fade-in text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                <p class="text-gray-600 mb-2">Selected Payment Method</p>
+                                <div class="text-xl font-bold text-gray-900 flex items-center justify-center gap-2">
+                                    <span>💳</span> <span id="summary-brand" class="capitalize">Visa</span> •••• <span id="summary-last4">4242</span>
+                                </div>
+                                <p class="text-xs text-blue-600 mt-2 font-medium">Click "Pay Now" to confirm</p>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button id="submit" class="w-full relative group overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed mt-4">
+                                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                                <span id="button-text" class="relative flex items-center justify-center gap-2 text-lg">
+                                    Pay $10.00
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                </span>
+                                <span id="spinner" class="hidden relative flex items-center justify-center gap-2">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Processing...
+                                </span>
+                            </button>
+                            
+                            <!-- Message Container -->
+                            <div id="payment-message" class="hidden mt-4 p-4 rounded-xl text-sm font-medium text-center shadow-sm animate-fade-in border"></div>
+
                         </div>
                     </div>
-                    
-                    <!-- Submit Button -->
-                    <button id="submit" class="w-full relative group overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed">
-                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                        <span id="button-text" class="relative flex items-center justify-center gap-2">
-                            Pay Now
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </span>
-                        <span id="spinner" class="hidden relative flex items-center justify-center gap-2">
-                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processing...
-                        </span>
-                    </button>
-                    
-                    <!-- Message Container -->
-                    <div id="payment-message" class="hidden mt-4 p-4 rounded-xl text-sm font-medium text-center shadow-sm animate-fade-in border"></div>
                     
                     <!-- Footer -->
                     <div class="mt-6 text-center">
@@ -127,6 +140,7 @@
             </div>
         </div>
     </div>
+
 
     <script>
         // Replace with your actual Stripe Publishable Key
@@ -157,18 +171,29 @@
                 });
                 if (cardsResponse.ok) {
                     const cardsData = await cardsResponse.json();
+                    console.log("Raw Cards API Response:", cardsData);
                     
-                    // The API returns { data: { object: 'list', data: [...] } }
-                    // So we need cardsData.data.data
+                    // Robust extraction logic
                     if (cardsData.data && Array.isArray(cardsData.data.data)) {
-                        savedCards = cardsData.data.data;
-                    } else if (Array.isArray(cardsData.data)) {
-                        savedCards = cardsData.data;
+                        savedCards = cardsData.data.data; // Standard Stripe Collection wrapped in Resource
+                    } else if (cardsData.data && Array.isArray(cardsData.data)) {
+                        savedCards = cardsData.data; // Simple array wrapper
+                    } else if (Array.isArray(cardsData)) {
+                        savedCards = cardsData; // Direct array
                     } else {
+                        console.warn("Could not find cards array in response");
                         savedCards = [];
                     }
-                    console.log("Saved Cards:", savedCards);
-                    renderSavedCards();
+
+                    console.log("Parsed Saved Cards:", savedCards);
+                    
+                    if (savedCards.length > 0) {
+                        renderSavedCards();
+                    } else {
+                        console.log("No saved cards found to render.");
+                    }
+                } else {
+                    console.error("Failed to fetch cards. Status:", cardsResponse.status);
                 }
             } catch (e) {
                 console.error("Failed to fetch cards", e);
@@ -241,44 +266,60 @@
         }
 
         function renderSavedCards() {
-            const container = document.getElementById('saved-cards-container');
+            const container = document.getElementById('main-container');
+            const layoutGrid = document.getElementById('layout-grid');
+            const methodsColumn = document.getElementById('methods-column');
             const list = document.getElementById('saved-cards-list');
             
-            if (savedCards.length === 0) return;
+            // ALWAYS Enable Split Layout (Pro Design)
+            container.classList.replace('max-w-lg', 'max-w-5xl');
+            // Ensure width update happens even if replace fails
+            if (!container.classList.contains('max-w-5xl')) {
+                container.classList.add('max-w-5xl');
+                container.classList.remove('max-w-lg');
+            }
+            
+            layoutGrid.classList.add('md:grid-cols-2');
+            methodsColumn.classList.remove('hidden');
 
-            container.classList.remove('hidden');
             let html = '';
             
-            savedCards.forEach((card, index) => {
-                const last4 = card.card.last4;
-                const brand = card.card.brand;
-                const exp = `${card.card.exp_month}/${card.card.exp_year}`;
-                const cardIcon = brand.toLowerCase() === 'visa' ? '💳' : (brand.toLowerCase() === 'mastercard' ? '💳' : '💳');
-                
-                html += `
-                    <label class="group relative flex items-center p-3 cursor-pointer rounded-xl border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all duration-200 bg-white">
-                        <input type="radio" name="payment_method" value="${card.id}" class="custom-radio peer sr-only">
-                        
-                        <div class="w-full h-full absolute inset-0 rounded-xl border-2 border-transparent peer-checked:border-blue-500 pointer-events-none transition-all duration-200 peer-checked:bg-blue-50/50"></div>
+            if (savedCards && savedCards.length > 0) {
+                savedCards.forEach((card, index) => {
+                    const last4 = card.card.last4;
+                    const brand = card.card.brand;
+                    const exp = `${card.card.exp_month}/${card.card.exp_year}`;
+                    const cardIcon = brand.toLowerCase() === 'visa' ? '💳' : (brand.toLowerCase() === 'mastercard' ? '💳' : '💳');
+                    
+                    html += `
+                        <label class="group relative flex items-center p-3 cursor-pointer rounded-xl border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all duration-200 bg-white">
+                            <input type="radio" name="payment_method" value="${card.id}" 
+                                data-brand="${brand}" data-last4="${last4}"
+                                class="custom-radio peer sr-only">
+                            
+                            <div class="w-full h-full absolute inset-0 rounded-xl border-2 border-transparent peer-checked:border-blue-500 pointer-events-none transition-all duration-200 peer-checked:bg-blue-50/50"></div>
 
-                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 mr-4 flex items-center justify-center transition-colors radio-circle flex-shrink-0 relative z-10">
-                           <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 radio-dot"></div>
-                        </div>
-                        
-                        <div class="flex-1 relative z-10">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="bg-gray-100 p-2 rounded-lg text-xl">${cardIcon}</div>
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-gray-800 capitalize leading-tight">${brand} <span class="text-gray-400 font-normal ml-1">•••• ${last4}</span></span>
-                                        <span class="text-xs text-gray-500 font-medium">Expires ${exp}</span>
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 mr-4 flex items-center justify-center transition-colors radio-circle flex-shrink-0 relative z-10">
+                               <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 radio-dot"></div>
+                            </div>
+                            
+                            <div class="flex-1 relative z-10">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="bg-gray-100 p-2 rounded-lg text-xl">${cardIcon}</div>
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-gray-800 capitalize leading-tight">${brand} <span class="text-gray-400 font-normal ml-1">•••• ${last4}</span></span>
+                                            <span class="text-xs text-gray-500 font-medium">Expires ${exp}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </label>
-                `;
-            });
+                        </label>
+                    `;
+                });
+            } else {
+                 html = `<div class="p-4 text-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-xl mb-4">No saved cards found</div>`;
+            }
 
             list.innerHTML = html;
 
@@ -286,11 +327,20 @@
             document.querySelectorAll('input[name="payment_method"]').forEach(input => {
                 input.addEventListener('change', (e) => {
                     const newCardSection = document.getElementById('new-card-section');
+                    const savedCardSummary = document.getElementById('saved-card-summary');
+                    
                     if (e.target.value === 'new') {
-                        newCardSection.classList.remove('hidden', 'opacity-50', 'pointer-events-none');
+                        newCardSection.classList.remove('hidden');
+                        savedCardSummary.classList.add('hidden');
                     } else {
-                        // Instead of hiding completely, let's just visually dim it or hide it smoothly
                         newCardSection.classList.add('hidden');
+                        savedCardSummary.classList.remove('hidden');
+                        
+                        // Update summary details
+                        if (e.target.dataset.brand) {
+                             document.getElementById('summary-brand').textContent = e.target.dataset.brand;
+                             document.getElementById('summary-last4').textContent = e.target.dataset.last4;
+                        }
                     }
                 });
             });

@@ -211,6 +211,44 @@ class StripeService
     {
         $customer = $this->createOrGetCustomer($user);
 
+        // Check for existing PaymentIntent with status 'requires_payment_method'
+        // This prevents duplicate PaymentIntents if the user retries without refreshing or similar scenarios
+        try {
+            $existingIntents = PaymentIntent::all([
+                'customer' => $customer->id,
+                'limit' => 5, // Check the last 5 intents
+            ]);
+
+            foreach ($existingIntents->data as $existingIntent) {
+                if (
+                    $existingIntent->status === 'requires_payment_method' &&
+                    $existingIntent->amount === $amount &&
+                    strtolower($existingIntent->currency) === strtolower($currency)
+                ) {
+                    // Reuse this intent
+                    // Make sure it exists in DB (in case it was deleted manually)
+                    $existingLog = \App\Models\StripeLog::where('payment_intent_id', $existingIntent->id)->first();
+                    
+                    if (!$existingLog) {
+                        \App\Models\StripeLog::create([
+                            'user_id' => $user->id,
+                            'type' => 'payment_intent',
+                            'stripe_customer_id' => $customer->id,
+                            'payment_intent_id' => $existingIntent->id,
+                            'amount' => $existingIntent->amount / 100,
+                            'currency' => $existingIntent->currency,
+                            'status' => $existingIntent->status,
+                            'payload' => $existingIntent->toArray(),
+                        ]);
+                    }
+
+                    return $existingIntent;
+                }
+            }
+        } catch (Exception $e) {
+            // If listing fails, proceed to create new one safely
+        }
+
         $params = [
             'amount' => $amount,
             'currency' => $currency,
