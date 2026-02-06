@@ -4,6 +4,7 @@ namespace App\Services\Gateways;
 
 use App\Events\StripePaymentEvent;
 use Stripe\Webhook;
+use Stripe\Stripe;
 use Stripe\Exception\SignatureVerificationException;
 use App\Models\StripeLog;
 use Illuminate\Support\Facades\Log;
@@ -12,6 +13,7 @@ class StripeWebhookService
 {
     public function handleWebhook($payload, $sigHeader)
     {
+        Stripe::setApiKey(config('services.stripe.secret'));
         $endpointSecret = config('services.stripe.webhook');
 
         try {
@@ -61,12 +63,43 @@ class StripeWebhookService
         $log = StripeLog::where('session_id', $session->id)->first();
 
         if ($log) {
-            $log->update([
+            $updateData = [
                 'status' => $session->payment_status, // paid, unpaid, no_payment_required
                 'payment_intent_id' => $session->payment_intent,
                 'subscription_id' => $session->subscription, // Save subscription ID if available
                 'payload' => array_merge($log->payload ?? [], ['webhook_event' => $eventType, 'session_details' => $session->toArray()]),
-            ]);
+            ];
+
+            // If this is a subscription checkout, retrieve details to set next_payment_date
+            if ($session->subscription) {
+                try {
+                    $subscription = \Stripe\Subscription::retrieve($session->subscription);
+                    
+                    // Log::info("Webhook Subscription Object Dump:", $subscription->toArray()); // Commented out to reduce noise
+
+                    $nextPaymentDate = null;
+
+                    // Try top-level current_period_end
+                    if (isset($subscription->current_period_end)) {
+                         $nextPaymentDate = $subscription->current_period_end;
+                    } 
+                    // Fallback: Try first subscription item's current_period_end
+                    elseif (isset($subscription->items->data[0]->current_period_end)) {
+                         $nextPaymentDate = $subscription->items->data[0]->current_period_end;
+                    }
+
+                    $updateData['next_payment_date'] = $nextPaymentDate 
+                        ? date('Y-m-d H:i:s', $nextPaymentDate) 
+                        : null;
+
+                    $updateData['next_payment_status'] = 'scheduled';
+                    $updateData['product_name'] = $log->product_name; 
+                } catch (\Exception $e) {
+                    Log::error("Failed to retrieve subscription in webhook: " . $e->getMessage());
+                }
+            }
+
+            $log->update($updateData);
             Log::info("StripeLog updated for session: {$session->id}");
             
             // Dispatch generic event
@@ -80,7 +113,13 @@ class StripeWebhookService
 
     protected function handleInvoicePaymentSucceeded($invoice, $eventType)
     {
-        // This event happens for subscription renewals (and initial subscription payments)
+        // Prevent duplicate logs for the initial subscription payment (already handled by checkout.session.completed)
+        if (isset($invoice->billing_reason) && $invoice->billing_reason === 'subscription_create') {
+            Log::info("Skipping invoice.payment_succeeded for subscription creation to avoid duplicate log: {$invoice->id}");
+            return;
+        }
+
+        // This event happens for subscription renewals
         // We need to create a NEW log entry for each renewal payment
         
         $user = \App\Models\User::where('stripe_id', $invoice->customer)->first();

@@ -113,6 +113,8 @@ class StripeService
             'amount' => $session->amount_total ? $session->amount_total : 0,
             'currency' => $session->currency,
             'status' => $session->status,
+            'interval' => 'month', // Default assumption for fixed price if not fetched
+            'interval_count' => 1,
             'payload' => $session->toArray(),
         ]);
 
@@ -183,6 +185,10 @@ class StripeService
             'amount' => $priceData['amount'] / 100,
             'currency' => $priceData['currency'] ?? 'usd',
             'status' => $session->status,
+            'product_name' => $priceData['product_name'] ?? 'Subscription Plan',
+            'interval' => $priceData['interval'],
+            'interval_count' => $priceData['interval_count'] ?? 1,
+            'next_payment_status' => 'scheduled', // Initial status
             'payload' => $session->toArray(),
         ]);
 
