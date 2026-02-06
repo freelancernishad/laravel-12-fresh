@@ -198,7 +198,7 @@ class StripeWebhookService
 
         if ($log) {
             $log->update([
-                'status' => $paymentIntent->status, // succeeded
+                'status' => 'paid', // Explicitly set to 'paid' instead of 'succeeded'
                 'payload' => array_merge($log->payload ?? [], ['webhook_event' => $eventType, 'intent_details' => $paymentIntent->toArray()]),
             ]);
              Log::info("StripeLog updated for payment intent: {$paymentIntent->id}");

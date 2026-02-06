@@ -207,16 +207,25 @@ class StripeService
     /**
      * Create a Payment Intent.
      */
-    public function createPaymentIntent(User $user, int $amount, string $currency = 'usd', array $metadata = [])
+    public function createPaymentIntent(User $user, int $amount, string $currency = 'usd', array $metadata = [], bool $setupFutureUsage = false)
     {
         $customer = $this->createOrGetCustomer($user);
 
-        $intent = PaymentIntent::create([
+        $params = [
             'amount' => $amount,
             'currency' => $currency,
             'customer' => $customer->id,
             'metadata' => $metadata,
-        ]);
+            'automatic_payment_methods' => [
+                'enabled' => true,
+            ],
+        ];
+
+        if ($setupFutureUsage) {
+            $params['setup_future_usage'] = 'off_session';
+        }
+
+        $intent = PaymentIntent::create($params);
 
         \App\Models\StripeLog::create([
             'user_id' => $user->id,
@@ -230,6 +239,14 @@ class StripeService
         ]);
 
         return $intent;
+    }
+
+    /**
+     * Update an existing Payment Intent.
+     */
+    public function updatePaymentIntent(string $paymentIntentId, array $data)
+    {
+        return PaymentIntent::update($paymentIntentId, $data);
     }
 
     /**

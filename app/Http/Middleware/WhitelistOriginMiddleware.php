@@ -46,6 +46,7 @@ class WhitelistOriginMiddleware
             if (!$allowedOrigin) {
                 return response()->json([
                     'message' => 'Access denied. Your origin is not allowed.',
+                    'origin' => $origin,
                 ], 403);
             }
         }

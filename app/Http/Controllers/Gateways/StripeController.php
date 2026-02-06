@@ -90,10 +90,35 @@ class StripeController extends Controller
         $amount = $request->input('amount');
         $currency = $request->input('currency', 'usd');
         $metadata = $request->input('metadata', []);
+        $successUrl = $request->input('success_url', url('/payment/success'));
+        $saveCard = $request->boolean('save_card', true);
 
         try {
-            $intent = $this->stripeService->createPaymentIntent($user, $amount, $currency, $metadata);
-            return response()->json(['client_secret' => $intent->client_secret]);
+            $intent = $this->stripeService->createPaymentIntent($user, $amount, $currency, $metadata, $saveCard);
+            return response()->json([
+                'client_secret' => $intent->client_secret,
+                'success_url' => $successUrl
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+    }
+
+    public function updatePaymentIntent(Request $request)
+    {
+        $id = $request->input('payment_intent_id');
+        $saveCard = $request->boolean('save_card', false);
+        
+        $data = [];
+        if ($saveCard) {
+            $data['setup_future_usage'] = 'off_session';
+        }
+
+        try {
+            if (!empty($data)) {
+                $this->stripeService->updatePaymentIntent($id, $data);
+            }
+            return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }

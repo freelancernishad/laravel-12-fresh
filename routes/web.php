@@ -53,3 +53,10 @@ Route::get('/run-migrate', function() {
 
 // For web routes
 Route::get('/clear-cache', [SystemSettingController::class, 'clearCache']);
+
+Route::get('/payment/test-intent', function () {
+
+   
+    $stripeKey = config('services.stripe.key');
+    return view('payment.stripe-intent', compact('stripeKey'));
+});

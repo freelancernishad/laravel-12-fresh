@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\SupportAndConnect\Ticket;
 
-
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\FileSystem\FileUploadService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
