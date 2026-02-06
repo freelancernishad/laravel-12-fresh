@@ -40,6 +40,12 @@ class StripeWebhookService
             case 'payment_intent.payment_failed':
                 $this->handlePaymentIntentFailed($event->data->object, $event->type);
                 break;
+            case 'invoice.payment_succeeded':
+                $this->handleInvoicePaymentSucceeded($event->data->object, $event->type);
+                break;
+            case 'customer.subscription.deleted':
+                $this->handleSubscriptionDeleted($event->data->object, $event->type);
+                break;
             // Add other event types as needed
             default:
                 Log::info('Received unknown event type ' . $event->type);
@@ -58,6 +64,7 @@ class StripeWebhookService
             $log->update([
                 'status' => $session->payment_status, // paid, unpaid, no_payment_required
                 'payment_intent_id' => $session->payment_intent,
+                'subscription_id' => $session->subscription, // Save subscription ID if available
                 'payload' => array_merge($log->payload ?? [], ['webhook_event' => $eventType, 'session_details' => $session->toArray()]),
             ]);
             Log::info("StripeLog updated for session: {$session->id}");
@@ -69,6 +76,80 @@ class StripeWebhookService
             // Still dispatch event, but without user_id
             StripePaymentEvent::dispatch($eventType, $session->toArray(), 'success');
         }
+    }
+
+    protected function handleInvoicePaymentSucceeded($invoice, $eventType)
+    {
+        // This event happens for subscription renewals (and initial subscription payments)
+        // We need to create a NEW log entry for each renewal payment
+        
+        $user = \App\Models\User::where('stripe_id', $invoice->customer)->first();
+        $userId = $user ? $user->id : null;
+
+        // Extract detailed info
+        $lineItem = $invoice->lines->data[0] ?? null;
+        $planName = $lineItem ? ($lineItem->description ?? 'Unknown Subscription') : 'Unknown';
+        $periodStart = isset($lineItem->period->start) ? date('Y-m-d H:i:s', $lineItem->period->start) : null;
+        $periodEnd = isset($lineItem->period->end) ? date('Y-m-d H:i:s', $lineItem->period->end) : null; // Effectively the next charge date
+        
+        $interval = $lineItem->price->recurring->interval ?? null;
+        $intervalCount = $lineItem->price->recurring->interval_count ?? null;
+
+        $log = StripeLog::create([
+            'user_id' => $userId,
+            'type' => 'subscription_renewal', // Distinct type for renewals
+            'stripe_customer_id' => $invoice->customer,
+            'session_id' => $invoice->subscription, // Using subscription ID as session ref (legacy)
+            'subscription_id' => $invoice->subscription, // Storing explicitly
+            'payment_intent_id' => $invoice->payment_intent,
+            'amount' => $invoice->amount_paid / 100,
+            'currency' => $invoice->currency,
+            'status' => $invoice->status, // paid
+            'product_name' => $planName,
+            'next_payment_date' => $periodEnd,
+            'next_payment_status' => $periodEnd ? 'scheduled' : 'none',
+            'interval' => $interval,
+            'interval_count' => $intervalCount,
+            'payload' => [
+                'webhook_event' => $eventType, 
+                'subscription_name' => $planName,
+                'current_period_start' => $periodStart,
+                'next_payment_date' => $periodEnd,
+                'next_payment_status' => $periodEnd ? 'scheduled' : 'none',
+                'interval' => $interval,
+                'interval_count' => $intervalCount,
+                'invoice_details' => $invoice->toArray()
+            ],
+        ]);
+        
+        Log::info("StripeLog created for subscription renewal: {$invoice->id}", ['next_payment' => $periodEnd]);
+
+        StripePaymentEvent::dispatch($eventType, $invoice->toArray(), 'success', $userId);
+    }
+    
+    protected function handleSubscriptionDeleted($subscription, $eventType)
+    {
+        // Find the latest log for this subscription to update status or create a new log
+        // Ideally we should create a new event log for the cancellation action
+        $user = \App\Models\User::where('stripe_id', $subscription->customer)->first();
+        $userId = $user ? $user->id : null;
+
+        $log = StripeLog::create([
+            'user_id' => $userId,
+            'type' => 'subscription_canceled',
+            'stripe_customer_id' => $subscription->customer,
+            'subscription_id' => $subscription->id,
+            'status' => 'canceled',
+            'next_payment_status' => 'none',
+            'payload' => [
+                'webhook_event' => $eventType,
+                'cancellation_details' => $subscription->toArray()
+            ],
+        ]);
+        
+        Log::info("StripeLog created for subscription cancellation: {$subscription->id}");
+        
+        StripePaymentEvent::dispatch($eventType, $subscription->toArray(), 'canceled', $userId);
     }
 
     protected function handlePaymentIntentSucceeded($paymentIntent, $eventType)

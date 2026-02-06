@@ -99,6 +99,7 @@ class StripeService
             'type' => 'subscription',
             'stripe_customer_id' => $customer->id,
             'session_id' => $session->id,
+            'subscription_id' => $session->subscription,
             'amount' => $session->amount_total ? $session->amount_total : 0,
             'currency' => $session->currency,
             'status' => $session->status,
@@ -110,10 +111,34 @@ class StripeService
 
     /**
      * Create a subscription session with dynamic price (custom interval).
+     * 
+     * @param array $priceData ['amount', 'currency', 'interval', 'interval_count', 'product_name', 'duration_in_months']
      */
     public function createCustomSubscriptionSession(User $user, array $priceData, string $successUrl, string $cancelUrl)
     {
         $customer = $this->createOrGetCustomer($user);
+
+        $subscriptionData = [];
+
+        // Calculate cancel_at if duration is provided (e.g., charge for 8 months)
+        if (isset($priceData['duration_in_months']) && $priceData['duration_in_months'] > 0) {
+             // Calculate end timestamp based on interval and count * duration
+             // Logic: If interval is month, count is 1, duration is 8 -> 8 months later
+             // Note: This is an approximation. Precise billing cycles are handled by Stripe.
+             // We set cancel_at to: now + (interval_count * duration_in_months)
+             
+             $now = \Carbon\Carbon::now();
+             $interval = $priceData['interval']; // day, week, month, year
+             $count = $priceData['interval_count'] ?? 1;
+             $totalDuration = $count * $priceData['duration_in_months'];
+             
+             if ($interval === 'day') $now->addDays($totalDuration);
+             elseif ($interval === 'week') $now->addWeeks($totalDuration);
+             elseif ($interval === 'month') $now->addMonths($totalDuration);
+             elseif ($interval === 'year') $now->addYears($totalDuration);
+             
+             $subscriptionData['cancel_at'] = $now->timestamp;
+        }
 
         // Price data should include: amount, currency, interval, interval_count, product_name
         $session = CheckoutSession::create([
@@ -134,6 +159,7 @@ class StripeService
                 'quantity' => 1,
             ]],
             'mode' => 'subscription',
+            'subscription_data' => $subscriptionData,
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
         ]);
@@ -143,6 +169,7 @@ class StripeService
             'type' => 'subscription_custom',
             'stripe_customer_id' => $customer->id,
             'session_id' => $session->id,
+            'subscription_id' => $session->subscription,
             'amount' => $priceData['amount'] / 100,
             'currency' => $priceData['currency'] ?? 'usd',
             'status' => $session->status,
@@ -150,6 +177,15 @@ class StripeService
         ]);
 
         return $session;
+    }
+
+    /**
+     * Cancel a subcription immediately.
+     */
+    public function cancelSubscription(string $subscriptionId)
+    {
+        $subscription = \Stripe\Subscription::retrieve($subscriptionId);
+        return $subscription->cancel();
     }
 
     /**

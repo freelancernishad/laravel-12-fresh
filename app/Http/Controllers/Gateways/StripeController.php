@@ -55,10 +55,26 @@ class StripeController extends Controller
                     'interval' => $request->input('interval', 'month'), // day, week, month, year
                     'interval_count' => $request->input('interval_count', 1),
                     'product_name' => $request->input('product_name', 'Subscription Plan'),
+                    'duration_in_months' => $request->input('duration_in_months'), // e.g. 8 for 8 months
                 ];
                 $session = $this->stripeService->createCustomSubscriptionSession($user, $priceData, $successUrl, $cancelUrl);
             }
             return response()->json(['id' => $session->id, 'url' => $session->url]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Cancel a Subscription.
+     */
+    public function cancelSubscription(Request $request)
+    {
+        $subscriptionId = $request->input('subscription_id');
+
+        try {
+            $this->stripeService->cancelSubscription($subscriptionId);
+            return response()->json(['message' => 'Subscription canceled successfully']);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
