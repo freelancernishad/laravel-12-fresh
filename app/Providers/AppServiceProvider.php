@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use App\Models\SystemSetting;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Event;
+use App\Events\StripePaymentEvent;
+use App\Listeners\CheckStripePaymentStatus;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +41,12 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Exception $e) {
             \Log::error('Unexpected error loading system settings: ' . $e->getMessage());
         }
+
+        // Register Stripe Event Listener
+        Event::listen(
+            StripePaymentEvent::class,
+            [CheckStripePaymentStatus::class, 'handle']
+        );
     }
 
     /**
