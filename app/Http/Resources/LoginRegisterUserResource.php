@@ -8,11 +8,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class LoginRegisterUserResource extends JsonResource
 {
     protected $token;
+    protected $message;
+    protected $isError;
 
-    public function __construct($resource, $token)
+    public function __construct($resource, $token, $message = null, $isError = false)
     {
         parent::__construct($resource);
         $this->token = $token;
+        $this->message = $message;
+        $this->isError = $isError;
     }
 
     /**
@@ -33,6 +37,8 @@ class LoginRegisterUserResource extends JsonResource
                 'role' => $this->role,
                 'last_login_at' => optional($this->last_login_at)->toDateTimeString(),
             ],
+            'Message' => $this->message,
+            'isError' => $this->isError,
         ];
     }
 }

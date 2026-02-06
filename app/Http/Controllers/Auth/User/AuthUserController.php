@@ -116,7 +116,7 @@ public function register(RegisterRequest $request)
         }
     }
 
-    return response()->json(new LoginRegisterUserResource($user, $token), 201);
+    return response()->json(new LoginRegisterUserResource($user, $token, $emailMessage, !$emailSent), 201);
 }
 
 
