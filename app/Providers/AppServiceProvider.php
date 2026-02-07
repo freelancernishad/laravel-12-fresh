@@ -27,14 +27,19 @@ class AppServiceProvider extends ServiceProvider
 
             foreach ($settings as $key => $value) {
                 Config::set($key, $value);
-                // $_ENV[$key] = $value; // We don't need to manually set $_ENV as Laravel uses config() for most things
             }
 
-            // Explicitly configure email settings if present
+            // Explicitly configure settings if present
             if ($settings->isNotEmpty()) {
                 $this->configureMailSettings($settings);
                 $this->configureStripeSettings($settings);
+                $this->configureAwsSettings($settings);
+                $this->configureJwtSettings($settings);
+                $this->configureTwilioSettings($settings);
             }
+
+            // Configure Allowed Origins (CORS)
+            $this->configureCorsSettings();
 
         } catch (QueryException $e) {
             \Log::error('Error loading system settings: ' . $e->getMessage());
@@ -93,5 +98,74 @@ class AppServiceProvider extends ServiceProvider
         Config::set('services.stripe.key', $settings->get('STRIPE_KEY'));
         Config::set('services.stripe.secret', $settings->get('STRIPE_SECRET'));
         Config::set('services.stripe.webhook', $settings->get('STRIPE_WEBHOOK_SECRET'));
+    }
+
+    /**
+     * Configure AWS settings dynamically.
+     *
+     * @param \Illuminate\Support\Collection $settings
+     * @return void
+     */
+    protected function configureAwsSettings($settings)
+    {
+        Config::set('filesystems.disks.s3.key', $settings->get('AWS_ACCESS_KEY_ID'));
+        Config::set('filesystems.disks.s3.secret', $settings->get('AWS_SECRET_ACCESS_KEY'));
+        Config::set('filesystems.disks.s3.region', $settings->get('AWS_DEFAULT_REGION'));
+        Config::set('filesystems.disks.s3.bucket', $settings->get('AWS_BUCKET'));
+        Config::set('filesystems.disks.s3.use_path_style_endpoint', filter_var($settings->get('AWS_USE_PATH_STYLE_ENDPOINT', false), FILTER_VALIDATE_BOOLEAN));
+        // Note: AWS_FILE_LOAD_BASE is often used in custom logic, usually corresponding to filesystems.disks.s3.url or similar
+        if ($settings->has('AWS_FILE_LOAD_BASE')) {
+            Config::set('filesystems.disks.s3.url', $settings->get('AWS_FILE_LOAD_BASE'));
+        }
+    }
+
+    /**
+     * Configure JWT settings dynamically.
+     *
+     * @param \Illuminate\Support\Collection $settings
+     * @return void
+     */
+    protected function configureJwtSettings($settings)
+    {
+        if ($settings->has('JWT_TTL')) {
+            Config::set('jwt.ttl', (int) $settings->get('JWT_TTL'));
+        }
+        if ($settings->has('JWT_REFRESH_TTL')) {
+            Config::set('jwt.refresh_ttl', (int) $settings->get('JWT_REFRESH_TTL'));
+        }
+        if ($settings->has('JWT_BLACKLIST_ENABLED')) {
+            Config::set('jwt.blacklist_enabled', filter_var($settings->get('JWT_BLACKLIST_ENABLED'), FILTER_VALIDATE_BOOLEAN));
+        }
+    }
+
+    /**
+     * Configure Twilio settings dynamically.
+     *
+     * @param \Illuminate\Support\Collection $settings
+     * @return void
+     */
+    protected function configureTwilioSettings($settings)
+    {
+        Config::set('services.twilio.sid', $settings->get('TWILIO_SID'));
+        Config::set('services.twilio.token', $settings->get('TWILIO_AUTH_TOKEN'));
+        Config::set('services.twilio.from', $settings->get('TWILIO_PHONE_NUMBER'));
+    }
+
+    /**
+     * Configure CORS settings from database.
+     */
+    protected function configureCorsSettings()
+    {
+        try {
+            $origins = \Illuminate\Support\Facades\Cache::rememberForever('allowed_origins', function () {
+                return \App\Models\AllowedOrigin::pluck('origin_url')->toArray();
+            });
+
+            if (!empty($origins)) {
+                Config::set('cors.allowed_origins', $origins);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error loading allowed origins: ' . $e->getMessage());
+        }
     }
 }

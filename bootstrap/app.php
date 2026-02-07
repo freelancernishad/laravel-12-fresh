@@ -19,6 +19,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             '/api/payment/stripe/webhook', // Exclude Stripe webhook
         ]);
+        $middleware->encryptCookies(except: [
+            'admin_token',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {

@@ -28,7 +28,10 @@ class AuthenticateAdmin
 
         // Check if the user is authenticated
         if (!Auth::guard('admin')->check()) {
-            return response()->json([], 401);
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthorized'], 401);
+            }
+            return redirect()->route('admin.login.view');
         }
 
         return $next($request);

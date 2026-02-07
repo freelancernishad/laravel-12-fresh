@@ -66,6 +66,11 @@ return [
             'secret' => env('JWT_SECRET'), // Replace with your admin secret key
         ],
 
+        'admin_web' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
+
         // 'student' => [
         //     'driver' => 'jwt',
         //     'provider' => 'students',

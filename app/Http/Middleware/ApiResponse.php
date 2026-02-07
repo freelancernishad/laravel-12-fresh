@@ -141,6 +141,11 @@ class ApiResponse
             return $responseData['data'];
         }
 
+        // If the response is a sequential list (indexed array), return it as is
+        if (array_is_list($responseData)) {
+            return $responseData;
+        }
+
         // If the response has a nested key like 'service', use it
         foreach ($responseData as $key => $value) {
             if ($key !== 'message' && $key !== 'success' && is_array($value)) {

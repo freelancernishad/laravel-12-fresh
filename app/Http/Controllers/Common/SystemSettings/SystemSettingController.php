@@ -12,6 +12,12 @@ use App\Http\Requests\Common\SystemSettingStoreRequest;
 
 class SystemSettingController extends Controller
 {
+    public function index()
+    {
+        $settings = SystemSetting::all()->pluck('value', 'key');
+        return response()->json($settings);
+    }
+
     public function storeOrUpdate(SystemSettingStoreRequest $request)
     {
         $settingsData = $request->all();

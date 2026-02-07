@@ -20,7 +20,7 @@ class AllowedOriginController extends Controller
         // Retrieve all allowed origins from the database
         $origins = AllowedOrigin::all();
 
-        return response()->json($origins);
+        return response()->json(['origins'=>$origins]);
     }
 
     /**
@@ -37,7 +37,7 @@ class AllowedOriginController extends Controller
             'origin_url' => $request->origin_url,
         ]);
 
-        return response()->json($origin, 201);
+        return response()->json(['origins'=>$origin], 201);
     }
 
     /**
@@ -58,7 +58,7 @@ class AllowedOriginController extends Controller
             'origin_url' => $request->origin_url,
         ]);
 
-        return response()->json($origin);
+        return response()->json(['origins'=>$origin], 200);
     }
 
     /**

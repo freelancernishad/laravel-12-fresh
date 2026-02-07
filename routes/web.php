@@ -3,7 +3,11 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
-use App\Http\Controllers\Common\SystemSettings\SystemSettingController;
+use App\Http\Middleware\AuthenticateAdmin;
+use App\Http\Middleware\AttachJwtFromCookie;
+use App\Http\Controllers\Admin\Auth\AdminAuthController as AdminViewAuthController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+
 
 Route::get('/', function () {
     $dbConnected = false;
@@ -52,11 +56,38 @@ Route::get('/run-migrate', function() {
 
 
 // For web routes
-Route::get('/clear-cache', [SystemSettingController::class, 'clearCache']);
+Route::get('/clear-cache', [App\Http\Controllers\Common\SystemSettings\SystemSettingController::class, 'clearCache']);
 
 Route::get('/payment/test-intent', function () {
-
-   
     $stripeKey = config('services.stripe.key');
     return view('payment.stripe-intent', compact('stripeKey'));
+});
+
+// Admins Routes
+
+
+// Admin Dashboard Views
+Route::prefix('admin')->group(function () {
+    
+    // Login View
+    Route::get('/login', [AdminViewAuthController::class, 'showLoginForm'])->name('admin.login.view');
+
+    Route::middleware([AttachJwtFromCookie::class, AuthenticateAdmin::class])->group(function () {
+        
+        // Dashboard
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+        
+        // Settings View
+        Route::get('/settings', [AdminDashboardController::class, 'settings'])->name('admin.settings');
+        
+        // Allowed Origins View
+        Route::get('/origins', function() {
+            // Pass empty array, view will fetch via API
+            return view('admin.origins.index', ['origins' => []]); 
+        })->name('admin.origins.index');
+
+        // Stripe Info View
+        Route::get('/stripe/webhook', [AdminDashboardController::class, 'stripeInfo'])->name('admin.stripe.webhook');
+
+    });
 });
