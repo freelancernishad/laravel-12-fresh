@@ -43,7 +43,8 @@ class PlanSubscriptionController extends Controller
                     $items,
                     $successUrl,
                     $cancelUrl,
-                    $request->boolean('save_card', false)
+                    $request->boolean('save_card', false),
+                    ['plan_id' => $plan->id]
                 );
             } else {
                 // Subscription mode
@@ -59,7 +60,8 @@ class PlanSubscriptionController extends Controller
                     Auth::user(),
                     $priceData,
                     $successUrl,
-                    $cancelUrl
+                    $cancelUrl,
+                    ['plan_id' => $plan->id]
                 );
             }
 

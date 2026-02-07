@@ -47,9 +47,7 @@ class StripeService
     /**
      * Create a Checkout Session for one-time payments.
      */
-     /** Create a Checkout Session for one-time payments.
-     */
-    public function createCheckoutSession(User $user, array $items, string $successUrl, string $cancelUrl, bool $saveCard = false)
+    public function createCheckoutSession(User $user, array $items, string $successUrl, string $cancelUrl, bool $saveCard = false, array $metadata = [])
     {
         $customer = $this->createOrGetCustomer($user);
 
@@ -60,6 +58,7 @@ class StripeService
             'mode' => 'payment',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
+            'metadata' => $metadata,
         ];
 
         if ($saveCard) {
@@ -72,6 +71,7 @@ class StripeService
 
         \App\Models\StripeLog::create([
             'user_id' => $user->id,
+            'plan_id' => $metadata['plan_id'] ?? null,
             'type' => 'checkout',
             'stripe_customer_id' => $customer->id,
             'session_id' => $session->id,
@@ -80,6 +80,7 @@ class StripeService
             'currency' => $session->currency,
             'status' => $session->payment_status,
             'payload' => $session->toArray(),
+            'meta_data' => $metadata,
         ]);
 
         return $session;
@@ -88,7 +89,7 @@ class StripeService
     /**
      * Create a Checkout Session for subscriptions.
      */
-    public function createSubscriptionSession(User $user, string $priceId, string $successUrl, string $cancelUrl)
+    public function createSubscriptionSession(User $user, string $priceId, string $successUrl, string $cancelUrl, array $metadata = [])
     {
         $customer = $this->createOrGetCustomer($user);
 
@@ -102,10 +103,12 @@ class StripeService
             'mode' => 'subscription',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
+            'metadata' => $metadata,
         ]);
 
         \App\Models\StripeLog::create([
             'user_id' => $user->id,
+            'plan_id' => $metadata['plan_id'] ?? null,
             'type' => 'subscription',
             'stripe_customer_id' => $customer->id,
             'session_id' => $session->id,
@@ -116,6 +119,7 @@ class StripeService
             'interval' => 'month', // Default assumption for fixed price if not fetched
             'interval_count' => 1,
             'payload' => $session->toArray(),
+            'meta_data' => $metadata,
         ]);
 
         return $session;
@@ -126,7 +130,7 @@ class StripeService
      * 
      * @param array $priceData ['amount', 'currency', 'interval', 'interval_count', 'product_name', 'duration_in_months']
      */
-    public function createCustomSubscriptionSession(User $user, array $priceData, string $successUrl, string $cancelUrl)
+    public function createCustomSubscriptionSession(User $user, array $priceData, string $successUrl, string $cancelUrl, array $metadata = [])
     {
         $customer = $this->createOrGetCustomer($user);
 
@@ -174,10 +178,12 @@ class StripeService
             'subscription_data' => $subscriptionData,
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
+            'metadata' => $metadata,
         ]);
 
         \App\Models\StripeLog::create([
             'user_id' => $user->id,
+            'plan_id' => $metadata['plan_id'] ?? null,
             'type' => 'subscription_custom',
             'stripe_customer_id' => $customer->id,
             'session_id' => $session->id,
@@ -190,6 +196,7 @@ class StripeService
             'interval_count' => $priceData['interval_count'] ?? 1,
             'next_payment_status' => 'scheduled', // Initial status
             'payload' => $session->toArray(),
+            'meta_data' => $metadata,
         ]);
 
         return $session;

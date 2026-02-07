@@ -17,6 +17,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // $middleware->append(\App\Http\Middleware\Cors::class);
         $middleware->append(\App\Http\Middleware\WhitelistOriginMiddleware::class);
         $middleware->validateCsrfTokens(except: [
+            '/api/stripe/webhook',
             '/api/payment/stripe/webhook', // Exclude Stripe webhook
         ]);
         $middleware->encryptCookies(except: [

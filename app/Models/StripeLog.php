@@ -11,6 +11,7 @@ class StripeLog extends Model
 
     protected $fillable = [
         'user_id',
+        'plan_id',
         'type',
         'stripe_customer_id',
         'session_id',
@@ -25,10 +26,12 @@ class StripeLog extends Model
         'interval',
         'interval_count',
         'payload',
+        'meta_data',
     ];
 
     protected $casts = [
         'payload' => 'array',
+        'meta_data' => 'array',
         'next_payment_date' => 'datetime',
     ];
 
