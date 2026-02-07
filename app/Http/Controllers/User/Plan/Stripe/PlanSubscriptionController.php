@@ -16,59 +16,62 @@ use App\Http\Requests\User\Plan\Stripe\PurchasePlanRequest;
 
 class PlanSubscriptionController extends Controller
 {
-    /**
-     * Create Stripe Checkout Session
-     * Handles both one-time payments and recurring subscriptions
-     */
-    public function PurchasePlan(PurchasePlanRequest $request)
+    public function PurchasePlan(PurchasePlanRequest $request, \App\Services\Gateways\StripeService $stripeService)
     {
-
         $plan = Plan::findOrFail($request->plan_id);
 
-        $paymentType = $request->payment_type ?? 'single';
-        $mode = $paymentType === 'single' ? 'payment' : 'subscription';
-
-        // Prepare line items
-        $lineItems = [[
-            'price_data' => [
-                'currency' => 'usd',
-                'unit_amount' => (int)($plan->discounted_price * 100),
-                'product_data' => [
-                    'name' => $plan->name,
-                    'description' => $mode === 'subscription'
-                        ? 'Recurring Subscription Plan'
-                        : 'One-Time Purchase',
-                ],
-            ],
-            'quantity' => 1,
-        ]];
-
-        // Prepare dynamic metadata
-        $metadata = [
-            'plan_id' => $plan->id,
-            'payment_type' => 'plan_subscription', // Dynamic type
-            'mode' => $mode,
-        ];
+        $paymentType = $request->payment_type ?? 'single'; // single or recurring
+        $successUrl = $request->success_url ?? url('/payment/success');
+        $cancelUrl = $request->cancel_url ?? url('/payment/cancel');
 
         try {
-            $stripeHelper = new StripeHelper();
-            $session = $stripeHelper->createCheckoutSession([
-                'request' => $request,
-                'lineItems' => $lineItems,
-                'metadata' => $metadata,
-                'success_url' => $request->success_url ?? url('/payment/success'),
-                'cancel_url' => $request->cancel_url ?? url('/payment/cancel'),
-            ]);
+            if ($paymentType === 'single') {
+                $items = [[
+                    'price_data' => [
+                        'currency' => 'usd',
+                        'unit_amount' => (int)($plan->discounted_price * 100),
+                        'product_data' => [
+                            'name' => $plan->name,
+                            'description' => 'One-Time Purchase',
+                        ],
+                    ],
+                    'quantity' => 1,
+                ]];
+                
+                $session = $stripeService->createCheckoutSession(
+                    Auth::user(),
+                    $items,
+                    $successUrl,
+                    $cancelUrl,
+                    $request->boolean('save_card', false)
+                );
+            } else {
+                // Subscription mode
+                $priceData = [
+                    'amount' => (int)($plan->discounted_price * 100),
+                    'currency' => 'usd',
+                    'interval' => $plan->duration_type === 'year' ? 'year' : 'month',
+                    'interval_count' => (int)$plan->duration ?: 1,
+                    'product_name' => $plan->name,
+                ];
+                
+                $session = $stripeService->createCustomSubscriptionSession(
+                    Auth::user(),
+                    $priceData,
+                    $successUrl,
+                    $cancelUrl
+                );
+            }
 
             return response()->json([
                 'url' => $session->url,
                 'id' => $session->id,
-                'mode' => $mode,
+                'mode' => $paymentType === 'single' ? 'payment' : 'subscription',
             ]);
         } catch (\Exception $e) {
             Log::error("Purchase failed: " . $e->getMessage());
             return response()->json([
-                'error' => 'Unable to create Stripe checkout session'
+                'error' => 'Unable to create Stripe checkout session: ' . $e->getMessage()
             ], 500);
         }
     }

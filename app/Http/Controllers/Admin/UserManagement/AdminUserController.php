@@ -9,6 +9,7 @@ use App\Imports\UsersImport;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Admin\AdminUserResource;
@@ -205,6 +206,18 @@ public function index(Request $request)
         return response()->json(['message' => 'Users imported successfully']);
     }
 
-
-
+    public function impersonate($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Generate a JWT token for the user targeting the 'user' guard
+        // We use fromUser to get a token for a specific user model
+        $token = JWTAuth::fromUser($user);
+        
+        return response()->json([
+            'message' => 'Impersonation token generated',
+            'token' => $token,
+            'user' => $user
+        ]);
+    }
 }

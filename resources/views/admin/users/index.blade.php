@@ -93,6 +93,35 @@
 
                 <!-- Body -->
                 <div class="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+                    <!-- Basic Info Edit -->
+                    <div class="space-y-4">
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Account Identity</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-400 ml-1">Full Name</label>
+                                <input type="text" id="edit-name" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-400 ml-1">Account Email</label>
+                                <input type="email" id="edit-email" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-400 ml-1">Role / Permissions</label>
+                                <select id="edit-role" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 cursor-pointer">
+                                    <option value="user" class="bg-slate-900">User (Standard)</option>
+                                    <option value="moderator" class="bg-slate-900">Moderator</option>
+                                    <option value="admin" class="bg-slate-900">Administrator</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-400 ml-1">Phone Number</label>
+                                <input type="text" id="edit-phone" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Status Toggles -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div onclick="toggleUserStatus('active')" class="group p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-indigo-500/30 cursor-pointer transition-all">
@@ -147,9 +176,11 @@
                     <div>
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1 block">Staff Notes</label>
                         <textarea id="admin-notes" rows="4" placeholder="Enter private notes about this user..." class="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all resize-none text-sm"></textarea>
-                        <div class="mt-3 flex justify-end">
-                            <button onclick="saveNotes()" class="px-6 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all">Save Notes</button>
-                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-white/5 flex justify-end gap-3">
+                        <button onclick="closeUserModal()" class="px-6 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-sm font-bold transition-all">Cancel</button>
+                        <button onclick="saveUserChanges()" class="px-8 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all">Save Changes</button>
                     </div>
                 </div>
             </div>
@@ -235,9 +266,14 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <button onclick="viewUserDetails(${user.id})" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-indigo-500 text-slate-300 hover:text-white transition-all text-xs font-bold border border-white/5 hover:border-indigo-400/50 shadow-lg">
-                            Manage
-                        </button>
+                        <div class="flex justify-end gap-2">
+                            <button onclick="loginAsUser(${user.id})" class="px-3 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500 text-indigo-400 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 shadow-lg">
+                                Login
+                            </button>
+                            <button onclick="viewUserDetails(${user.id})" class="px-3 py-2 rounded-xl bg-white/5 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest border border-white/5 shadow-lg">
+                                Manage
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -289,7 +325,13 @@
             document.getElementById('modal-user-name').innerText = selectedUser.name;
             document.getElementById('modal-user-email').innerText = selectedUser.email;
             document.getElementById('modal-avatar').innerText = selectedUser.name.charAt(0);
+            
+            document.getElementById('edit-name').value = selectedUser.name;
+            document.getElementById('edit-email').value = selectedUser.email;
+            document.getElementById('edit-role').value = selectedUser.role || 'user';
+            document.getElementById('edit-phone').value = selectedUser.phone || '';
             document.getElementById('admin-notes').value = selectedUser.notes || '';
+            
             document.getElementById('password-feedback').classList.add('hidden');
             
             updateToggleUI('status', selectedUser.is_active);
@@ -365,23 +407,57 @@
             } catch (e) { showToast('Verification failed', 'error'); }
         }
 
-        async function saveNotes() {
-            const notes = document.getElementById('admin-notes').value;
+        async function saveUserChanges() {
+            const data = {
+                name: document.getElementById('edit-name').value,
+                email: document.getElementById('edit-email').value,
+                role: document.getElementById('edit-role').value,
+                phone: document.getElementById('edit-phone').value,
+                notes: document.getElementById('admin-notes').value,
+                is_active: selectedUser.is_active,
+                is_blocked: selectedUser.is_blocked
+            };
+
             try {
-                const response = await fetch(`/api/admin/users/${selectedUser.id}/update-notes`, {
+                const response = await fetch(`/api/admin/user/${selectedUser.id}`, {
                     method: 'PATCH',
                     headers: { 
                         'Authorization': 'Bearer ' + getCookie('admin_token'), 
                         'Content-Type': 'application/json',
                         'Accept': 'application/json' 
                     },
-                    body: JSON.stringify({ notes })
+                    body: JSON.stringify(data)
                 });
+                const result = await response.json();
                 if (response.ok) {
-                    selectedUser.notes = notes;
-                    showToast('Notes saved');
+                    showToast('User updated successfully');
+                    fetchUsers(currentPage);
+                    closeUserModal();
+                } else {
+                    const errorMsg = result.Message || result.message || 'Update failed';
+                    showToast(errorMsg, 'error');
                 }
-            } catch (e) { showToast('Save failed', 'error'); }
+            } catch (e) { showToast('Action failed', 'error'); }
+        }
+
+        async function loginAsUser(id) {
+            if (!confirm('Login as this user? You will be redirected.')) return;
+            try {
+                const response = await fetch(`/api/admin/users/${id}/impersonate`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': 'Bearer ' + getCookie('admin_token'),
+                        'Accept': 'application/json' 
+                    }
+                });
+                const result = await response.json();
+                if (response.ok && result.token) {
+                    // Store user token (Assuming it's stored in a cookie like 'user_token')
+                    document.cookie = `user_token=${result.token}; path=/; max-age=3600`;
+                    showToast('Redirecting as user...');
+                    setTimeout(() => window.location.href = '/user/dashboard', 1000);
+                }
+            } catch (e) { showToast('Impersonation failed', 'error'); }
         }
 
         function closeUserModal() {

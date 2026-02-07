@@ -14,5 +14,6 @@ Route::prefix('admin')->middleware(AuthenticateAdmin::class)->group(function () 
     Route::patch('users/{id}/verify-email', [AdminUserController::class, 'verifyEmail']);
     Route::patch('users/{id}/update-notes', [AdminUserController::class, 'updateNotes']);
     Route::post('users/bulk-action', [AdminUserController::class, 'bulkAction']);
+    Route::post('users/{id}/impersonate', [AdminUserController::class, 'impersonate']);
     Route::delete('users/{id}', [AdminUserController::class, 'destroy']);
 });
