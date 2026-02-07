@@ -89,5 +89,14 @@ Route::prefix('admin')->group(function () {
         // Stripe Info View
         Route::get('/stripe/webhook', [AdminDashboardController::class, 'stripeInfo'])->name('admin.stripe.webhook');
 
+        // Plans & Features Management Views
+        Route::get('/plan/features', function() {
+            return view('admin.plans.features');
+        })->name('admin.plans.features');
+
+        Route::get('/plans', function() {
+            return view('admin.plans.index');
+        })->name('admin.plans.index');
+
     });
 });

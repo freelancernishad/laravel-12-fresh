@@ -154,6 +154,24 @@
                 </svg>
                 <span class="font-medium">Stripe Webhook</span>
             </a>
+
+            <div class="px-6 pt-4 pb-2">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Plan Management</p>
+            </div>
+
+            <a href="{{ route('admin.plans.features') }}" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all {{ request()->routeIs('admin.plans.features') ? 'active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <span class="font-medium">Features</span>
+            </a>
+
+            <a href="{{ route('admin.plans.index') }}" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all {{ request()->routeIs('admin.plans.index') ? 'active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <span class="font-medium">Plans</span>
+            </a>
         </nav>
 
         <div class="p-4 border-t border-white/5">

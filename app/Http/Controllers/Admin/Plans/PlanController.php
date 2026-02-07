@@ -29,7 +29,7 @@ class PlanController extends Controller
             return response()->json(['message' => 'Plan not found'], 404);
         }
 
-        return response()->json($plan);
+        return response()->json($plan->makeVisible('features'));
     }
 
     // Create a new plan
@@ -47,7 +47,7 @@ class PlanController extends Controller
 
     return response()->json([
         'message' => 'Plan created successfully',
-        'plan' => $plan,
+        'plan' => $plan->makeVisible('features'),
     ], 201);
 }
 
@@ -68,7 +68,7 @@ class PlanController extends Controller
 
     return response()->json([
         'message' => 'Plan updated successfully',
-        'plan' => $plan,
+        'plan' => $plan->makeVisible('features'),
     ]);
 }
 

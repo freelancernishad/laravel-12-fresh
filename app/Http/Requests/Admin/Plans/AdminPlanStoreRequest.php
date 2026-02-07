@@ -21,8 +21,8 @@ class AdminPlanStoreRequest extends FormRequest
             'discount_percentage' => 'required|numeric|min:0|max:100',
             'features' => 'required|array',
             'features.*.key' => 'required|string|exists:plan_features,key',
-            'features.*.value' => 'required|string',
-            'features.*.amount' => 'nullable|numeric',
+            'features.*.value' => 'nullable|string',
+            'features.*.amount' => 'nullable|string',
         ];
     }
 }

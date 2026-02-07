@@ -61,7 +61,7 @@ class Plan extends Model
             $plan->discounted_price = 0;
         }
 
-        $plan->duration = is_numeric($numericDuration) ? "{$numericDuration} months" : $plan->duration;
+        $plan->duration = is_numeric($numericDuration) ? ($numericDuration == 1 ? "1 month" : "{$numericDuration} months") : $plan->duration;
     }
 
     protected static function parseDuration($duration)
