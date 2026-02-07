@@ -98,5 +98,24 @@ Route::prefix('admin')->group(function () {
             return view('admin.plans.index');
         })->name('admin.plans.index');
 
+        // Coupons Management
+        Route::get('/coupons', function() {
+            return view('admin.coupons.index');
+        })->name('admin.coupons.index');
+
+        // Subscriptions & Payments
+        Route::get('/subscriptions', function() {
+            return view('admin.subscriptions.index');
+        })->name('admin.subscriptions.index');
+
+        Route::get('/payments', function() {
+            return view('admin.payments.index');
+        })->name('admin.payments.index');
+
+        // User Management
+        Route::get('/users', function() {
+            return view('admin.users.index');
+        })->name('admin.users.index');
+
     });
 });
