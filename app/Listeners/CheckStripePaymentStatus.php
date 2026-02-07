@@ -56,80 +56,142 @@ class CheckStripePaymentStatus
         $user = \App\Models\User::find($event->userId);
         if (!$user) return;
 
-        // Find Plan ID from metadata or StripeLog
-        $planId = $event->payload['metadata']['plan_id'] ?? null;
-        
-        if (!$planId) {
-            $sessionId = $event->payload['id'] ?? null;
-            if ($sessionId) {
-                $log = \App\Models\StripeLog::where('session_id', $sessionId)->first();
-                $planId = $log?->plan_id;
-            }
+        $sessionId = $event->payload['id'] ?? null;
+        $log = null;
+        if ($sessionId) {
+            $log = \App\Models\StripeLog::where('session_id', $sessionId)->first();
         }
 
+        // Use Log as fallback if payload is missing crucial data (like Plan ID or Sub ID)
+        $subscriptionId = $event->payload['subscription'] ?? $log?->subscription_id ?? null;
+        $planId = $event->payload['metadata']['plan_id'] ?? $log?->plan_id ?? null;
+
+        Log::info("Processing subscription. User: {$event->userId}, Session: " . ($sessionId ?? 'N/A') . ", SubID: " . ($subscriptionId ?? 'NONE') . ", PlanID: " . ($planId ?? 'MISSING'));
+
         if (!$planId) {
-            Log::warning("Plan ID not found for successful payment. User: {$user->id}, Session: " . ($event->payload['id'] ?? 'N/A'));
+            Log::warning("Plan ID not found for successful payment.");
             return;
         }
 
         $plan = \App\Models\Plan\Plan::find($planId);
         if (!$plan) return;
 
-        // Create or update subscription
-        // For simplicity, we create a new active subscription. 
-        // In a real app, you might want to cancel old ones.
-        
-        $subscriptionId = $event->payload['subscription'] ?? null;
-        
         $startDate = now();
         $endDate = null;
+        $nextBillingDate = null;
 
-        // Calculate end date for one-time payments if duration is set
-        if (!$subscriptionId && $plan->duration) {
+        // 1. Source dates from StripeLog (Highest priority as it reflects already processed logic)
+        if ($log && $log->next_payment_date) {
+            $nextBillingDate = \Carbon\Carbon::parse($log->next_payment_date);
+            $endDate = \Carbon\Carbon::parse($log->next_payment_date);
+            Log::info("Using dates from StripeLog: " . $nextBillingDate->toDateTimeString());
+        }
+
+        // 2. Source dates from Stripe API if still missing (for subscription modes)
+        if (!$nextBillingDate && $subscriptionId) {
+            try {
+                \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+                $stripeSubscription = \Stripe\Subscription::retrieve($subscriptionId);
+                
+                if (!empty($stripeSubscription->current_period_end)) {
+                    $nextBillingDate = \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_end);
+                    $endDate = \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_end);
+                    Log::info("Using dates from Stripe API: " . $nextBillingDate->toDateTimeString());
+                }
+            } catch (\Exception $e) {
+                Log::error("Failed to retrieve Stripe subscription dates: " . $e->getMessage());
+            }
+        } 
+        
+        // 3. Fallback calculation using Plan Duration
+        if (!$endDate && $plan->duration) {
              $numericDuration = (int) preg_replace('/[^0-9]/', '', $plan->duration);
              if ($numericDuration > 0) {
-                 $endDate = now()->addMonths($numericDuration);
+                 if (str_contains(strtolower($plan->duration), 'year')) {
+                     $endDate = now()->addYears($numericDuration);
+                 } else {
+                     $endDate = now()->addMonths($numericDuration);
+                 }
+                 Log::info("Using fallback calculated end_date: " . $endDate->toDateTimeString());
              }
         }
 
-        if (!$subscriptionId) {
-            // One-time payment: search for an existing record by session_id in a different way or just create
-            // Actually, we can use user_id + plan_id + status=active as a weak unique key, 
-            // but for one-time, better to check if session was already processed.
-            // Since we don't have checkout_session_id in plan_subscriptions, we'll use user_id/plan_id.
-            
+        // Match Attributes: Use SubID if exists, otherwise try to find recent user/plan match
+        if ($subscriptionId) {
+            $matchAttributes = ['stripe_subscription_id' => $subscriptionId];
+        } else {
             $existing = \App\Models\Plan\PlanSubscription::where('user_id', $user->id)
                 ->where('plan_id', $plan->id)
                 ->where('status', 'active')
+                ->whereNull('stripe_subscription_id')
                 ->where('created_at', '>=', now()->subMinutes(10))
                 ->first();
                 
             if ($existing) {
-                Log::info("PlanSubscription already exists for user {$user->id} (One-time). Skipping duplicate.");
-                return;
+                Log::info("Updating existing active one-time subscription: {$existing->id}");
+                $matchAttributes = ['id' => $existing->id];
+            } else {
+                Log::info("Matching new one-time subscription.");
+                $matchAttributes = [
+                    'user_id' => $user->id,
+                    'plan_id' => $plan->id,
+                    'stripe_subscription_id' => null,
+                    'created_at' => now(), 
+                ];
             }
         }
 
-        \App\Models\Plan\PlanSubscription::updateOrCreate(
-            [
-                'stripe_subscription_id' => $subscriptionId,
-                'user_id' => $subscriptionId ? $user->id : null, // If one-time, we matched above
-            ],
+        // Amounts: Try to get actual amount from event payload (already in dollars if from our event)
+        $finalAmount = ($event->payload['amount_total'] ?? $event->payload['amount'] ?? 0);
+        if ($finalAmount > 1000) $finalAmount = $finalAmount / 100; // If it's in cents, convert
+
+        // If amount from payload is 0 or missing, fallback to plan price
+        if ($finalAmount <= 0) {
+            $finalAmount = $plan->discounted_price;
+        }
+
+        $originalAmount = $plan->original_price;
+        $discountAmount = $originalAmount - $finalAmount;
+        if ($discountAmount < 0) $discountAmount = 0;
+        
+        $discountPercent = $originalAmount > 0 ? ($discountAmount / $originalAmount) * 100 : 0;
+
+        $sub = \App\Models\Plan\PlanSubscription::updateOrCreate(
+            $matchAttributes,
             [
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'next_billing_date' => $nextBillingDate,
                 'status' => 'active',
-                'original_amount' => $plan->original_price,
-                'final_amount' => $plan->discounted_price,
-                'discount_amount' => ($plan->original_price - $plan->discounted_price),
-                'discount_percent' => $plan->discount_percentage,
-                'plan_features' => $plan->features, // Array
+                'original_amount' => $originalAmount,
+                'final_amount' => $finalAmount,
+                'discount_amount' => $discountAmount,
+                'discount_percent' => $discountPercent,
+                'plan_features' => $plan->features, 
                 'billing_interval' => $subscriptionId ? ($plan->duration_type === 'year' ? 'yearly' : 'monthly') : null,
             ]
         );
 
-        Log::info("PlanSubscription created successfully for user {$user->id}, Plan: {$plan->id}");
+        // Record Coupon Usage if coupon_id is present in metadata
+        $couponId = $event->payload['metadata']['coupon_id'] ?? $log?->meta_data['coupon_id'] ?? null;
+        if ($couponId) {
+            $alreadyRecorded = \App\Models\Coupon\CouponUsage::where('coupon_id', $couponId)
+                ->where('user_id', $user->id)
+                ->where('created_at', '>=', now()->subMinutes(10))
+                ->exists();
+
+            if (!$alreadyRecorded) {
+                \App\Models\Coupon\CouponUsage::create([
+                    'coupon_id' => $couponId,
+                    'user_id' => $user->id,
+                    'used_at' => now(),
+                ]);
+                Log::info("Coupon usage recorded for user {$user->id}, coupon {$couponId}");
+            }
+        }
+
+        Log::info("PlanSubscription processed. ID: {$sub->id}, Final Amount: {$finalAmount}, Ends: " . ($sub->end_date ? $sub->end_date->toDateTimeString() : 'Never'));
     }
 }

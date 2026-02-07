@@ -18,6 +18,7 @@ class PurchasePlanRequest extends FormRequest
             'payment_type' => 'nullable|in:single,subscription',
             'success_url' => 'required|url',
             'cancel_url' => 'required|url',
+            'coupon_code' => 'nullable|string|exists:coupons,code',
         ];
     }
 }

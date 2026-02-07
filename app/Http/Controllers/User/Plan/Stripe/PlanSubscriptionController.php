@@ -19,20 +19,61 @@ class PlanSubscriptionController extends Controller
     public function PurchasePlan(PurchasePlanRequest $request, \App\Services\Gateways\StripeService $stripeService)
     {
         $plan = Plan::findOrFail($request->plan_id);
-
         $paymentType = $request->payment_type ?? 'single'; // single or recurring
         $successUrl = $request->success_url ?? url('/payment/success');
         $cancelUrl = $request->cancel_url ?? url('/payment/cancel');
+
+        $discountedPrice = $plan->discounted_price;
+        $couponId = null;
+        $extraParams = [];
+
+        // Apply Internal Coupon if provided
+        if ($request->coupon_code) {
+            $coupon = \App\Models\Coupon\Coupon::where('code', $request->coupon_code)->first();
+            if ($coupon && $coupon->isValid() && !$coupon->hasUsageLimit()) {
+                $discount = $coupon->getDiscountAmount($discountedPrice);
+                
+                if ($paymentType === 'subscription') {
+                    // For Recurring: Charge Regular Price next time, apply discount ONCE now
+                    try {
+                        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+                        $stripeCoupon = \Stripe\Coupon::create([
+                            'amount_off' => (int)($discount * 100),
+                            'currency' => 'usd',
+                            'duration' => 'once',
+                            'name' => 'First-Time Discount: ' . $coupon->code,
+                        ]);
+                        $extraParams['discounts'] = [['coupon' => $stripeCoupon->id]];
+                        Log::info("Created one-time Stripe coupon for recurring: {$stripeCoupon->id}");
+                    } catch (\Exception $e) {
+                        Log::error("Failed to create Stripe coupon: " . $e->getMessage());
+                    }
+                } else {
+                    // For Single: Just reduce the price
+                    $discountedPrice = max(0, $discountedPrice - $discount);
+                }
+                
+                $couponId = $coupon->id;
+                Log::info("Applied internal coupon: {$request->coupon_code}, Discount: {$discount}");
+            } else {
+                return response()->json(['error' => 'Invalid or expired coupon code'], 422);
+            }
+        }
+
+        $metadata = [
+            'plan_id' => $plan->id,
+            'coupon_id' => $couponId,
+        ];
 
         try {
             if ($paymentType === 'single') {
                 $items = [[
                     'price_data' => [
                         'currency' => 'usd',
-                        'unit_amount' => (int)($plan->discounted_price * 100),
+                        'unit_amount' => (int)($discountedPrice * 100),
                         'product_data' => [
                             'name' => $plan->name,
-                            'description' => 'One-Time Purchase',
+                            'description' => 'One-Time Purchase' . ($couponId ? " (Coupon Applied)" : ""),
                         ],
                     ],
                     'quantity' => 1,
@@ -44,16 +85,17 @@ class PlanSubscriptionController extends Controller
                     $successUrl,
                     $cancelUrl,
                     $request->boolean('save_card', false),
-                    ['plan_id' => $plan->id]
+                    $metadata,
+                    $extraParams
                 );
             } else {
-                // Subscription mode
+                // Subscription mode - unit_amount is the REGULAR price
                 $priceData = [
                     'amount' => (int)($plan->discounted_price * 100),
                     'currency' => 'usd',
                     'interval' => $plan->duration_type === 'year' ? 'year' : 'month',
                     'interval_count' => (int)$plan->duration ?: 1,
-                    'product_name' => $plan->name,
+                    'product_name' => $plan->name . ($couponId ? " (First Invoice Discount Applied)" : ""),
                 ];
                 
                 $session = $stripeService->createCustomSubscriptionSession(
@@ -61,7 +103,8 @@ class PlanSubscriptionController extends Controller
                     $priceData,
                     $successUrl,
                     $cancelUrl,
-                    ['plan_id' => $plan->id]
+                    $metadata,
+                    $extraParams
                 );
             }
 
@@ -69,6 +112,7 @@ class PlanSubscriptionController extends Controller
                 'url' => $session->url,
                 'id' => $session->id,
                 'mode' => $paymentType === 'single' ? 'payment' : 'subscription',
+                'final_price' => $discountedPrice,
             ]);
         } catch (\Exception $e) {
             Log::error("Purchase failed: " . $e->getMessage());

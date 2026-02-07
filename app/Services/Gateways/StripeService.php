@@ -47,7 +47,7 @@ class StripeService
     /**
      * Create a Checkout Session for one-time payments.
      */
-    public function createCheckoutSession(User $user, array $items, string $successUrl, string $cancelUrl, bool $saveCard = false, array $metadata = [])
+    public function createCheckoutSession(User $user, array $items, string $successUrl, string $cancelUrl, bool $saveCard = false, array $metadata = [], array $extra_params = [])
     {
         $customer = $this->createOrGetCustomer($user);
 
@@ -59,7 +59,10 @@ class StripeService
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
             'metadata' => $metadata,
+            'allow_promotion_codes' => true,
         ];
+
+        $params = array_merge($params, $extra_params);
 
         if ($saveCard) {
             $params['payment_intent_data'] = [
@@ -104,6 +107,7 @@ class StripeService
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
             'metadata' => $metadata,
+            'allow_promotion_codes' => true,
         ]);
 
         \App\Models\StripeLog::create([
@@ -130,7 +134,7 @@ class StripeService
      * 
      * @param array $priceData ['amount', 'currency', 'interval', 'interval_count', 'product_name', 'duration_in_months']
      */
-    public function createCustomSubscriptionSession(User $user, array $priceData, string $successUrl, string $cancelUrl, array $metadata = [])
+    public function createCustomSubscriptionSession(User $user, array $priceData, string $successUrl, string $cancelUrl, array $metadata = [], array $extra_params = [])
     {
         $customer = $this->createOrGetCustomer($user);
 
@@ -157,7 +161,7 @@ class StripeService
         }
 
         // Price data should include: amount, currency, interval, interval_count, product_name
-        $session = CheckoutSession::create([
+        $params = array_merge([
             'customer' => $customer->id,
             'payment_method_types' => ['card'],
             'line_items' => [[
@@ -179,7 +183,10 @@ class StripeService
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
             'metadata' => $metadata,
-        ]);
+            'allow_promotion_codes' => true,
+        ], $extra_params);
+
+        $session = CheckoutSession::create($params);
 
         \App\Models\StripeLog::create([
             'user_id' => $user->id,

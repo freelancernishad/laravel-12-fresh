@@ -59,6 +59,30 @@
                     </div>
                 </div>
 
+                <!-- Coupon & Payment Type Section -->
+                <div class="glass p-6 rounded-3xl border-white/5 flex flex-col md:flex-row items-center gap-6">
+                    <div class="flex-1">
+                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Payment Settings</p>
+                        <p class="text-slate-400 text-sm">Apply a promo code and choose your billing preference.</p>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+                        <!-- Toggle -->
+                        <div class="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10 shrink-0">
+                            <button onclick="setPaymentType('subscription')" id="btn-recurring" 
+                                class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all bg-indigo-500 text-white">Recurring</button>
+                            <button onclick="setPaymentType('single')" id="btn-single" 
+                                class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all text-slate-500 hover:text-white">One-Time</button>
+                        </div>
+
+                        <!-- Coupon Input -->
+                        <div class="relative w-full md:w-48">
+                            <input type="text" id="coupon-code" placeholder="Promo Code" 
+                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 transition-all text-center">
+                        </div>
+                    </div>
+                </div>
+
                 <div id="plan-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Loading skeleton -->
                     <div class="glass p-8 rounded-[2rem] border-white/5 animate-pulse min-h-[300px]"></div>
@@ -71,6 +95,21 @@
     <!-- Scripts -->
     <script>
         const token = getCookie('user_token');
+        let selectedPaymentType = 'subscription';
+
+        function setPaymentType(type) {
+            selectedPaymentType = type;
+            const recBtn = document.getElementById('btn-recurring');
+            const singleBtn = document.getElementById('btn-single');
+
+            if (type === 'subscription') {
+                recBtn.className = 'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all bg-indigo-500 text-white';
+                singleBtn.className = 'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all text-slate-500 hover:text-white';
+            } else {
+                recBtn.className = 'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all text-slate-500 hover:text-white';
+                singleBtn.className = 'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all bg-indigo-500 text-white';
+            }
+        }
 
         if (!token) {
             window.location.href = '/admin/users';
@@ -152,7 +191,14 @@
         }
 
         async function purchasePlan(planId) {
+            const couponCode = document.getElementById('coupon-code').value.trim();
+            const btn = event.currentTarget;
+            const originalText = btn.innerText;
+            
             try {
+                btn.innerText = 'Redirecting...';
+                btn.disabled = true;
+
                 const response = await fetch('/api/user/plans/purchase', {
                     method: 'POST',
                     headers: { 
@@ -162,7 +208,8 @@
                     },
                     body: JSON.stringify({ 
                         plan_id: planId, 
-                        payment_type: 'subscription',
+                        payment_type: selectedPaymentType,
+                        coupon_code: couponCode,
                         success_url: window.location.origin + '/payment/success',
                         cancel_url: window.location.origin + '/payment/cancel'
                     })
@@ -173,9 +220,13 @@
                     window.location.href = purchaseData.url;
                 } else {
                     alert(purchaseData.error || result.Message || 'Purchase failed');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
                 }
             } catch (e) {
                 alert('Plan purchase failed');
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
         }
 
