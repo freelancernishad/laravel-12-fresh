@@ -3,6 +3,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AuthenticateAdmin;
 use App\Http\Controllers\Admin\Plans\PlanController;
 
+Route::get('plans/list', [PlanController::class, 'index']); // Public/User plan list
+
 Route::prefix('admin')->group(function () {
     Route::middleware(AuthenticateAdmin::class)->group(function () {
         Route::prefix('plans')->group(function () {

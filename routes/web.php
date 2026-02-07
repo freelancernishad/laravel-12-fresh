@@ -63,6 +63,14 @@ Route::get('/payment/test-intent', function () {
     return view('payment.stripe-intent', compact('stripeKey'));
 });
 
+Route::get('/payment/success', function() {
+    return "<h1>Payment Successful!</h1><p>Thank you for your purchase. You can now close this window or return to your dashboard.</p><a href='/user/dashboard'>Back to Dashboard</a>";
+})->name('payment.success');
+
+Route::get('/payment/cancel', function() {
+    return "<h1>Payment Cancelled</h1><p>Your payment process was cancelled. No charges were made.</p><a href='/user/dashboard'>Back to Dashboard</a>";
+})->name('payment.cancel');
+
 // Admins Routes
 
 
@@ -118,4 +126,11 @@ Route::prefix('admin')->group(function () {
         })->name('admin.users.index');
 
     });
+});
+
+// User Side Routes
+Route::prefix('user')->group(function () {
+    Route::get('/dashboard', function() {
+        return view('user.dashboard');
+    })->name('user.dashboard');
 });

@@ -451,9 +451,10 @@
                     }
                 });
                 const result = await response.json();
-                if (response.ok && result.token) {
+                const tokenResponse = result.data || result;
+                if (response.ok && tokenResponse.token) {
                     // Store user token (Assuming it's stored in a cookie like 'user_token')
-                    document.cookie = `user_token=${result.token}; path=/; max-age=3600`;
+                    document.cookie = `user_token=${tokenResponse.token}; path=/; max-age=3600`;
                     showToast('Redirecting as user...');
                     setTimeout(() => window.location.href = '/user/dashboard', 1000);
                 }
