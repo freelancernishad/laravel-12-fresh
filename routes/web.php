@@ -125,6 +125,11 @@ Route::prefix('admin')->group(function () {
             return view('admin.users.index');
         })->name('admin.users.index');
 
+        // API Documentation
+        Route::get('/docs', function() {
+            return view('admin.docs.index');
+        })->name('admin.docs.index');
+
     });
 });
 

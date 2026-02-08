@@ -208,6 +208,17 @@
                 </svg>
                 <span class="font-medium">Users</span>
             </a>
+
+            <div class="px-6 pt-4 pb-2">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Developer Resources</p>
+            </div>
+
+            <a href="{{ route('admin.docs.index') }}" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all {{ request()->routeIs('admin.docs.*') ? 'active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                <span class="font-medium">API Documentation</span>
+            </a>
         </nav>
 
         <div class="p-4 border-t border-white/5">

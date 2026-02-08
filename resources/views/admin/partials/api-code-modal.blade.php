@@ -44,6 +44,7 @@
                     <!-- Language Switcher -->
                     <div class="flex flex-wrap p-1 bg-black/40 rounded-2xl w-fit border border-white/5 gap-1">
                         <button onclick="switchLanguage('docs')" class="lang-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-white transition-all" data-lang="docs">Integration</button>
+                        <button onclick="switchLanguage('try')" class="lang-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-white transition-all ring-1 ring-indigo-500/50" data-lang="try">Try Now</button>
                         <button onclick="switchLanguage('js')" class="lang-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-white transition-all" data-lang="js">JavaScript</button>
                         <button onclick="switchLanguage('react')" class="lang-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-white transition-all" data-lang="react">React / Next.js</button>
                         <button onclick="switchLanguage('rtk')" class="lang-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-white transition-all" data-lang="rtk">RTK Query</button>
@@ -52,7 +53,7 @@
                     </div>
 
                     <!-- Code Display -->
-                    <div class="relative group">
+                    <div id="code-section" class="relative group">
                         <button onclick="copyCodeContent(this)" class="absolute top-4 right-4 p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-white transition-all border border-white/10 z-10 backdrop-blur-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -62,6 +63,107 @@
                             </svg>
                         </button>
                         <pre id="code-pre" class="language-javascript"><code id="code-display" class="language-javascript"></code></pre>
+                    </div>
+                    
+                    <!-- Try It Now Section (Initially Hidden) -->
+                    <div id="try-section" class="hidden space-y-6">
+                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Request Panel -->
+                            <div class="space-y-4">
+                                <!-- URL & Method -->
+                                <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Endpoint</label>
+                                        <span id="try-method-badge" class="px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-indigo-500/20 text-indigo-400">GET</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-black/20 p-2 rounded-lg font-mono text-xs text-slate-300 break-all border border-white/5">
+                                        <span id="try-url" class="select-all">...</span>
+                                    </div>
+                                </div>
+
+                                <!-- Headers Display -->
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                                        <span>Request Headers</span>
+                                        <span class="text-[10px] text-slate-500 font-normal normal-case">Authenticated</span>
+                                    </label>
+                                    <div class="bg-black/40 border border-white/10 rounded-xl p-3 font-mono text-xs text-indigo-300 space-y-1">
+                                        <div class="flex gap-2"><span class="text-slate-500 select-none">Authorization:</span> <span>Bearer **********</span></div>
+                                        <div class="flex gap-2"><span class="text-slate-500 select-none">Accept:</span> <span>application/json</span></div>
+                                        <div id="header-content-type" class="flex gap-2"><span class="text-slate-500 select-none">Content-Type:</span> <span>application/json</span></div>
+                                    </div>
+                                </div>
+
+                                <!-- Body Section -->
+                                <div id="try-body-container" class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Request Body</label>
+                                            <button onclick="copyRequestBody(this)" class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-all group/copy" title="Copy Body">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Body Type Toggle -->
+                                        <div class="flex items-center bg-white/5 rounded-lg p-0.5 border border-white/5">
+                                            <button onclick="toggleBodyType('json')" id="btn-type-json" class="px-3 py-1 rounded-md text-[10px] font-bold transition-all bg-indigo-500 text-white shadow-sm">JSON</button>
+                                            <button onclick="toggleBodyType('form')" id="btn-type-form" class="px-3 py-1 rounded-md text-[10px] font-bold transition-all text-slate-400 hover:text-white">Form Data</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- JSON Editor -->
+                                    <div id="body-editor-json" class="relative group">
+                                        <div id="ace-request-editor" class="w-full h-64 rounded-xl border border-white/10 overflow-hidden"></div>
+                                        <textarea id="try-body" class="hidden"></textarea> <!-- Hidden fallback/value store -->
+                                    </div>
+
+                                    <!-- Form Data Builder -->
+                                    <div id="body-editor-form" class="hidden space-y-3 bg-black/20 p-4 rounded-xl border border-white/5">
+                                        <div id="form-data-inputs" class="space-y-3">
+                                            <!-- Inputs injected via JS -->
+                                        </div>
+                                        <button onclick="addFormDataField()" class="w-full py-2 rounded-lg border border-dashed border-white/20 text-slate-500 hover:text-white hover:border-white/40 text-xs font-bold transition-all flex items-center justify-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            Add Field
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <button onclick="executeTryRequest()" id="btn-execute" class="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 group">
+                                    <span>Send Request</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Response Panel -->
+                            <div class="space-y-4 flex flex-col h-full">
+                                 <div class="flex items-center justify-between">
+                                     <div class="flex items-center gap-2">
+                                         <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Response</label>
+                                         <button onclick="copyResponseBody(this)" class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-all group/copy" title="Copy Response">
+                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                             </svg>
+                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                             </svg>
+                                         </button>
+                                     </div>
+                                     <span id="try-status" class="px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-slate-500/20 text-slate-400">Ready</span>
+                                 </div>
+                                 <div class="relative flex-1 min-h-[400px]">
+                                     <div id="ace-response-viewer" class="w-full h-full rounded-xl border border-white/10 overflow-hidden min-h-[400px]"></div>
+                                     <pre id="try-response" class="hidden"></pre> <!-- Hidden fallback -->
+                                 </div>
+                            </div>
+                         </div>
                     </div>
 
                     <!-- Usage Example (Initially Hidden) -->
@@ -92,23 +194,326 @@
 
 <script>
     let currentCodeData = { method: '', url: '', body: null };
+    let currentBodyType = 'json'; // json or form
+    let aceRequestEditor = null;
+    let aceResponseViewer = null;
+
+    function initAceEditors() {
+        if (aceRequestEditor) return;
+
+        // Request Editor
+        aceRequestEditor = ace.edit("ace-request-editor");
+        aceRequestEditor.setTheme("ace/theme/tomorrow_night");
+        aceRequestEditor.session.setMode("ace/mode/json");
+        aceRequestEditor.setOptions({
+            fontSize: "12px",
+            showPrintMargin: false,
+            showGutter: true,
+            highlightActiveLine: true,
+            wrap: true
+        });
+
+        // Response Viewer
+        aceResponseViewer = ace.edit("ace-response-viewer");
+        aceResponseViewer.setTheme("ace/theme/tomorrow_night");
+        aceResponseViewer.session.setMode("ace/mode/json");
+        aceResponseViewer.setOptions({
+            fontSize: "12px",
+            readOnly: true,
+            showPrintMargin: false,
+            showGutter: true,
+            highlightActiveLine: false,
+            wrap: true
+        });
+        aceResponseViewer.renderer.setShowGutter(true);
+    }
 
     function showCodeExample(method, url, body = null) {
         currentCodeData = { method, url, body };
         document.getElementById('code-modal-url').innerText = `${method} ${url}`;
+        
+        // Ensure Ace is ready
+        setTimeout(initAceEditors, 100);
+        
+        // Reset Try Now inputs
+        document.getElementById('try-method-badge').innerText = method;
+        document.getElementById('try-url').innerText = url;
+        document.getElementById('try-status').innerText = 'Ready';
+        document.getElementById('try-status').className = "px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-slate-500/20 text-slate-400";
+        
+        // Determine Body Type
+        let isFormData = false;
+        let formattedBody = '';
+
+        if (body) {
+            formattedBody = JSON.stringify(body, null, 4);
+            // Check for file placeholders
+            const bodyStr = JSON.stringify(body);
+            if (bodyStr.includes('(File Object)') || bodyStr.includes('file')) {
+                isFormData = true;
+            }
+        }
+
+        // Set Ace Value
+        if (aceRequestEditor) {
+            aceRequestEditor.setValue(formattedBody, -1); // -1 moves cursor to start
+        }
+        if (aceResponseViewer) {
+            aceResponseViewer.setValue('Click "Send Request" to see response...', -1);
+        }
+        
+        // Render Form Inputs always (in case user switches)
+        renderFormDataInputs(body);
+        
+        // Auto-switch based on detection
+        toggleBodyType(isFormData ? 'form' : 'json');
+
         switchLanguage('docs');
         document.getElementById('code-modal').classList.remove('hidden');
+    }
+
+    function toggleBodyType(type) {
+        currentBodyType = type;
+        const btnJson = document.getElementById('btn-type-json');
+        const btnForm = document.getElementById('btn-type-form');
+        const editorJson = document.getElementById('body-editor-json');
+        const editorForm = document.getElementById('body-editor-form');
+        const headerContentType = document.getElementById('header-content-type');
+
+        if (type === 'json') {
+            btnJson.classList.replace('text-slate-400', 'text-white');
+            btnJson.classList.replace('hover:text-white', 'bg-indigo-500');
+            btnForm.classList.replace('text-white', 'text-slate-400');
+            btnForm.classList.replace('bg-indigo-500', 'hover:text-white');
+            
+            editorJson.classList.remove('hidden');
+            editorForm.classList.add('hidden');
+            
+            headerContentType.innerHTML = '<span class="text-slate-500 select-none">Content-Type:</span> <span>application/json</span>';
+            
+            if (aceRequestEditor) aceRequestEditor.resize();
+        } else {
+            btnForm.classList.replace('text-slate-400', 'text-white');
+            btnForm.classList.replace('hover:text-white', 'bg-indigo-500');
+            btnJson.classList.replace('text-white', 'text-slate-400');
+            btnJson.classList.replace('bg-indigo-500', 'hover:text-white');
+            
+            editorForm.classList.remove('hidden');
+            editorJson.classList.add('hidden');
+            
+            headerContentType.innerHTML = '<span class="text-slate-500 select-none">Content-Type:</span> <span class="text-slate-400 italic">multipart/form-data (Browser set)</span>';
+        }
+    }
+
+    function renderFormDataInputs(body) {
+        const container = document.getElementById('form-data-inputs');
+        container.innerHTML = '';
+        
+        if (!body) return;
+
+        Object.entries(body).forEach(([key, value]) => {
+            addFormDataField(key, value);
+        });
+    }
+
+    function copyRequestBody(btn) {
+        let content = '';
+
+        if (currentBodyType === 'json') {
+            content = aceRequestEditor ? aceRequestEditor.getValue() : '';
+        } else {
+            // Generate Key-Value pairs for FormData
+            const inputs = document.querySelectorAll('#form-data-inputs .group\\/field');
+            let lines = [];
+            
+            inputs.forEach(row => {
+                const key = row.querySelector('.form-key').value;
+                const valueInput = row.querySelector('.form-value');
+                
+                if (key) {
+                    if (valueInput.type === 'file') {
+                        lines.push(`${key}: (Binary File)`);
+                    } else {
+                        lines.push(`${key}: ${valueInput.value}`);
+                    }
+                }
+            });
+            content = lines.join('\n');
+        }
+
+        if (content) {
+            copyToClipboard(content, btn);
+        }
+    }
+
+    function copyResponseBody(btn) {
+        let content = '';
+        if (aceResponseViewer) {
+            content = aceResponseViewer.getValue();
+            // If it matches the placeholder, don't copy
+            if (content === 'Click "Send Request" to see response...') {
+                content = '';
+            }
+        }
+        
+        if (content) {
+            copyToClipboard(content, btn);
+        }
+    }
+
+    function addFormDataField(key = '', value = '') {
+        const container = document.getElementById('form-data-inputs');
+        const id = Math.random().toString(36).substr(2, 9);
+        const isFile = typeof value === 'string' && value.includes('(File Object)');
+        
+        const div = document.createElement('div');
+        div.className = 'flex items-start gap-2 group/field';
+        div.innerHTML = `
+            <div class="flex-1 grid grid-cols-[1fr_auto_2fr] gap-2">
+                <input type="text" placeholder="Key" value="${key}" class="form-key bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500/50 placeholder:text-slate-600">
+                
+                <select onchange="toggleRowType(this)" class="form-type bg-black/40 border border-white/10 rounded-lg px-2 py-2 text-xs text-slate-400 focus:outline-none focus:border-indigo-500/50 cursor-pointer">
+                    <option value="text" ${!isFile ? 'selected' : ''}>Text</option>
+                    <option value="file" ${isFile ? 'selected' : ''}>File</option>
+                </select>
+
+                <div class="form-value-container w-full">
+                    ${isFile 
+                        ? `<input type="file" class="form-value file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20 text-xs text-slate-300 w-full">`
+                        : `<input type="text" placeholder="Value" value="${value}" class="form-value bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/50 placeholder:text-slate-600 w-full">`
+                    }
+                </div>
+            </div>
+            <button onclick="this.closest('.flex').remove()" class="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover/field:opacity-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </button>
+        `;
+        container.appendChild(div);
+    }
+
+    function toggleRowType(select) {
+        const type = select.value;
+        const container = select.nextElementSibling; // form-value-container
+        
+        if (type === 'text') {
+            container.innerHTML = `<input type="text" placeholder="Value" class="form-value bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/50 placeholder:text-slate-600 w-full">`;
+        } else {
+            container.innerHTML = `<input type="file" class="form-value file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20 text-xs text-slate-300 w-full">`;
+        }
     }
 
     function showCodeExampleFromModal() {
         const method = document.getElementById('doc-method').innerText;
         const url = document.getElementById('doc-endpoint').innerText;
         const body = document.getElementById('doc-body').innerText;
-        showCodeExample(method, url, body);
+        try {
+             showCodeExample(method, url, JSON.parse(body));
+        } catch(e) {
+             showCodeExample(method, url, body);
+        }
     }
 
     function closeCodeModal() {
         document.getElementById('code-modal').classList.add('hidden');
+    }
+    
+    async function executeTryRequest() {
+        const btn = document.getElementById('btn-execute');
+        const statusBadge = document.getElementById('try-status');
+        const originalBtnText = btn.innerHTML;
+        
+        // UI Loading State
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Sending...`;
+        
+        try {
+            const method = currentCodeData.method;
+            const url = currentCodeData.url;
+            
+            const headers = {
+                 'Accept': 'application/json',
+                 'Authorization': 'Bearer ' + getCookie('admin_token')
+            };
+
+            let bodyPayload;
+
+            if (method !== 'GET' && method !== 'HEAD') {
+                if (currentBodyType === 'json') {
+                    // Get Value from Ace
+                    const bodyContent = aceRequestEditor ? aceRequestEditor.getValue() : '';
+                    
+                    if (bodyContent && bodyContent.trim() !== '') {
+                        try {
+                            JSON.parse(bodyContent); // Validate
+                            bodyPayload = bodyContent;
+                            headers['Content-Type'] = 'application/json';
+                        } catch (e) {
+                            throw new Error("Invalid JSON in request body");
+                        }
+                    }
+                } else {
+                    // Form Data Construction
+                    const formData = new FormData();
+                    const inputs = document.querySelectorAll('#form-data-inputs .group\\\\/field');
+                    
+                    inputs.forEach(row => {
+                        const key = row.querySelector('.form-key').value;
+                        const valueInput = row.querySelector('.form-value');
+                        
+                        if (key) {
+                            if (valueInput.type === 'file') {
+                                if (valueInput.files[0]) {
+                                    formData.append(key, valueInput.files[0]);
+                                }
+                            } else {
+                                formData.append(key, valueInput.value);
+                            }
+                        }
+                    });
+                    
+                    // Do NOT set Content-Type header manually for FormData, let browser set boundary
+                    bodyPayload = formData;
+                }
+            }
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: headers,
+                body: bodyPayload
+            });
+
+            // Handling 204 No Content or responses without body
+            let data = {};
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                data = await response.json();
+            } else {
+                data = { message: "Request successful, no JSON content returned." };
+            }
+            
+            // Update Status Badge
+            statusBadge.innerText = `${response.status} ${response.statusText}`;
+            if (response.ok) {
+                statusBadge.className = "px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400";
+            } else {
+                statusBadge.className = "px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-red-500/20 text-red-400";
+            }
+            
+            // Update Response Display
+            if (aceResponseViewer) {
+                aceResponseViewer.setValue(JSON.stringify(data, null, 4), -1);
+            }
+            
+        } catch (error) {
+            statusBadge.innerText = "ERROR";
+            statusBadge.className = "px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-red-500/20 text-red-400";
+            if (aceResponseViewer) {
+                 aceResponseViewer.setValue(JSON.stringify({ error: error.message }, null, 4), -1);
+            }
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalBtnText;
+        }
     }
 
     function switchLanguage(lang) {
@@ -120,6 +525,26 @@
                 btn.classList.add('text-white', 'bg-indigo-500');
             }
         });
+
+        // Toggle Sections
+        const codeSection = document.getElementById('code-section');
+        const usageSection = document.getElementById('usage-section');
+        const trySection = document.getElementById('try-section');
+        
+        if (lang === 'try') {
+            codeSection.classList.add('hidden');
+            usageSection.classList.add('hidden');
+            trySection.classList.remove('hidden');
+            
+            // Highlight the pre-filled JSON if needed
+            // (Textareas don't use Prism, but we are good)
+            return;
+        }
+        
+        // Show Standard Code Sections
+        trySection.classList.add('hidden');
+        codeSection.classList.remove('hidden');
+        // usageSection visibility is controlled below logic
 
         const { method, url, body } = currentCodeData;
         let code = '';
@@ -137,7 +562,6 @@
         preElement.className = `language-${prismLang}`;
         codeElement.className = `language-${prismLang}`;
 
-        const usageSection = document.getElementById('usage-section');
         const usageDisplay = document.getElementById('usage-display');
         const usagePre = document.getElementById('usage-pre');
         usageSection.classList.add('hidden');
@@ -454,3 +878,10 @@ echo $response;`;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<!-- Ace Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ace.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/mode-json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/mode-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/mode-php.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/mode-sh.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/theme-tomorrow_night.min.js"></script>
