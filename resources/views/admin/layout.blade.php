@@ -301,5 +301,6 @@
             if (parts.length === 2) return parts.pop().split(';').shift();
         }
     </script>
+    @include('admin.partials.api-code-modal')
 </body>
 </html>

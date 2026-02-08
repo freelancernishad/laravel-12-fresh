@@ -46,6 +46,88 @@
             <!-- Pagination -->
             <div id="pagination-container" class="p-4 border-t border-white/5 flex justify-end gap-2"></div>
         </div>
+
+        <!-- Developer API Documentation -->
+        <div class="mt-12 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl mb-12">
+            <div class="p-8 border-b border-white/10 bg-indigo-500/5">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Developer API Documentation</h3>
+                        <p class="text-slate-400 text-sm">Use these endpoints to manage discount codes and promotional campaigns.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <!-- List Coupons -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET List</span>
+                        <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/coupons', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/coupons</code>
+                    </div>
+                    <button onclick="showCodeExample('GET', '/api/admin/coupons')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
+
+                <!-- Create Coupon -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-wider">POST Create</span>
+                        <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/coupons', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/coupons</code>
+                    </div>
+                    <button onclick="showCodeExample('POST', '/api/admin/coupons', { code: 'SAVE50', type: 'percentage', value: 50, valid_from: '2024-01-01', valid_until: '2025-01-01', is_active: true })" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
+
+                <!-- Update Coupon -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wider">POST Update</span>
+                        <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/coupons/{id}', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/coupons/{id}</code>
+                    </div>
+                    <button onclick="showCodeExample('POST', '/api/admin/coupons/{id}', { code: 'WINTER30', value: 30 })" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal -->

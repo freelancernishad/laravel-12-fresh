@@ -18,11 +18,131 @@
         </div>
 
         <!-- Plans Grid -->
-        <div id="plans-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Loading State -->
-            <div class="col-span-full py-20 flex flex-col items-center justify-center gap-4">
-                <div class="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
-                <p class="text-slate-400 font-medium">Fetching your plans...</p>
+        <div id="plans-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Populated via JS -->
+        </div>
+        
+        <!-- Developer API Documentation -->
+        <div class="mt-12 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
+            <div class="p-8 border-b border-white/10 bg-indigo-500/5">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Developer API Documentation</h3>
+                        <p class="text-slate-400 text-sm">Use these endpoints to integrate subscription plans into your application.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <!-- GET Plans (List) -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET List</span>
+                        <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase">Public API</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/plans', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/plans</code>
+                    </div>
+                    <button onclick="showCodeExample('GET', window.location.origin + '/api/admin/plans')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
+
+                <!-- GET Plan (Single) -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET Single</span>
+                        <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase">Public API</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/plans/{id}', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/plans/{id}</code>
+                    </div>
+                    <button onclick="showCodeExample('GET', window.location.origin + '/api/admin/plans/1')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
+
+                <!-- POST Plan (Create) -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-wider">POST Method</span>
+                        <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/plans', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/plans</code>
+                    </div>
+                    <button onclick="showCodeExample('POST', window.location.origin + '/api/admin/plans', { name: 'New Plan', duration: '1 month', monthly_price: 29.99, features: [] })" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
+
+                <!-- PUT Plan (Update) -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wider">PUT Method</span>
+                        <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/plans/{id}', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/plans/{id}</code>
+                    </div>
+                    <button onclick="showCodeExample('PUT', window.location.origin + '/api/admin/plans/1', { name: 'Updated Plan', monthly_price: 39.99 })" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
+
+                <!-- DELETE Plan (Delete) -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-wider">DELETE Method</span>
+                        <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/plans/{id}', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/plans/{id}</code>
+                    </div>
+                    <button onclick="showCodeExample('DELETE', window.location.origin + '/api/admin/plans/1')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -40,9 +160,10 @@
                         </svg>
                     </button>
                 </div>
-                
-                <div class="flex-1 overflow-y-auto p-6 scroll-smooth">
-                    <form id="plan-form" class="space-y-8">
+                <div class="flex-1 overflow-y-auto scroll-smooth">
+                    <div class="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-white/5 h-full">
+                        <!-- Form Section -->
+                        <form id="plan-form" class="p-8 space-y-8 flex-1">
                         <input type="hidden" id="plan-id">
                         
                         <!-- Basic Info Section -->
@@ -89,8 +210,70 @@
                                 <!-- Loaded via templateInputList API -->
                                 <p class="text-slate-500 italic text-sm">Loading available features...</p>
                             </div>
+                            </div>
+                        </form>
+
+                        <!-- API Docs Section in Modal -->
+                        <div class="p-8 bg-black/20 md:w-80 space-y-6 overflow-y-auto">
+                            <div class="flex items-center gap-2 text-indigo-400 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                <span class="text-xs font-bold uppercase tracking-widest text-slate-400">API Reference</span>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span id="plan-doc-method" class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase">POST</span>
+                                        <button onclick="copyToClipboard(document.getElementById('plan-doc-endpoint').innerText, this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            </svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <code id="plan-doc-endpoint" class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/10 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/plans</code>
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase">Headers</span>
+                                        <button onclick="copyToClipboard('Authorization: Bearer YOUR_TOKEN\nAccept: application/json', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            </svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <pre class="bg-black/40 rounded-xl p-3 border border-white/5 font-mono text-[10px] text-slate-400 leading-relaxed overflow-x-auto">Authorization: Bearer YOUR_TOKEN
+Accept: application/json</pre>
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase">Request Body</span>
+                                        <div class="flex items-center gap-2 text-indigo-400">
+                                            <button type="button" onclick="showCodeExampleFromPlanModal()" class="text-[10px] font-bold hover:underline">View Details</button>
+                                            <button onclick="copyToClipboard(document.getElementById('plan-doc-body').innerText, this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <pre id="plan-doc-body" class="bg-black/40 rounded-xl p-4 border border-white/5 font-mono text-[10px] text-slate-400 leading-relaxed overflow-x-auto"></pre>
+                                </div>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
 
                 <div class="p-6 border-t border-white/5 bg-white/5 shrink-0 flex gap-4">
@@ -112,7 +295,46 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await fetchFeatureTemplates();
             await fetchPlans();
+            setupPlanDocListeners();
         });
+
+        function showCodeExampleFromPlanModal() {
+            const method = document.getElementById('plan-doc-method').innerText;
+            const url = document.getElementById('plan-doc-endpoint').innerText;
+            const bodyText = document.getElementById('plan-doc-body').innerText;
+            let body = null;
+            try {
+                body = JSON.parse(bodyText);
+            } catch (e) {
+                body = bodyText;
+            }
+            showCodeExample(method, url, body);
+        }
+
+        function updatePlanDocBody() {
+            const data = {
+                name: document.getElementById('plan-name').value,
+                duration: document.getElementById('plan-duration').value,
+                monthly_price: parseFloat(document.getElementById('plan-monthly-price').value) || 0,
+                discount_percentage: parseFloat(document.getElementById('plan-discount').value) || 0,
+                features: Array.from(document.querySelectorAll('#available-features input[type="checkbox"]:checked')).map(cb => {
+                    const featureKey = cb.value;
+                    const featureData = { key: featureKey };
+                    document.querySelectorAll(`.feature-input[data-key="${featureKey}"]`).forEach(input => {
+                        featureData[input.dataset.field] = input.value;
+                    });
+                    return featureData;
+                })
+            };
+            document.getElementById('plan-doc-body').innerText = JSON.stringify(data, null, 2);
+        }
+
+        function setupPlanDocListeners() {
+            ['plan-name', 'plan-duration', 'plan-monthly-price', 'plan-discount'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updatePlanDocBody);
+            });
+            // Re-setup listener for feature checkboxes after they are rendered
+        }
 
         async function fetchFeatureTemplates() {
             try {
@@ -122,6 +344,13 @@
                 const result = await response.json();
                 featureTemplates = result.data || result || [];
                 renderFeatureCheckboxes();
+                // Add listeners to newly rendered checkboxes
+                document.querySelectorAll('#available-features input[type="checkbox"]').forEach(cb => {
+                    cb.addEventListener('change', updatePlanDocBody);
+                });
+                document.querySelectorAll('.feature-input').forEach(input => {
+                    input.addEventListener('input', updatePlanDocBody);
+                });
             } catch (error) {
                 console.error('Error fetching templates:', error);
             }
@@ -273,6 +502,11 @@
                 if (fields) fields.classList.add('hidden');
             });
 
+            // Set Documentation
+            document.getElementById('plan-doc-method').innerText = 'POST';
+            document.getElementById('plan-doc-endpoint').innerText = window.location.origin + '/api/admin/plans';
+            updatePlanDocBody();
+
             document.getElementById('plan-modal').classList.remove('hidden');
             calculateTotalPrice();
         }
@@ -324,6 +558,11 @@
                     }
                 });
             }
+
+            // Set Documentation
+            document.getElementById('plan-doc-method').innerText = 'PUT';
+            document.getElementById('plan-doc-endpoint').innerText = window.location.origin + `/api/admin/plans/${id}`;
+            updatePlanDocBody();
 
             calculateTotalPrice();
         }
