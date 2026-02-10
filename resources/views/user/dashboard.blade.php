@@ -609,15 +609,33 @@
 
             container.innerHTML = plans.map(plan => {
                 const isActive = plan.is_active;
-                let btnClass = isActive 
-                    ? 'w-full py-4 rounded-2xl bg-emerald-500/10 text-emerald-400 font-black text-sm uppercase tracking-widest border border-emerald-500/20 cursor-default' 
-                    : 'purchase-btn w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest';
-                
-                let btnText = isActive ? 'Current Active Plan' : (hasActivePlan ? 'Switch to Plan' : 'Get Started');
-                const btnAction = isActive ? '' : `onclick="purchasePlan(${plan.id})"`;
+                const isBlocked = plan.is_downgrade_blocked;
+                const credit = plan.proration_credit || 0;
+                const payToday = plan.pay_today !== undefined ? plan.pay_today : plan.discounted_price;
+
+                let btnClass = '';
+                let btnText = '';
+                let btnAction = '';
+                let isDisabled = false;
+
+                if (isActive) {
+                    btnClass = 'w-full py-4 rounded-2xl bg-emerald-500/10 text-emerald-400 font-black text-sm uppercase tracking-widest border border-emerald-500/20 cursor-default';
+                    btnText = 'Current Active Plan';
+                    isDisabled = true;
+                } else if (isBlocked) {
+                    btnClass = 'w-full py-4 rounded-2xl bg-red-500/10 text-red-400 font-black text-sm uppercase tracking-widest border border-red-500/20 cursor-not-allowed opacity-60';
+                    btnText = 'Downgrade Unavailable';
+                    isDisabled = true;
+                } else {
+                    btnClass = 'purchase-btn w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest';
+                    btnText = hasActivePlan 
+                        ? (credit > 0 ? `Switch & Pay $${payToday}` : 'Switch to Plan') 
+                        : 'Get Started';
+                    btnAction = `onclick="purchasePlan(${plan.id})"`;
+                }
 
                 return `
-                <div class="glass p-8 rounded-[2rem] border-white/5 hover:border-indigo-500/30 transition-all flex flex-col group ${isActive ? 'border-emerald-500/30 ring-1 ring-emerald-500/20' : ''}">
+                <div class="glass p-8 rounded-[2rem] border-white/5 hover:border-indigo-500/30 transition-all flex flex-col group ${isActive ? 'border-emerald-500/30 ring-1 ring-emerald-500/20' : ''} ${isBlocked ? 'opacity-70 grayscale-[0.5]' : ''}">
                     <div class="mb-6">
                         <div class="flex justify-between items-start">
                              <h3 class="text-xl font-black text-white mb-2">${plan.name}</h3>
@@ -640,7 +658,24 @@
                         `).join('')}
                     </ul>
 
-                    <button ${btnAction} class="${btnClass}" ${isActive ? 'disabled' : ''}>
+                    ${credit > 0 && !isBlocked && !isActive ? `
+                        <div class="mb-4 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-center">
+                            <div class="text-[10px] text-indigo-300 font-medium uppercase tracking-wide mb-1">Proration Credit Applied</div>
+                            <div class="flex justify-between items-center px-4">
+                                <span class="text-slate-400 line-through text-xs">$${plan.discounted_price}</span>
+                                <span class="text-white font-bold text-sm">You Pay: $${payToday}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${isBlocked ? `
+                        <div class="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
+                            <div class="text-[10px] text-red-400 font-bold uppercase tracking-wide">Credit Exceeds Price</div>
+                            <div class="text-xs text-slate-400 mt-1">Current credit ($${credit}) > Plan price</div>
+                        </div>
+                    ` : ''}
+
+                    <button ${btnAction} class="${btnClass}" ${isDisabled ? 'disabled' : ''}>
                         ${btnText}
                     </button>
                 </div>

@@ -50,13 +50,45 @@ class PlanController extends Controller
         }
 
         // Transform to array to ensure is_active is included in JSON
-        $plansData = $plans->map(function ($plan) use ($activePlanId) {
+        $plansData = $plans->map(function ($plan) use ($activePlanId, $user) {
             $data = $plan->toArray();
             $data['is_active'] = $activePlanId && $activePlanId == $plan->id;
-            // Log for first plan (test plan id 1)
-            if ($plan->id == 1) {
-                 \Illuminate\Support\Facades\Log::info("Plan 1 check - Comp: {$activePlanId} == {$plan->id} -> " . ($data['is_active'] ? 'True' : 'False'));
+            
+            // Calculate Proration Data for Frontend
+            $data['proration_credit'] = 0;
+            $data['pay_today'] = $plan->discounted_price; // Default
+            $data['is_downgrade_blocked'] = false;
+
+            if ($user) {
+                $activeSub = $user->planSubscriptions()
+                    ->where('status', 'active')
+                    ->latest('start_date')
+                    ->first();
+                
+                if ($activeSub && $activeSub->plan_id != $plan->id) {
+                     $startDate = \Carbon\Carbon::parse($activeSub->start_date);
+                     $endDate = \Carbon\Carbon::parse($activeSub->end_date);
+                     $totalDays = $startDate->diffInDays($endDate);
+                     if ($totalDays == 0) $totalDays = 1;
+                     
+                     $remainingDays = now()->diffInDays($endDate, false);
+                     
+                     if ($remainingDays > 0) {
+                         $amountPaid = $activeSub->final_amount;
+                         $dailyRate = $amountPaid / $totalDays;
+                         $unusedValue = round($dailyRate * $remainingDays, 2);
+                         
+                         $data['proration_credit'] = $unusedValue;
+                         $data['pay_today'] = max(0, $plan->discounted_price - $unusedValue);
+                         
+                         // Block downgrade if unused value exceeds new plan price
+                         if ($unusedValue > $plan->discounted_price) {
+                             $data['is_downgrade_blocked'] = true;
+                         }
+                     }
+                }
             }
+
             return $data;
         });
 

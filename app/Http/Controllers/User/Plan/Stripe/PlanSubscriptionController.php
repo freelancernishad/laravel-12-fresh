@@ -66,8 +66,14 @@ class PlanSubscriptionController extends Controller
                 $prorationDiscount = round($unusedValue, 2);
                 
                 if ($prorationDiscount > 0) {
-                    // Cap discount at new plan price (no negative charges)
-                    // If unused value > new price, the new plan is free for the first cycle, but we don't refund excess.
+                    // Downgrade Protection: checking if unused value > new plan price
+                    if ($unusedValue > $discountedPrice) {
+                         return response()->json([
+                             'error' => "Downgrade Blocked: Your current unused credit (\${$unusedValue}) exceeds the new plan price (\${$discountedPrice}). You would lose value."
+                         ], 400);
+                    }
+
+                    // Cap discount at new plan price (shouldn't be hit due to above check, but safe to keep)
                     if ($prorationDiscount > $discountedPrice) {
                         $prorationDiscount = $discountedPrice;
                     }
