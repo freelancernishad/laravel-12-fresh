@@ -430,9 +430,16 @@
             const method = currentCodeData.method;
             const url = currentCodeData.url;
             
+            // Determine token based on URL path or context
+            let token = getCookie('admin_token');
+            if (!token || url.includes('/api/user') || url.includes('/api/auth/user')) {
+                 const userToken = getCookie('user_token');
+                 if (userToken) token = userToken;
+            }
+
             const headers = {
                  'Accept': 'application/json',
-                 'Authorization': 'Bearer ' + getCookie('admin_token')
+                 'Authorization': 'Bearer ' + token
             };
 
             let bodyPayload;

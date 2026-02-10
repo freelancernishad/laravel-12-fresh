@@ -31,6 +31,16 @@ class AuthenticateUser
             return response()->json([], 401);
         }
 
+        $user = Auth::guard('user')->user();
+
+        if ($user->is_blocked) {
+            return response()->json(['message' => 'Your account is blocked. Contact support.'], 403);
+        }
+
+        if (!$user->is_active) {
+            return response()->json(['message' => 'Your account is not active.'], 403);
+        }
+
         return $next($request);
     }
 }

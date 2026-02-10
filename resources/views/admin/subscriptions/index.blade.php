@@ -20,11 +20,12 @@
                             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Pricing</th>
                             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Dates</th>
                             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="subscriptions-table-body" class="divide-y divide-white/5">
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
+                            <td colspan="6" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center gap-3">
                                     <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
                                     <p class="text-slate-400">Loading subscriptions...</p>
@@ -105,14 +106,14 @@
                 renderPagination(meta);
             } catch (error) {
                 console.error('Error fetching subscriptions:', error);
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400">Failed to load subscriptions.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-400">Failed to load subscriptions.</td></tr>`;
             }
         }
 
         function renderSubscriptions(subs) {
             const tbody = document.getElementById('subscriptions-table-body');
             if (subs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500 italic">No subscriptions found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 italic">No subscriptions found.</td></tr>`;
                 return;
             }
 
@@ -153,6 +154,15 @@
                     <td class="px-6 py-4">
                         ${getStatusBadge(sub)}
                     </td>
+                    <td class="px-6 py-4 text-right">
+                         ${canCancel(sub) ? `
+                            <button onclick="cancelSubscription(${sub.id}, this)" class="text-xs font-bold text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all">
+                                Cancel
+                            </button>
+                         ` : `
+                            <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">No Action</span>
+                         `}
+                    </td>
                 </tr>
             `).join('');
         }
@@ -173,6 +183,48 @@
             }
 
             return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${colorClass}">${status}</span>`;
+        }
+
+        function canCancel(sub) {
+            const now = new Date();
+            const end = sub.ends_at ? new Date(sub.ends_at) : null;
+             // Can cancel if not expired/cancelled
+            if (!end) return true; // Lifetime/Indefinite
+            return end > now;
+        }
+
+        async function cancelSubscription(id, btn) {
+            if (!confirm('Are you sure you want to cancel this subscription?')) return;
+
+            const originalText = btn.innerText;
+            btn.innerText = '...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/admin/subscriptions/${id}/cancel`, {
+                     method: 'POST',
+                     headers: {
+                        'Authorization': 'Bearer ' + getCookie('admin_token'),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    showToast('Subscription cancelled');
+                    fetchSubscriptions(currentPage);
+                } else {
+                     const data = await response.json();
+                     showToast(data.message || 'Failed to cancel', 'error');
+                     btn.innerText = originalText;
+                     btn.disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('An error occurred', 'error');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         function renderPagination(meta) {
@@ -202,6 +254,14 @@
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl border font-bold text-sm shadow-2xl z-50 animate-bounce-in ${type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`;
+            toast.innerText = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
     </script>
 @endsection

@@ -138,4 +138,8 @@ Route::prefix('user')->group(function () {
     Route::get('/dashboard', function() {
         return view('user.dashboard');
     })->name('user.dashboard');
+
+    Route::get('/docs', function() {
+        return view('user.docs');
+    })->name('user.docs');
 });

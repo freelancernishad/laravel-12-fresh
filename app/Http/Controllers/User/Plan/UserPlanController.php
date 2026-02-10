@@ -16,6 +16,7 @@ class UserPlanController extends Controller
 
         $active = $user->planSubscriptions()
             ->where('status', 'active')
+            ->with('plan') // Eager load plan
             ->latest('start_date')
             ->first();
 
@@ -27,6 +28,7 @@ class UserPlanController extends Controller
         $user = $request->user();
 
         $subscriptions = $user->planSubscriptions()
+            ->with('plan') // Eager load plan
             ->latest('start_date')
             ->paginate(10);
 

@@ -11,91 +11,295 @@
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .purchase-btn { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .purchase-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5); }
+        .nav-item.active { background: #6366f1; color: white; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2); }
+        .content-section { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen p-6 md:p-12">
-    <div class="max-w-6xl mx-auto">
+<body class="min-h-screen flex text-sm">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#0b1221] border-r border-white/5 flex-shrink-0 fixed h-full z-20 flex flex-col hidden md:flex">
+        <div class="h-20 flex items-center px-8 border-b border-white/5">
+            <h1 class="text-xl font-bold text-white font-outfit tracking-tight">User Portal</h1>
+        </div>
+        
+        <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
+            <button onclick="showSection('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                Overview
+            </button>
+            <button onclick="showSection('plans')" id="nav-plans" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                My Plan
+            </button>
+            <button onclick="showSection('billing')" id="nav-billing" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                Billing & History
+            </button>
+            <div class="pt-4 border-t border-white/5 mt-4">
+                <p class="px-4 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Connect</p>
+                <button onclick="showSection('support')" id="nav-support" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    Support
+                </button>
+                <button onclick="showSection('notifications')" id="nav-notifications" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    Notifications
+                </button>
+            </div>
+             <div class="pt-4 mt-auto">
+                <button onclick="showSection('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    Settings
+                </button>
+            </div>
+        </nav>
+
+        <div class="p-4 border-t border-white/5">
+            <button onclick="logout()" class="w-full px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white font-bold transition-all text-sm flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                Log Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 min-w-0 md:ml-64 p-8 lg:p-12">
         <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
-            <div class="space-y-2">
-                <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-widest border border-indigo-500/20">Impersonation Mode</span>
-                <h1 id="welcome-text" class="text-4xl md:text-5xl font-black text-white leading-tight">Welcome Back</h1>
-                <p id="user-email" class="text-slate-400 font-medium">Loading your profile...</p>
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 id="page-title" class="text-3xl font-black text-white">Dashboard</h2>
+                <p id="page-subtitle" class="text-slate-400 mt-1">Welcome back to your portal.</p>
             </div>
             <div class="flex items-center gap-4">
-                <button onclick="logout()" class="px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold border border-white/5 transition-all">Exit Impersonation</button>
+                 <a href="{{ route('user.docs') }}" class="px-4 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-sm font-bold border border-indigo-500/20 transition-all hidden md:block">Developer API</a>
+                <div class="flex items-center gap-3 pl-4 md:border-l border-white/10">
+                    <div class="text-right hidden md:block">
+                        <p id="display-name" class="text-sm font-bold text-white">Loading...</p>
+                        <p id="user-email" class="text-xs text-slate-500">---</p>
+                    </div>
+                    <div id="user-avatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-lg font-black text-white shadow-lg"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Dashboard Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- User Info Card -->
-            <div class="lg:col-span-1">
-                <div class="glass p-8 rounded-[2.5rem] sticky top-8">
-                    <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-3xl font-black text-white shadow-2xl mb-6" id="user-avatar">-</div>
-                    <div class="space-y-6">
-                        <div>
-                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Account Holder</p>
-                            <h3 id="display-name" class="text-xl font-bold text-white">---</h3>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Member Since</p>
-                            <p id="joined-date" class="text-slate-300 font-medium italic">---</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Status</p>
-                            <span id="status-badge" class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest">Active</span>
-                        </div>
-                    </div>
-                </div>
+        <!-- Sections -->
+        <div id="content-area" class="space-y-8">
+            
+            <!-- SECTION: Dashboard Overview -->
+            <div id="section-dashboard" class="content-section space-y-8">
+                 <!-- Quick Stats / Active Plan Summary -->
+                 <div id="dashboard-active-plan" class="glass p-8 rounded-[2rem] border-white/5 relative overflow-hidden">
+                    <div class="animate-pulse space-y-4"><div class="h-8 w-1/3 bg-white/5 rounded-lg"></div></div>
+                 </div>
+                 
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div class="glass p-6 rounded-3xl border-white/5">
+                         <h3 class="text-lg font-bold text-white mb-4">Quick Actions</h3>
+                         <div class="space-y-3">
+                             <button onclick="showSection('plans')" class="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 text-left flex items-center justify-between group transition-all">
+                                 <span class="text-sm text-slate-300 group-hover:text-white">Upgrade Plan</span>
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500 group-hover:text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                             </button>
+                             <button onclick="showSection('support')" class="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 text-left flex items-center justify-between group transition-all">
+                                 <span class="text-sm text-slate-300 group-hover:text-white">Open Support Ticket</span>
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500 group-hover:text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                             </button>
+                         </div>
+                     </div>
+                     <div class="glass p-6 rounded-3xl border-white/5">
+                         <h3 class="text-lg font-bold text-white mb-4">Recent Activity</h3>
+                         <div id="mini-payment-history" class="space-y-3">
+                             <p class="text-slate-500 text-sm">Loading...</p>
+                         </div>
+                     </div>
+                 </div>
             </div>
 
-            <!-- Plan Purchase Section -->
-            <div class="lg:col-span-2 space-y-8">
-                <div class="flex items-end justify-between">
-                    <div>
-                        <h2 class="text-2xl font-black text-white">Upgrade Your Experience</h2>
-                        <p class="text-slate-400 mt-1">Choose a plan that fits your needs.</p>
-                    </div>
+            <!-- SECTION: My Plan -->
+            <div id="section-plans" class="content-section hidden space-y-8">
+                <div id="plan-list" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Plans loaded here -->
                 </div>
-
-                <!-- Coupon & Payment Type Section -->
-                <div class="glass p-6 rounded-3xl border-white/5 flex flex-col md:flex-row items-center gap-6">
+                 <!-- Coupon & Payment Type Section -->
+                 <div class="glass p-6 rounded-3xl border-white/5 flex flex-col md:flex-row items-center gap-6">
                     <div class="flex-1">
                         <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Payment Settings</p>
                         <p class="text-slate-400 text-sm">Apply a promo code and choose your billing preference.</p>
                     </div>
-                    
-                    <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-                        <!-- Toggle -->
-                        <div class="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10 shrink-0">
-                            <button onclick="setPaymentType('subscription')" id="btn-recurring" 
-                                class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all bg-indigo-500 text-white">Recurring</button>
-                            <button onclick="setPaymentType('single')" id="btn-single" 
-                                class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all text-slate-500 hover:text-white">One-Time</button>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
+                            <button onclick="setPaymentType('subscription')" id="btn-recurring" class="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-tight bg-indigo-500 text-white transition-all">Recurring</button>
+                            <button onclick="setPaymentType('single')" id="btn-single" class="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-tight text-slate-500 hover:text-white transition-all">One-Time</button>
                         </div>
-
-                        <!-- Coupon Input -->
-                        <div class="relative w-full md:w-48">
-                            <input type="text" id="coupon-code" placeholder="Promo Code" 
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 transition-all text-center">
-                        </div>
+                        <input type="text" id="coupon-code" placeholder="Code" class="w-32 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50">
                     </div>
                 </div>
+            </div>
 
-                <div id="plan-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Loading skeleton -->
-                    <div class="glass p-8 rounded-[2rem] border-white/5 animate-pulse min-h-[300px]"></div>
-                    <div class="glass p-8 rounded-[2rem] border-white/5 animate-pulse min-h-[300px]"></div>
+            <!-- SECTION: Billing -->
+            <div id="section-billing" class="content-section hidden space-y-8">
+                 <!-- Subscription History -->
+                 <div class="glass p-8 rounded-[2rem] border-white/5">
+                    <h2 class="text-xl font-black text-white mb-6">Subscription History</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-white/5">
+                                <tr><th class="py-3 text-xs font-black text-slate-500 uppercase">Plan</th><th class="py-3 text-xs font-black text-slate-500 uppercase">Dates</th><th class="py-3 text-xs font-black text-slate-500 uppercase text-right">Amount</th><th class="py-3 text-xs font-black text-slate-500 uppercase text-right">Status</th></tr>
+                            </thead>
+                            <tbody id="subscription-history-body" class="divide-y divide-white/5">
+                                <tr><td colspan="4" class="py-4 text-center text-slate-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+
+                 <!-- Payment History -->
+                 <div class="glass p-8 rounded-[2rem] border-white/5">
+                    <h2 class="text-xl font-black text-white mb-6">Payment History</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-white/5">
+                                <tr><th class="py-3 text-xs font-black text-slate-500 uppercase">Description</th><th class="py-3 text-xs font-black text-slate-500 uppercase">Date</th><th class="py-3 text-xs font-black text-slate-500 uppercase text-right">Amount</th><th class="py-3 text-xs font-black text-slate-500 uppercase text-right">Status</th></tr>
+                            </thead>
+                            <tbody id="payment-history-body" class="divide-y divide-white/5">
+                                <tr><td colspan="4" class="py-4 text-center text-slate-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- SECTION: Support -->
+            <div id="section-support" class="content-section hidden space-y-8">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white">Support Tickets</h3>
+                    <button onclick="document.getElementById('create-ticket-modal').classList.remove('hidden')" class="px-4 py-2 rounded-xl bg-indigo-500 text-white text-sm font-bold hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20">New Ticket</button>
+                </div>
+
+                <div class="glass p-8 rounded-[2rem] border-white/5">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-white/5">
+                                <tr>
+                                    <th class="py-3 text-xs font-black text-slate-500 uppercase">Subject</th>
+                                    <th class="py-3 text-xs font-black text-slate-500 uppercase">Status</th>
+                                    <th class="py-3 text-xs font-black text-slate-500 uppercase text-right">Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tickets-body" class="divide-y divide-white/5">
+                                <tr><td colspan="3" class="py-8 text-center text-slate-500 text-sm">Loading tickets...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
+            <!-- Create Ticket Modal -->
+            <div id="create-ticket-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+                <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
+                <div class="glass p-8 rounded-[2rem] border-white/10 relative z-10 w-full max-w-lg mx-4">
+                    <h3 class="text-xl font-bold text-white mb-6">Create Support Ticket</h3>
+                    <form id="create-ticket-form" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Subject</label>
+                            <input type="text" id="ticket-subject" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="Brief summary of the issue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Message</label>
+                            <textarea id="ticket-message" required rows="4" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="Describe your issue in detail..."></textarea>
+                        </div>
+                        <div class="flex items-center gap-4 pt-2">
+                            <button type="button" onclick="document.getElementById('create-ticket-modal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white/5 text-slate-400 font-bold hover:bg-white/10 transition-all">Cancel</button>
+                            <button type="submit" class="flex-1 py-3 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20">Submit Ticket</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECTION: Notifications -->
+            <div id="section-notifications" class="content-section hidden space-y-4">
+                 <div class="glass p-8 rounded-[2rem] border-white/5 text-center py-12">
+                    <p class="text-slate-500 italic">No new notifications.</p>
+                 </div>
+            </div>
+
+            <!-- SECTION: Settings -->
+            <div id="section-settings" class="content-section hidden space-y-8">
+                 <div class="glass p-8 rounded-[2rem] border-white/5 max-w-2xl">
+                     <h3 class="text-xl font-bold text-white mb-6">Profile Settings</h3>
+                     <form id="profile-form" class="space-y-4">
+                         <div class="grid grid-cols-2 gap-4">
+                             <div>
+                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Full Name</label>
+                                 <input type="text" id="input-name" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all">
+                             </div>
+                             <div>
+                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Phone</label>
+                                 <input type="text" id="input-phone" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all">
+                             </div>
+                         </div>
+                         <div>
+                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Email Address</label>
+                             <input type="email" id="input-email" disabled class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-500 cursor-not-allowed">
+                         </div>
+                         <button type="submit" class="px-6 py-3 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20">Update Profile</button>
+                     </form>
+                 </div>
+
+                 <div class="glass p-8 rounded-[2rem] border-white/5 max-w-2xl">
+                     <h3 class="text-xl font-bold text-white mb-6">Security</h3>
+                     <form id="password-form" class="space-y-4">
+                         <div>
+                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">New Password</label>
+                             <input type="password" id="input-password" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all">
+                         </div>
+                         <div>
+                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Confirm Password</label>
+                             <input type="password" id="input-password-confirmation" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all">
+                         </div>
+                         <button type="submit" class="px-6 py-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-all">Change Password</button>
+                     </form>
+                 </div>
+            </div>
+
         </div>
-    </div>
+    </main>
 
     <!-- Scripts -->
     <script>
         const token = getCookie('user_token');
         let selectedPaymentType = 'subscription';
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+            // Remove active class from nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'bg-indigo-500', 'text-white', 'shadow-lg', 'shadow-indigo-500/20'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.add('text-slate-400'));
+
+            // Show selected section
+            document.getElementById(`section-${sectionId}`).classList.remove('hidden');
+            
+            // Activate nav item
+            const navBtn = document.getElementById(`nav-${sectionId}`);
+            if (navBtn) {
+                navBtn.classList.add('active', 'bg-indigo-500', 'text-white', 'shadow-lg', 'shadow-indigo-500/20');
+                navBtn.classList.remove('text-slate-400', 'hover:bg-white/5');
+            }
+
+            // Update Header Title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'plans': 'My Plan',
+                'billing': 'Billing & History',
+                'support': 'Support Center',
+                'notifications': 'Notifications',
+                'settings': 'Account Settings'
+            };
+            document.getElementById('page-title').innerText = titles[sectionId] || 'Dashboard';
+        }
 
         function setPaymentType(type) {
             selectedPaymentType = type;
@@ -103,11 +307,11 @@
             const singleBtn = document.getElementById('btn-single');
 
             if (type === 'subscription') {
-                recBtn.className = 'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all bg-indigo-500 text-white';
-                singleBtn.className = 'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all text-slate-500 hover:text-white';
+                recBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-tight bg-indigo-500 text-white transition-all';
+                singleBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-tight text-slate-500 hover:text-white transition-all';
             } else {
-                recBtn.className = 'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all text-slate-500 hover:text-white';
-                singleBtn.className = 'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tight transition-all bg-indigo-500 text-white';
+                recBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-tight text-slate-500 hover:text-white transition-all';
+                singleBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-tight bg-indigo-500 text-white transition-all';
             }
         }
 
@@ -117,8 +321,254 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchUserProfile();
+            fetchActivePlan();
+            fetchPaymentHistory();
+            fetchSubscriptionHistory();
             fetchPlans();
+            fetchTickets();
+            fetchNotifications();
+
+            document.getElementById('profile-form').addEventListener('submit', updateProfile);
+            document.getElementById('password-form').addEventListener('submit', changePassword);
+            document.getElementById('create-ticket-form').addEventListener('submit', createTicket);
         });
+
+        // ... active plan, payment history, plans, subscription history functions ...
+
+        async function fetchTickets() {
+            const tbody = document.getElementById('tickets-body');
+            try {
+                const response = await fetch('/api/user/support', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const tickets = result.data || [];
+
+                if (tickets.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-500 text-sm">No support tickets found.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = tickets.map(t => `
+                    <tr class="group hover:bg-white/5 transition-colors">
+                        <td class="py-4">
+                            <div class="font-bold text-white text-sm">${t.subject}</div>
+                            <div class="text-[10px] text-slate-500 font-mono">ID: ${t.id}</div>
+                        </td>
+                        <td class="py-4">
+                            <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-300">${t.status}</span>
+                        </td>
+                        <td class="py-4 text-right text-xs text-slate-400">
+                            ${new Date(t.updated_at).toLocaleDateString()}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function createTicket(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Creating...';
+            btn.disabled = true;
+
+            const subject = document.getElementById('ticket-subject').value;
+            const message = document.getElementById('ticket-message').value;
+
+            try {
+                const response = await fetch('/api/user/support', {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`, 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ subject, message, priority: 'medium' })
+                });
+                
+                if (response.ok) {
+                    alert('Ticket created successfully');
+                    document.getElementById('create-ticket-modal').classList.add('hidden');
+                    document.getElementById('create-ticket-form').reset();
+                    fetchTickets();
+                } else {
+                    alert('Failed to create ticket');
+                }
+            } catch (error) {
+                alert('Error creating ticket');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function updateProfile(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Updating...';
+            btn.disabled = true;
+
+            const name = document.getElementById('input-name').value;
+            const phone = document.getElementById('input-phone').value;
+
+            try {
+                const response = await fetch('/api/auth/user/update', {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`, 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ name, phone })
+                });
+                
+                if (response.ok) {
+                    alert('Profile updated successfully');
+                    fetchUserProfile();
+                } else {
+                    alert('Failed to update profile');
+                }
+            } catch (error) {
+                alert('Error updating profile');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function changePassword(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Changing...';
+            btn.disabled = true;
+
+            const password = document.getElementById('input-password').value;
+            const password_confirmation = document.getElementById('input-password-confirmation').value;
+
+            try {
+                const response = await fetch('/api/auth/user/password/change', {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`, 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ password, password_confirmation })
+                });
+                
+                if (response.ok) {
+                    alert('Password changed successfully');
+                    document.getElementById('password-form').reset();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Failed to change password');
+                }
+            } catch (error) {
+                alert('Error changing password');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function fetchNotifications() {
+            const container = document.getElementById('section-notifications');
+            try {
+                const response = await fetch('/api/user/notifications', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const notifications = result.data || [];
+
+                if (notifications.length === 0) {
+                     container.innerHTML = `
+                        <div class="glass p-8 rounded-[2rem] border-white/5 text-center py-12">
+                            <p class="text-slate-500 italic">No new notifications.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = notifications.map(n => `
+                    <div class="glass p-6 rounded-2xl border-white/5 flex items-start gap-4">
+                        <div class="w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0"></div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm mb-1">${n.data.title || 'Notification'}</h4>
+                            <p class="text-slate-400 text-xs mb-3">${n.data.message || ''}</p>
+                            <span class="text-[10px] text-slate-500 font-mono">${new Date(n.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error('Failed to load notifications');
+            }
+        }
+
+        // ... existing functions ...
+        async function fetchSubscriptionHistory() {
+             const tbody = document.getElementById('subscription-history-body');
+             try {
+                const response = await fetch('/api/user/plan/history', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const subscriptions = result.data.data || result.data || [];
+
+                if (subscriptions.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-500 text-xs">No subscription history found.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = subscriptions.map(sub => `
+                    <tr class="group hover:bg-white/5 transition-colors">
+                        <td class="py-4">
+                            <div class="font-bold text-white text-sm">${sub.plan ? sub.plan.name : 'Unknown Plan'}</div>
+                            <div class="text-[10px] text-slate-500 font-mono capitalize">${sub.payment_method || 'stripe'}</div>
+                        </td>
+                        <td class="py-4 text-sm text-slate-400">
+                            <div class="flex flex-col">
+                                <span class="text-xs">Start: ${new Date(sub.starts_at || sub.created_at).toLocaleDateString()}</span>
+                                <span class="text-xs">End: ${sub.ends_at ? new Date(sub.ends_at).toLocaleDateString() : 'Lifetime'}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 text-right">
+                            <span class="font-bold text-white">$${sub.price || '0.00'}</span>
+                        </td>
+                        <td class="py-4 text-right">
+                            ${getStatusBadge(sub)}
+                        </td>
+                    </tr>
+                `).join('');
+
+             } catch (e) {
+                 console.error(e);
+                 tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-400 text-xs">Failed to load subscription history.</td></tr>`;
+             }
+        }
+
+        function getStatusBadge(sub) {
+            const now = new Date();
+            const end = sub.ends_at ? new Date(sub.ends_at) : null;
+            
+            let status = 'active';
+            let colorClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+            
+            if (end && end < now) {
+                status = 'expired';
+                colorClass = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+            } else if (sub.status === 'canceled') {
+                status = 'canceled';
+                colorClass = 'bg-red-500/10 text-red-400 border-red-500/20';
+            }
+
+            return `<span class="px-2 py-0.5 rounded bg-opacity-10 border ${colorClass} text-[10px] font-bold uppercase tracking-wider">${status}</span>`;
+        }
 
         async function fetchUserProfile() {
             try {
@@ -128,20 +578,118 @@
                 const result = await response.json();
                 const user = result.data || result;
                 
-                document.getElementById('welcome-text').innerText = `Welcome, ${user.name.split(' ')[0]}`;
+                // document.getElementById('welcome-text').innerText = `Welcome, ${user.name.split(' ')[0]}`; // Removed welcome text element
                 document.getElementById('user-email').innerText = user.email;
                 document.getElementById('display-name').innerText = user.name;
                 document.getElementById('user-avatar').innerText = user.name.charAt(0);
-                document.getElementById('joined-date').innerText = new Date(user.created_at).toLocaleDateString();
                 
-                if (!user.is_active) {
-                    const badge = document.getElementById('status-badge');
-                    badge.innerText = 'Inactive';
-                    badge.className = 'px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-[10px] font-black uppercase tracking-widest';
-                }
+                // Populate settings form
+                document.getElementById('input-name').value = user.name;
+                document.getElementById('input-phone').value = user.phone || '';
+                document.getElementById('input-email').value = user.email;
+
             } catch (e) {
                 console.error('Failed to load user profile');
             }
+        }
+
+        async function fetchActivePlan() {
+            const container = document.getElementById('dashboard-active-plan');
+            
+            try {
+                const response = await fetch('/api/user/plan/active', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const sub = result.data || result;
+
+                if (!sub || !sub.plan) {
+                    container.innerHTML = `
+                         <div class="relative z-10 flex flex-col items-center justify-center text-center py-6">
+                            <h3 class="text-xl font-bold text-white mb-2">No Active Subscription</h3>
+                            <p class="text-slate-400 text-sm mb-6">Unlock premium features by upgrading your plan.</p>
+                            <button onclick="showSection('plans')" class="px-6 py-2 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-all">Browse Plans</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-8">
+                             <div>
+                                <h2 class="text-2xl font-black text-white mb-1">Current Plan</h2>
+                                <p class="text-slate-400 text-sm">Valid until ${new Date(sub.ends_at).toLocaleDateString()}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-black uppercase tracking-widest border border-emerald-500/20">Active</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <h3 class="text-3xl font-black text-white">${sub.plan.name}</h3>
+                            <div class="text-right">
+                                 <div class="text-2xl font-black text-white">$${sub.price || sub.plan.monthly_price}</div>
+                                 <div class="text-slate-500 text-xs font-black uppercase tracking-widest">${sub.payment_method || 'stripe'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p class="text-red-400 text-sm">Failed to load subscription details.</p>';
+            }
+        }
+
+        async function fetchPaymentHistory() {
+             const tbody = document.getElementById('payment-history-body');
+             const miniBody = document.getElementById('mini-payment-history');
+             
+             try {
+                const response = await fetch('/api/user/payments?limit=5', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const payments = result.data.data || result.data || [];
+
+                if (payments.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-500 text-xs">No payment history found.</td></tr>`;
+                    if(miniBody) miniBody.innerHTML = '<p class="text-slate-500 text-sm italic">No recent payments.</p>';
+                    return;
+                }
+
+                // Full Table
+                tbody.innerHTML = payments.map(p => `
+                    <tr class="group hover:bg-white/5 transition-colors">
+                        <td class="py-4">
+                            <div class="font-bold text-white text-sm">${p.description || 'Subscription Payment'}</div>
+                            <div class="text-[10px] text-slate-500 font-mono">${p.transaction_id || 'ID: ---'}</div>
+                        </td>
+                        <td class="py-4 text-xs text-slate-400">${new Date(p.created_at).toLocaleDateString()}</td>
+                        <td class="py-4 text-right">
+                            <span class="font-bold text-white">$${p.amount}</span>
+                        </td>
+                        <td class="py-4 text-right">
+                            <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase">Paid</span>
+                        </td>
+                    </tr>
+                `).join('');
+
+                // Mini List for Dashboard
+                if(miniBody) {
+                    miniBody.innerHTML = payments.slice(0, 3).map(p => `
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                            <div>
+                                <p class="text-xs font-bold text-white">${p.description || 'Payment'}</p>
+                                <p class="text-[10px] text-slate-500">${new Date(p.created_at).toLocaleDateString()}</p>
+                            </div>
+                            <span class="font-bold text-white text-sm">$${p.amount}</span>
+                        </div>
+                    `).join('');
+                }
+
+             } catch (e) {
+                 console.error(e);
+                 tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-400 text-xs">Failed to load payment history.</td></tr>`;
+             }
         }
 
         async function fetchPlans() {

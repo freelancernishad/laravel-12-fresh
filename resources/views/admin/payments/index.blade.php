@@ -19,12 +19,12 @@
                             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">User</th>
                             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Amount</th>
                             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Type</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Date</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="payments-table-body" class="divide-y divide-white/5">
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
+                            <td colspan="6" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center gap-3">
                                     <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
                                     <p class="text-slate-400">Loading payments...</p>
@@ -79,6 +79,27 @@
         </div>
     </div>
 
+    <!-- Payment Details Modal -->
+    <div id="payment-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePaymentModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
+            <div class="bg-[#0f172a] rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+                <div class="p-6 border-b border-white/5 flex items-center justify-between bg-white/5">
+                    <h3 class="text-xl font-bold text-white font-outfit">Transaction Details</h3>
+                    <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                    <pre id="payment-details-content" class="text-xs font-mono text-indigo-300 bg-black/20 p-4 rounded-xl overflow-x-auto whitespace-pre-wrap"></pre>
+                </div>
+                <div class="p-6 border-t border-white/5 bg-white/5 flex justify-end">
+                    <button onclick="closePaymentModal()" class="px-6 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold border border-white/5 transition-all">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentPage = 1;
 
@@ -105,18 +126,22 @@
                 renderPagination(meta);
             } catch (error) {
                 console.error('Error fetching payments:', error);
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400">Failed to load payments.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-400">Failed to load payments.</td></tr>`;
             }
         }
 
         function renderPayments(items) {
             const tbody = document.getElementById('payments-table-body');
             if (items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500 italic">No payments found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 italic">No payments found.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = items.map(payment => `
+            tbody.innerHTML = items.map(payment => {
+                // Encode payment object safely
+                const paymentJson = JSON.stringify(payment).replace(/"/g, '&quot;');
+                
+                return `
                 <tr class="hover:bg-white/[0.02] transition-colors group">
                     <td class="px-6 py-4">
                         <span class="text-xs font-mono text-indigo-300 bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">
@@ -140,8 +165,26 @@
                     <td class="px-6 py-4">
                         <span class="text-sm text-slate-400">${formatDate(payment.created_at)}</span>
                     </td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="showPaymentDetails(${paymentJson})" class="text-xs font-bold text-indigo-400 hover:text-white px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500 border border-indigo-500/20 transition-all">
+                            View Details
+                        </button>
+                    </td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        function showPaymentDetails(payment) {
+            const modal = document.getElementById('payment-modal');
+            const content = document.getElementById('payment-details-content');
+            
+            content.textContent = JSON.stringify(payment, null, 4);
+            modal.classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
         }
 
         function renderPagination(meta) {

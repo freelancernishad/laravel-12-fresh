@@ -190,6 +190,68 @@
                         View Full Details
                     </button>
                 </div>
+                <!-- Toggle Active -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-wider">PATCH Active</span>
+                        <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/users/{id}/toggle-active', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/users/{id}/toggle-active</code>
+                    </div>
+                    <button onclick="showCodeExample('PATCH', '/api/admin/users/{id}/toggle-active')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
+
+                <!-- Toggle Block -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-wider">PATCH Block</span>
+                        <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/users/{id}/toggle-block', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/users/{id}/toggle-block</code>
+                    </div>
+                    <button onclick="showCodeExample('PATCH', '/api/admin/users/{id}/toggle-block')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
+
+                <!-- Verify Email -->
+                <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">PATCH Verify</span>
+                        <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                            <button onclick="copyToClipboard(window.location.origin + '/api/admin/users/{id}/verify-email', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        </div>
+                        <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/users/{id}/verify-email</code>
+                    </div>
+                    <button onclick="showCodeExample('PATCH', '/api/admin/users/{id}/verify-email')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        View Full Details
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -589,9 +651,47 @@
             document.getElementById('user-modal').classList.add('hidden');
         }
 
-        function copyNewPassword() {
-            navigator.clipboard.writeText(document.getElementById('new-password-text').innerText);
-            showToast('Copied to clipboard');
+        async function copyNewPassword() {
+            const tempPassword = document.getElementById('new-password-text').innerText;
+            if (!tempPassword) return;
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(tempPassword);
+                    showToast('Copied to clipboard');
+                } else {
+                    copyPasswordFallback(tempPassword);
+                }
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                copyPasswordFallback(tempPassword);
+            }
+        }
+
+        function copyPasswordFallback(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'Copied to clipboard' : 'Copy failed';
+                if(successful) showToast(msg);
+                else showToast(msg, 'error');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+                showToast('Copy failed', 'error');
+            }
+
+            document.body.removeChild(textArea);
         }
 
         function getCookie(name) {

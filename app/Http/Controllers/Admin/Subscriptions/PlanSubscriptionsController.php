@@ -30,6 +30,20 @@ class PlanSubscriptionsController extends Controller
         return response()->json($payments);
     }
 
+    public function cancelSubscription($id)
+    {
+        $subscription = PlanSubscription::findOrFail($id);
+
+        if ($subscription->ends_at && $subscription->ends_at->isPast()) {
+             return response()->json(['message' => 'Subscription is already expired or cancelled.'], 400);
+        }
+        
+        $subscription->ends_at = now();
+        $subscription->save();
+
+        return response()->json(['message' => 'Subscription cancelled successfully.']);
+    }
+
 
 
 }
