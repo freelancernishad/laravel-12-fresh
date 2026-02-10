@@ -52,6 +52,25 @@ class SupportTicketApiController extends Controller
             $ticket->id
         );
 
+        // Send Global Notification to All Admins
+        $admins = \App\Models\Admin::all();
+        foreach ($admins as $admin) {
+             send_notification(
+                $admin,
+                "New support ticket #{$ticket->id} from {$ticket->user->name}.",
+                "New Ticket: #{$ticket->id}",
+                'emails.admins.tickets.created',
+                [
+                    'ticket_id' => $ticket->id,
+                    'user_name' => $ticket->user->name,
+                    'subject' => $ticket->subject,
+                    'priority' => $ticket->priority,
+                ],
+                'SupportTicket',
+                $ticket->id
+            );
+        }
+
         return response()->json(['message' => 'Ticket created successfully.', 'ticket' => $ticket], 201);
     }
 

@@ -144,6 +144,11 @@ Route::prefix('admin')->group(function () {
         // Email Logs / History (View only)
         Route::get('/email-history', [\App\Http\Controllers\Admins\EmailLogController::class, 'index'])->name('admin.email-logs.index');
 
+        // Notifications View
+        Route::get('/notifications', function() {
+            return view('admin.notifications.index');
+        })->name('admin.notifications.index');
+
     });
 });
 

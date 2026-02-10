@@ -80,6 +80,27 @@ class AdminSupportTicketApiController extends Controller
                      $ticket->id
                 );
             }
+        } 
+        // Send Global Notification to Admins if User replied
+        elseif (auth()->guard('user')->check()) {
+             $admins = \App\Models\Admin::all();
+             foreach ($admins as $admin) {
+                 send_notification(
+                    $admin,
+                    "User {$ticket->user->name} replied to ticket #{$ticket->id}.",
+                    "New Reply on Ticket #{$ticket->id}",
+                    'emails.admins.tickets.reply',
+                    [
+                        'ticket_id' => $ticket->id,
+                        'user_name' => $ticket->user->name,
+                        'reply_content' => $reply->reply,
+                        'ticket_subject' => $ticket->subject,
+                        'ticket_status' => $ticket->status ?? 'Active',
+                    ],
+                    'SupportTicket',
+                    $ticket->id
+                );
+             }
         }
 
         return response()->json([

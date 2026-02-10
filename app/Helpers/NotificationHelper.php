@@ -33,17 +33,28 @@ class NotificationHelper
 //     ]
 // );
 
-   public static function sendUserNotification($receiver, $message, $subject = 'Notification', $relatedModel = null, $relatedModelId = null, $bladeView = null, $viewData = [])
-{
-    // Save to database
-    Notification::create([
-        'user_id' => $receiver->id ?? null,
-        'type' => 'custom',
-        'message' => $message,
-        'related_model' => $relatedModel,
-        'related_model_id' => $relatedModelId,
-        'is_read' => false,
-    ]);
+    public static function sendUserNotification($receiver, $message, $subject = 'Notification', $relatedModel = null, $relatedModelId = null, $bladeView = null, $viewData = [])
+    {
+        $data = [
+            'type' => 'custom',
+            'message' => $message,
+            'related_model' => $relatedModel,
+            'related_model_id' => $relatedModelId,
+            'is_read' => false,
+        ];
+
+        if ($receiver instanceof \App\Models\Admin) {
+            $data['admin_id'] = $receiver->id;
+        } else {
+            $data['user_id'] = $receiver->id ?? null;
+        }
+
+        // Save to database
+        try {
+            Notification::create($data);
+        } catch (\Exception $e) {
+            throw $e;
+        }
 
 
 
