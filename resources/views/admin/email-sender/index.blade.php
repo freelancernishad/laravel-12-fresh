@@ -8,8 +8,7 @@
         <h1 class="text-3xl font-extrabold tracking-tight font-outfit text-white">Send Email</h1>
     </div>
 
-    <form action="{{ route('admin.email-sender.send') }}" method="POST" class="space-y-6">
-        @csrf
+    <form id="emailSenderForm" class="space-y-6">
         
         <div class="glass p-8 rounded-2xl space-y-6">
             <!-- Template Selection -->
@@ -65,6 +64,36 @@
         </div>
     </form>
     
+    <!-- Template Preview Section -->
+    <div id="templatePreview" class="mt-8 glass rounded-2xl overflow-hidden hidden">
+        <div class="p-6 border-b border-white/10 bg-white/5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Template Preview</h3>
+                        <p class="text-xs text-slate-400">Subject: <span id="previewSubject" class="text-indigo-400 font-medium"></span></p>
+                    </div>
+                </div>
+                <button onclick="closePreview()" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="p-6 bg-white/5">
+            <div class="bg-white rounded-xl overflow-hidden" style="min-height: 400px;">
+                <iframe id="previewFrame" class="w-full" style="min-height: 400px; border: none;" sandbox="allow-same-origin"></iframe>
+            </div>
+        </div>
+    </div>
+    
     @if(session('success'))
         <div class="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-sm font-medium">
             {{ session('success') }}
@@ -76,5 +105,160 @@
             {{ session('error') }}
         </div>
     @endif
+</div>
+
+@push('scripts')
+<script>
+    // Template Preview Functionality
+    const templateSelect = document.querySelector('select[name="template_id"]');
+    const previewSection = document.getElementById('templatePreview');
+    const previewFrame = document.getElementById('previewFrame');
+    const previewSubject = document.getElementById('previewSubject');
+    
+    templateSelect.addEventListener('change', async function() {
+        const templateId = this.value;
+        
+        if (!templateId) {
+            previewSection.classList.add('hidden');
+            return;
+        }
+        
+        try {
+            // Fetch template details
+            const response = await fetch(`/api/admin/email-templates/${templateId}`, {
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) throw new Error('Failed to fetch template');
+            
+            const result = await response.json();
+            const template = result.data || result;
+            
+            // Update subject
+            previewSubject.textContent = template.subject || 'No Subject';
+            
+            // Update preview iframe with HTML content
+            const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            doc.open();
+            doc.write(template.content_html || '<p style="padding: 20px; text-align: center; color: #999;">No content available</p>');
+            doc.close();
+            
+            // Show preview section with animation
+            previewSection.classList.remove('hidden');
+            
+            // Smooth scroll to preview
+            setTimeout(() => {
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+            
+        } catch (error) {
+            console.error('Error loading template preview:', error);
+            alert('Failed to load template preview');
+        }
+    });
+    
+    function closePreview() {
+        previewSection.classList.add('hidden');
+    }
+    
+    // Email Sender Form Submission
+    document.getElementById('emailSenderForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = {
+            template_id: formData.get('template_id'),
+            recipients: formData.getAll('recipients[]'),
+            manual_emails: formData.get('manual_emails')
+        };
+        
+        try {
+            const response = await fetch('/api/admin/email-sender/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (!result.isError && response.ok) {
+                alert(result.Message || 'Emails sent successfully!');
+                location.reload();
+            } else {
+                alert('Error: ' + (result.Message || result.error || 'Failed to send emails'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error sending emails');
+        }
+    });
+</script>
+@endpush
+
+<!-- Developer API Documentation -->
+<div class="mt-12 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl mb-12">
+    <div class="p-8 border-b border-white/10 bg-indigo-500/5">
+        <div class="flex items-center gap-4">
+            <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-white">Developer API Documentation</h3>
+                <p class="text-slate-400 text-sm">Use these endpoints to send emails and manage email operations.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Send Email -->
+        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+            <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-xl bg-purple-500/20 text-purple-400 text-[10px] font-bold uppercase tracking-wider">POST Send</span>
+                <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+            </div>
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                    <button onclick="copyToClipboard(window.location.origin + '/api/admin/email-sender/send', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    </button>
+                </div>
+                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/email-sender/send</code>
+            </div>
+            <button onclick="showCodeExample('POST', '/api/admin/email-sender/send', { template_id: 1, recipients: [1, 2], manual_emails: 'user@example.com' })" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                View Full Details
+            </button>
+        </div>
+
+        <!-- Send Test Email -->
+        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+            <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-xl bg-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-wider">POST Test</span>
+                <div class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold uppercase">Restricted</div>
+            </div>
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                    <button onclick="copyToClipboard(window.location.origin + '/api/admin/email-sender/test', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    </button>
+                </div>
+                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/admin/email-sender/test</code>
+            </div>
+            <button onclick="showCodeExample('POST', '/api/admin/email-sender/test', { template_id: 1, test_email: 'admin@example.com' })" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                View Full Details
+            </button>
+        </div>
+    </div>
 </div>
 @endsection

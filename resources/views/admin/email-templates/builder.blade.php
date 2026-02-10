@@ -577,7 +577,7 @@
                 _token: '{{ csrf_token() }}'
             };
 
-            const url = '{{ isset($emailTemplate) ? route('admin.email-templates.update', $emailTemplate->id) : route('admin.email-templates.store') }}';
+            const url = '{{ isset($emailTemplate) ? '/api/admin/email-templates/'.$emailTemplate->id : '/api/admin/email-templates' }}';
             const method = '{{ isset($emailTemplate) ? 'PUT' : 'POST' }}';
 
             try {
@@ -591,11 +591,11 @@
                 });
 
                 const result = await response.json();
-                if(result.success) {
-                    alert(result.message);
+                if(!result.isError && response.ok) {
+                    alert(result.Message || 'Template saved successfully');
                     window.location.href = "{{ route('admin.email-templates.index') }}";
                 } else {
-                    alert('Error: ' + JSON.stringify(result.errors));
+                    alert('Error: ' + (result.Message || JSON.stringify(result.errors || result.error)));
                 }
             } catch (error) {
                 console.error('Error saving template:', error);

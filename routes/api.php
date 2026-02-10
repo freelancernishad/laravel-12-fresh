@@ -123,9 +123,9 @@ if (file_exists($StripeRoutes = __DIR__.'/Gateways/stripe.php')) {
     });
 }
 
-// Load EmailTemplateRoutes
-if (file_exists($EmailTemplateRoutes = __DIR__.'/Admins/EmailTemplates/EmailTemplateRoutes.php')) {
-    require $EmailTemplateRoutes;
+// Load EmailTemplateApiRoutes
+if (file_exists($EmailTemplateApiRoutes = __DIR__.'/Admins/EmailTemplates/EmailTemplateApiRoutes.php')) {
+    require $EmailTemplateApiRoutes;
 }
 
 
