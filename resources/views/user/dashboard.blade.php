@@ -129,6 +129,46 @@
                          </div>
                      </div>
                  </div>
+                 
+                 <!-- Developer API Documentation -->
+                 <div class="mt-12 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl mb-12">
+                    <div class="p-8 border-b border-white/10 bg-indigo-500/5">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Developer API Documentation</h3>
+                                <p class="text-slate-400 text-sm">Access your profile information programmatically.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- Get Profile -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET Profile</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/auth/user/me', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/auth/user/me</code>
+                            </div>
+                            <button onclick="showCodeExample('GET', '/api/auth/user/me')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+                    </div>
+                 </div>
             </div>
 
             <!-- SECTION: My Plan -->
@@ -150,6 +190,68 @@
                         <input type="text" id="coupon-code" placeholder="Code" class="w-32 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50">
                     </div>
                 </div>
+                </div>
+                
+                <!-- Developer API Documentation -->
+                 <div class="mt-12 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl mb-12">
+                    <div class="p-8 border-b border-white/10 bg-indigo-500/5">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Developer API Documentation</h3>
+                                <p class="text-slate-400 text-sm">Integrate plan management and subscriptions.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- List Plans -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET Plans</span>
+                                <div class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase">Public</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/plans/list', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/plans/list</code>
+                            </div>
+                            <button onclick="showCodeExample('GET', '/api/plans/list')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+                        
+                        <!-- Purchase Plan -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider">POST Purchase</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/user/plans/purchase', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/user/plans/purchase</code>
+                            </div>
+                            <button onclick="showCodeExample('POST', '/api/user/plans/purchase', {'plan_id': 1, 'payment_type': 'subscription', 'coupon_code': 'SUMMER2025'})" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+                    </div>
+                 </div>
             </div>
 
             <!-- SECTION: Billing -->
@@ -181,6 +283,68 @@
                                 <tr><td colspan="4" class="py-4 text-center text-slate-500">Loading...</td></tr>
                             </tbody>
                         </table>
+                    </div>
+                 </div>
+                 </div>
+                 
+                 <!-- Developer API Documentation -->
+                 <div class="mt-12 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl mb-12">
+                    <div class="p-8 border-b border-white/10 bg-indigo-500/5">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Developer API Documentation</h3>
+                                <p class="text-slate-400 text-sm">Retrieve payment and subscription records.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- Get Payments -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET Payments</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/user/payments', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/user/payments</code>
+                            </div>
+                            <button onclick="showCodeExample('GET', '/api/user/payments')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+                        
+                        <!-- Get Subscriptions -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET Subscriptions</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/user/plan/history', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/user/plan/history</code>
+                            </div>
+                            <button onclick="showCodeExample('GET', '/api/user/plan/history')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
                     </div>
                  </div>
             </div>
@@ -357,6 +521,45 @@
                  <div class="glass p-8 rounded-[2rem] border-white/5 text-center py-12">
                     <p class="text-slate-500 italic">No new notifications.</p>
                  </div>
+                 <!-- Developer API Documentation -->
+                 <div class="mt-12 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl mb-12">
+                    <div class="p-8 border-b border-white/10 bg-indigo-500/5">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Developer API Documentation</h3>
+                                <p class="text-slate-400 text-sm">Manage user notifications.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- Get Notifications -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET Notifications</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/user/notifications', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/user/notifications</code>
+                            </div>
+                            <button onclick="showCodeExample('GET', '/api/user/notifications')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+                    </div>
+                 </div>
             </div>
 
             <!-- SECTION: Settings -->
@@ -395,6 +598,66 @@
                          </div>
                          <button type="submit" class="px-6 py-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-all">Change Password</button>
                      </form>
+                 </div>
+                 <!-- Developer API Documentation -->
+                 <div class="mt-12 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl mb-12">
+                    <div class="p-8 border-b border-white/10 bg-indigo-500/5">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Developer API Documentation</h3>
+                                <p class="text-slate-400 text-sm">Update account settings via API.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- Update Profile -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wider">PUT Update Profile</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/auth/user/update', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/auth/user/update</code>
+                            </div>
+                            <button onclick="showCodeExample('PUT', '/api/auth/user/update', {'name': 'New Name', 'phone': '1234567890'})" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+                        
+                        <!-- Change Password -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider">POST Password</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/auth/user/password/change', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/auth/user/password/change</code>
+                            </div>
+                            <button onclick="showCodeExample('POST', '/api/auth/user/password/change', {'password': 'newpassword', 'password_confirmation': 'newpassword'})" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+                    </div>
                  </div>
             </div>
 
@@ -1216,6 +1479,87 @@
                 btn.innerText = originalText;
                 btn.disabled = false;
             }
+        }
+
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<span class="text-emerald-400 font-bold text-[10px]">Copied!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            });
+        }
+
+        function showCodeExample(method, url, body = null) {
+            const modalHtml = `
+                <div id="code-modal" class="fixed inset-0 z-[60] flex items-center justify-center px-4">
+                    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="document.getElementById('code-modal').remove()"></div>
+                    <div class="glass p-8 rounded-[2rem] border-white/10 relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold text-white">API Request Details</h3>
+                            <button onclick="document.getElementById('code-modal').remove()" class="text-slate-400 hover:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Endpoint</label>
+                                <div class="flex items-center gap-3 bg-black/40 rounded-xl p-4 border border-white/5 font-mono text-sm">
+                                    <span class="text-indigo-400 font-bold">${method}</span>
+                                    <span class="text-slate-300 break-all">${window.location.origin}${url}</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Headers</label>
+                                <div class="bg-black/40 rounded-xl p-4 border border-white/5 font-mono text-xs text-slate-300 space-y-1">
+                                    <div class="flex gap-4">
+                                        <span class="text-emerald-400 min-w-[100px]">Authorization:</span>
+                                        <span>Bearer &lt;your_token&gt;</span>
+                                    </div>
+                                    <div class="flex gap-4">
+                                        <span class="text-emerald-400 min-w-[100px]">Content-Type:</span>
+                                        <span>application/json</span>
+                                    </div>
+                                    <div class="flex gap-4">
+                                        <span class="text-emerald-400 min-w-[100px]">Accept:</span>
+                                        <span>application/json</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${body ? `
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Request Body (JSON)</label>
+                                <pre class="bg-black/40 rounded-xl p-4 border border-white/5 font-mono text-xs text-blue-300 overflow-x-auto">
+${JSON.stringify(body, null, 2)}
+                                </pre>
+                            </div>
+                            ` : ''}
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Example User Usage (Axios)</label>
+                                <pre class="bg-black/40 rounded-xl p-4 border border-white/5 font-mono text-xs text-slate-300 overflow-x-auto">
+axios({
+    method: '${method.toLowerCase()}',
+    url: '${window.location.origin}${url}',
+    headers: {
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/json'
+    }${body ? `,
+    data: ${JSON.stringify(body, null, 4)}` : ''}
+})
+.then(response => console.log(response.data))
+.catch(error => console.error(error));
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
     </script>
 </body>
