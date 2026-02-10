@@ -135,6 +135,7 @@ Route::prefix('admin')->group(function () {
             return view('admin.support.index');
         })->name('admin.support.index');
 
+
     });
 });
 
