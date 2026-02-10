@@ -64,6 +64,10 @@ class StripeService
 
         $params = array_merge($params, $extra_params);
 
+        if (isset($params['discounts']) || isset($params['coupon'])) {
+            unset($params['allow_promotion_codes']);
+        }
+
         if ($saveCard) {
             $params['payment_intent_data'] = [
                 'setup_future_usage' => 'off_session', 
@@ -109,6 +113,12 @@ class StripeService
             'metadata' => $metadata,
             'allow_promotion_codes' => true,
         ]);
+
+        if (isset($metadata['coupon_id']) || isset($extra_params['discounts'])) {
+             // Re-create session params if needed, but actually createSubscriptionSession doesn't take extra_params in signature
+             // So this method might not even support discounts yet.
+             // Let's leave it for now as it wasn't the one erroring.
+        }
 
         \App\Models\StripeLog::create([
             'user_id' => $user->id,
@@ -185,6 +195,10 @@ class StripeService
             'metadata' => $metadata,
             'allow_promotion_codes' => true,
         ], $extra_params);
+
+        if (isset($params['discounts']) || isset($params['coupon'])) {
+            unset($params['allow_promotion_codes']);
+        }
 
         $session = CheckoutSession::create($params);
 

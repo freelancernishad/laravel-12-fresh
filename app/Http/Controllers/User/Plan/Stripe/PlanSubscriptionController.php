@@ -43,6 +43,61 @@ class PlanSubscriptionController extends Controller
         $couponId = null;
         $extraParams = [];
 
+        // --- PRORATION LOGIC START ---
+        $prorationDiscount = 0;
+        if ($existingSub && $existingSub->plan_id != $plan->id) {
+            // Calculate unused value
+            // Formula: (Original Amount paid / Total Billing Days) * Remaining Days
+            
+            // Determine total days in the billing cycle
+            $startDate = \Carbon\Carbon::parse($existingSub->start_date);
+            $endDate = \Carbon\Carbon::parse($existingSub->end_date);
+            $totalDays = $startDate->diffInDays($endDate);
+            if ($totalDays == 0) $totalDays = 1; // Prevent division by zero
+            
+            // Determine remaining days
+            $remainingDays = now()->diffInDays($endDate, false); // false = return negative if past
+            
+            if ($remainingDays > 0) {
+                $amountPaid = $existingSub->final_amount; // Use what they actually paid
+                $dailyRate = $amountPaid / $totalDays;
+                $unusedValue = $dailyRate * $remainingDays;
+                
+                $prorationDiscount = round($unusedValue, 2);
+                
+                if ($prorationDiscount > 0) {
+                    // Cap discount at new plan price (no negative charges)
+                    // If unused value > new price, the new plan is free for the first cycle, but we don't refund excess.
+                    if ($prorationDiscount > $discountedPrice) {
+                        $prorationDiscount = $discountedPrice;
+                    }
+
+                    // Create Stripe Coupon for this specific proration
+                    try {
+                        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+                        $stripeCoupon = \Stripe\Coupon::create([
+                            'amount_off' => (int)($prorationDiscount * 100),
+                            'currency' => 'usd',
+                            'duration' => 'once',
+                            'name' => 'Proration Credit: ' . $existingSub->plan->name,
+                        ]);
+                        
+                        // Add to extraParams to be applied in checkout
+                        if (!isset($extraParams['discounts'])) {
+                            $extraParams['discounts'] = [];
+                        }
+                        $extraParams['discounts'][] = ['coupon' => $stripeCoupon->id];
+                        
+                        Log::info("Proration calculated. Unused Value: \${$unusedValue}, Discount Applied: \${$prorationDiscount}, Coupon: {$stripeCoupon->id}");
+                        
+                    } catch (\Exception $e) {
+                        Log::error("Failed to create proration coupon: " . $e->getMessage());
+                    }
+                }
+            }
+        }
+        // --- PRORATION LOGIC END ---
+
         // Apply Internal Coupon if provided
         if ($request->coupon_code) {
             $coupon = \App\Models\Coupon\Coupon::where('code', $request->coupon_code)->first();
