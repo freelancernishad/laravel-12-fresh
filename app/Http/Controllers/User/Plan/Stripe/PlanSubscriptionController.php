@@ -23,6 +23,22 @@ class PlanSubscriptionController extends Controller
         $successUrl = $request->success_url ?? url('/payment/success');
         $cancelUrl = $request->cancel_url ?? url('/payment/cancel');
 
+        // Check for existing active subscription
+        $existingSub = $request->user()->planSubscriptions()
+            ->where('status', 'active')
+            ->where(function ($q) {
+                $q->whereNull('end_date')->orWhere('end_date', '>', now());
+            })
+            ->first();
+
+        // If user has an active subscription to the SAME plan, block it.
+        if ($existingSub && $existingSub->plan_id == $plan->id) {
+            return response()->json(['error' => 'You are already subscribed to this plan.'], 400);
+        }
+        
+        // If user has an active subscription to a DIFFERENT plan, we allow it (Upgrade/Downgrade flow).
+        // The old one will be canceled in the webhook listener upon successful payment.
+
         $discountedPrice = $plan->discounted_price;
         $couponId = null;
         $extraParams = [];

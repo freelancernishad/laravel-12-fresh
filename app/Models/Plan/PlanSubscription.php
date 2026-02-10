@@ -43,7 +43,7 @@ class PlanSubscription extends Model
         'billing_cycles_completed' => 'integer',
     ];
 
-    protected $appends = ['formatted_plan_features'];
+    protected $appends = ['formatted_plan_features', 'price'];
     protected $hidden = ['plan_features'];
 
     // ---------------------------
@@ -78,6 +78,11 @@ class PlanSubscription extends Model
             unset($data['key']);
             return $feature->render($data);
         })->filter()->all();
+    }
+
+    public function getPriceAttribute()
+    {
+        return $this->final_amount ?? $this->original_amount ?? 0.00;
     }
 
     // ---------------------------

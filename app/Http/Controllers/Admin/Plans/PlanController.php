@@ -14,9 +14,54 @@ class PlanController extends Controller
     // Fetch all plans (list of plans)
     public function index()
     {
-        $plans = Plan::orderBy('created_at', 'desc')->get(); // Get all plans ordered by latest
+        $plans = Plan::orderBy('created_at', 'desc')->get(); 
+        
+        $user = auth('user')->user();
+        
+        // If no user found via standard auth, try to parse token explicitly (since route is public)
+        // If no user found via standard auth, try to parse token explicitly (since route is public)
+        $token = request()->bearerToken();
+        \Illuminate\Support\Facades\Log::info("Plan list check - Bearer Token: " . ($token ? substr($token, 0, 10) . '...' : 'None'));
+
+        if (!$user && $token) {
+            try {
+                // Explicitly set the token
+                \Tymon\JWTAuth\Facades\JWTAuth::setToken($token);
+                if ($payload = \Tymon\JWTAuth\Facades\JWTAuth::getPayload()) {
+                    $user = \App\Models\User::find($payload->get('sub'));
+                    \Illuminate\Support\Facades\Log::info("Plan list check - User found via token: " . ($user ? $user->id : 'Null'));
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Plan list check - Token parsing failed: " . $e->getMessage());
+            }
+        }
+        
+        $activePlanId = null;
+        if ($user) {
+            $activeSub = $user->planSubscriptions()
+                ->where('status', 'active')
+                ->latest('start_date')
+                ->first();
+            $activePlanId = $activeSub ? $activeSub->plan_id : null;
+            
+            \Illuminate\Support\Facades\Log::info("Plan list check - User: {$user->id}, Active Plan ID: " . ($activePlanId ?? 'None'));
+        } else {
+            \Illuminate\Support\Facades\Log::info("Plan list check - No user found");
+        }
+
+        // Transform to array to ensure is_active is included in JSON
+        $plansData = $plans->map(function ($plan) use ($activePlanId) {
+            $data = $plan->toArray();
+            $data['is_active'] = $activePlanId && $activePlanId == $plan->id;
+            // Log for first plan (test plan id 1)
+            if ($plan->id == 1) {
+                 \Illuminate\Support\Facades\Log::info("Plan 1 check - Comp: {$activePlanId} == {$plan->id} -> " . ($data['is_active'] ? 'True' : 'False'));
+            }
+            return $data;
+        });
+
         return response()->json([
-            'plans' => $plans
+            'plans' => $plansData
         ]);
     }
 

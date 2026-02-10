@@ -451,7 +451,7 @@
                         <div class="flex items-center justify-between mb-8">
                              <div>
                                 <h2 class="text-2xl font-black text-white mb-1">Current Plan</h2>
-                                <p class="text-slate-400 text-sm">Valid until ${new Date(sub.ends_at).toLocaleDateString()}</p>
+                                <p class="text-slate-400 text-sm">Valid until ${new Date(sub.end_date).toLocaleDateString()}</p>
                             </div>
                             <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-black uppercase tracking-widest border border-emerald-500/20">Active</span>
                         </div>
@@ -545,8 +545,8 @@
                         </td>
                         <td class="py-4 text-sm text-slate-400">
                             <div class="flex flex-col">
-                                <span class="text-xs">Start: ${new Date(sub.starts_at || sub.created_at).toLocaleDateString()}</span>
-                                <span class="text-xs">End: ${sub.ends_at ? new Date(sub.ends_at).toLocaleDateString() : 'Lifetime'}</span>
+                                <span class="text-xs">Start: ${new Date(sub.start_date || sub.created_at).toLocaleDateString()}</span>
+                                <span class="text-xs">End: ${sub.end_date ? new Date(sub.end_date).toLocaleDateString() : 'Lifetime'}</span>
                             </div>
                         </td>
                         <td class="py-4 text-right">
@@ -565,7 +565,7 @@
 
         function getStatusBadge(sub) {
             const now = new Date();
-            const end = sub.ends_at ? new Date(sub.ends_at) : null;
+            const end = sub.end_date ? new Date(sub.end_date) : null;
             
             let status = 'active';
             let colorClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
@@ -583,7 +583,10 @@
 
         async function fetchPlans() {
             try {
-                const response = await fetch('/api/plans/list');
+                const headers = { 'Accept': 'application/json' };
+                if(token) headers['Authorization'] = `Bearer ${token}`;
+
+                const response = await fetch('/api/plans/list', { headers });
                 const result = await response.json();
                 const plans = result.data || result.plans || [];
                 renderPlans(plans);
@@ -601,10 +604,25 @@
                 return;
             }
 
-            container.innerHTML = plans.map(plan => `
-                <div class="glass p-8 rounded-[2rem] border-white/5 hover:border-indigo-500/30 transition-all flex flex-col group">
+            // Check if user has ANY active plan
+            const hasActivePlan = plans.some(p => p.is_active);
+
+            container.innerHTML = plans.map(plan => {
+                const isActive = plan.is_active;
+                let btnClass = isActive 
+                    ? 'w-full py-4 rounded-2xl bg-emerald-500/10 text-emerald-400 font-black text-sm uppercase tracking-widest border border-emerald-500/20 cursor-default' 
+                    : 'purchase-btn w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest';
+                
+                let btnText = isActive ? 'Current Active Plan' : (hasActivePlan ? 'Switch to Plan' : 'Get Started');
+                const btnAction = isActive ? '' : `onclick="purchasePlan(${plan.id})"`;
+
+                return `
+                <div class="glass p-8 rounded-[2rem] border-white/5 hover:border-indigo-500/30 transition-all flex flex-col group ${isActive ? 'border-emerald-500/30 ring-1 ring-emerald-500/20' : ''}">
                     <div class="mb-6">
-                        <h3 class="text-xl font-black text-white mb-2">${plan.name}</h3>
+                        <div class="flex justify-between items-start">
+                             <h3 class="text-xl font-black text-white mb-2">${plan.name}</h3>
+                             ${isActive ? '<span class="px-2 py-0.5 rounded bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider">Active</span>' : ''}
+                        </div>
                         <div class="flex items-baseline gap-1">
                             <span class="text-3xl font-black text-white">$${plan.monthly_price}</span>
                             <span class="text-slate-500 text-sm font-medium">/ ${plan.duration || 'month'}</span>
@@ -614,7 +632,7 @@
                     <ul class="space-y-3 mb-8 flex-1">
                         ${(plan.formatted_features || []).map(f => `
                             <li class="flex items-start gap-2 text-sm text-slate-400 font-medium text-wrap">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ${isActive ? 'text-emerald-400' : 'text-indigo-400'} shrink-0" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
                                 <span>${f}</span>
@@ -622,11 +640,11 @@
                         `).join('')}
                     </ul>
 
-                    <button onclick="purchasePlan(${plan.id})" class="purchase-btn w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest">
-                        Get Started
+                    <button ${btnAction} class="${btnClass}" ${isActive ? 'disabled' : ''}>
+                        ${btnText}
                     </button>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         async function purchasePlan(planId) {

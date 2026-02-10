@@ -174,6 +174,32 @@ class CheckStripePaymentStatus
             ]
         );
 
+
+
+        // Logic to cancel OLD active subscriptions (Upgrade/Switch path)
+        $oldSubscriptions = \App\Models\Plan\PlanSubscription::where('user_id', $user->id)
+            ->where('id', '!=', $sub->id) // Exclude the new one
+            ->where('status', 'active')
+            ->get();
+
+        foreach ($oldSubscriptions as $oldSub) {
+             // Cancel locally
+            $oldSub->update(['status' => 'canceled', 'end_date' => now()]);
+            
+            // Cancel in Stripe if applicable
+            if ($oldSub->stripe_subscription_id) {
+                try {
+                    \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+                    $stripeSub = \Stripe\Subscription::retrieve($oldSub->stripe_subscription_id);
+                    $stripeSub->cancel(); 
+                    Log::info("Cancelled old Stripe subscription: {$oldSub->stripe_subscription_id}");
+                } catch (\Exception $e) {
+                     Log::error("Failed to cancel old Stripe subscription: " . $e->getMessage());
+                }
+            }
+            Log::info("Auto-cancelled old subscription ID: {$oldSub->id} due to upgrade/switch.");
+        }
+
         // Record Coupon Usage if coupon_id is present in metadata
         $couponId = $event->payload['metadata']['coupon_id'] ?? $log?->meta_data['coupon_id'] ?? null;
         if ($couponId) {
@@ -193,5 +219,47 @@ class CheckStripePaymentStatus
         }
 
         Log::info("PlanSubscription processed. ID: {$sub->id}, Final Amount: {$finalAmount}, Ends: " . ($sub->end_date ? $sub->end_date->toDateTimeString() : 'Never'));
+
+        // Create Payment Record
+        if ($finalAmount > 0) {
+            $this->createPaymentRecord($user, $sub, $finalAmount, $event->payload);
+        }
+    }
+
+    protected function createPaymentRecord($user, $subscription, $amount, $payload)
+    {
+        try {
+            $transactionId = $payload['id'] ?? $payload['payment_intent'] ?? 'tx_' . uniqid();
+            
+            // Avoid duplicates
+            if (\App\Models\Payment::where('transaction_id', $transactionId)->exists()) {
+                Log::info("Payment record already exists for transaction: {$transactionId}");
+                return;
+            }
+
+            $paymentMethod = $payload['payment_method_types'][0] ?? 'card';
+            if (isset($payload['payment_method_details']['type'])) {
+                $paymentMethod = $payload['payment_method_details']['type'];
+            }
+
+            \App\Models\Payment::create([
+                'user_id' => $user->id,
+                'payable_id' => $subscription->id,
+                'payable_type' => get_class($subscription),
+                'amount' => $amount,
+                'currency' => $payload['currency'] ?? 'usd',
+                'payment_method' => $paymentMethod,
+                'transaction_id' => $transactionId,
+                'stripe_session_id' => $payload['id'] ?? null,
+                'stripe_payment_intent_id' => $payload['payment_intent'] ?? null,
+                'status' => 'paid', // Assuming success if we are here
+                'gateway_response' => $payload,
+            ]);
+
+            Log::info("Payment record created for Transaction: {$transactionId}");
+
+        } catch (\Exception $e) {
+            Log::error("Failed to create Payment record: " . $e->getMessage());
+        }
     }
 }

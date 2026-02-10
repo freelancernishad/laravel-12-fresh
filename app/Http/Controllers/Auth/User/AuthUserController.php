@@ -208,8 +208,15 @@ public function login(LoginRequest $request)
      */
     public function me(Request $request)
     {
+        $user = Auth::user();
+        $user->load(['planSubscriptions' => function ($query) {
+            $query->where('status', 'active')->latest('start_date')->limit(1)->with('plan');
+        }]);
+        
+        $user->active_plan = $user->planSubscriptions->first();
+        unset($user->planSubscriptions); // Clean up response
 
-        return response()->json(Auth::user());
+        return response()->json($user);
     }
 
     /**
