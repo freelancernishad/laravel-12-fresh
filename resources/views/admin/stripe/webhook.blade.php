@@ -187,46 +187,6 @@
     </div>
 
     <script>
-        function copyToClipboard(text) {
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('Copied to clipboard!');
-                }).catch(err => {
-                    console.error('Clipboard API failed, using fallback', err);
-                    fallbackCopyTextToClipboard(text);
-                });
-            } else {
-                fallbackCopyTextToClipboard(text);
-            }
-        }
-
-        function fallbackCopyTextToClipboard(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            
-            // Ensure textarea is not visible but part of the DOM
-            textArea.style.position = "fixed";
-            textArea.style.left = "-999999px";
-            textArea.style.top = "-999999px";
-            document.body.appendChild(textArea);
-            
-            textArea.focus();
-            textArea.select();
-
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showToast('Copied to clipboard!');
-                } else {
-                    console.error('Fallback copy failed');
-                }
-            } catch (err) {
-                console.error('Fallback copy error', err);
-            }
-
-            document.body.removeChild(textArea);
-        }
-
         function toggleIcon(btn) {
             const copyIcon = btn.querySelector('.copy-icon');
             const checkIcon = btn.querySelector('.check-icon');
@@ -243,58 +203,15 @@
         }
 
         function copySingleEvent(btn, text) {
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => {
-                    toggleIcon(btn);
-                    showToast('Copied: ' + text);
-                }).catch(err => {
-                    fallbackCopyTextToClipboard(text);
-                    toggleIcon(btn);
-                });
-            } else {
-                fallbackCopyTextToClipboard(text);
-                toggleIcon(btn);
-            }
+            copyToClipboard(text, btn);
         }
 
         function copyEvents(btn) {
             const events = Array.from(document.querySelectorAll('.event-name'))
                 .map(el => el.textContent)
                 .join(', ');
-            
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(events).then(() => {
-                    toggleIcon(btn);
-                    showToast('All events copied!');
-                }).catch(err => {
-                    fallbackCopyTextToClipboard(events);
-                    toggleIcon(btn);
-                });
-            } else {
-                fallbackCopyTextToClipboard(events);
-                toggleIcon(btn);
-            }
+            copyToClipboard(events, btn);
         }
 
-        function showToast(message) {
-            // Simple toast implementation
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-8 right-8 px-6 py-3 rounded-xl bg-emerald-500 text-white font-bold shadow-2xl z-[100] transition-all transform translate-y-20 opacity-0';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            // Animate in
-            setTimeout(() => {
-                toast.classList.remove('translate-y-20', 'opacity-0');
-                toast.classList.add('translate-y-0', 'opacity-100');
-            }, 10);
-            
-            // Animate out
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                setTimeout(() => toast.remove(), 300);
-            }, 2000);
-        }
     </script>
 @endsection

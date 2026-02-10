@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Common\SupportAndConnect\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\SupportTicket;
+use App\Models\SupportAndConnect\Ticket\SupportTicket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;

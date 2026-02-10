@@ -2,7 +2,7 @@
 <div id="code-modal" class="fixed inset-0 z-[70] hidden overflow-y-auto">
     <div class="min-h-screen flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-black/80 backdrop-blur-md" onclick="closeCodeModal()"></div>
-        <div class="relative w-full max-w-3xl">
+        <div class="relative w-full max-w-5xl">
             <div class="glass rounded-[2rem] shadow-2xl overflow-hidden border border-white/10">
                 <!-- Modal Header -->
                 <div class="p-6 border-b border-white/5 bg-white/5 flex items-center justify-between">
@@ -65,105 +65,143 @@
                         <pre id="code-pre" class="language-javascript"><code id="code-display" class="language-javascript"></code></pre>
                     </div>
                     
-                    <!-- Try It Now Section (Initially Hidden) -->
-                    <div id="try-section" class="hidden space-y-6">
-                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <!-- Request Panel -->
-                            <div class="space-y-4">
-                                <!-- URL & Method -->
-                                <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Endpoint</label>
-                                        <span id="try-method-badge" class="px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-indigo-500/20 text-indigo-400">GET</span>
+                    <div id="try-section" class="hidden space-y-8">
+                        <!-- Request Flow (Full Width) -->
+                        <div class="space-y-6">
+                            <!-- Step 1: Endpoint -->
+                            <div class="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-4 shadow-inner">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1.5 h-4 bg-indigo-500 rounded-full"></div>
+                                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Target Endpoint</label>
                                     </div>
-                                    <div class="flex items-center gap-2 bg-black/20 p-2 rounded-lg font-mono text-xs text-slate-300 break-all border border-white/5">
-                                        <span id="try-url" class="select-all">...</span>
+                                    <span id="try-method-badge" class="px-3 py-1 rounded-xl text-[10px] font-black uppercase bg-indigo-500/20 text-indigo-400 border border-indigo-500/20">GET</span>
+                                </div>
+                                <div class="flex items-center gap-3 bg-black/40 p-3 rounded-2xl font-mono text-xs text-indigo-200 break-all border border-white/5 group/url relative">
+                                    <span id="try-url" class="select-all">...</span>
+                                    <button onclick="copyToClipboard(document.getElementById('try-url').innerText, this)" class="opacity-0 group-hover/url:opacity-100 transition-opacity p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 ml-auto flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Headers -->
+                            <div class="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-4 shadow-inner">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
+                                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Request Headers</label>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/10">
+                                        <span class="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <span class="text-[10px] font-bold uppercase">Authenticated</span>
                                     </div>
                                 </div>
-
-                                <!-- Headers Display -->
-                                <div class="space-y-2">
-                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between">
-                                        <span>Request Headers</span>
-                                        <span class="text-[10px] text-slate-500 font-normal normal-case">Authenticated</span>
-                                    </label>
-                                    <div class="bg-black/40 border border-white/10 rounded-xl p-3 font-mono text-xs text-indigo-300 space-y-1">
-                                        <div class="flex gap-2"><span class="text-slate-500 select-none">Authorization:</span> <span>Bearer **********</span></div>
-                                        <div class="flex gap-2"><span class="text-slate-500 select-none">Accept:</span> <span>application/json</span></div>
-                                        <div id="header-content-type" class="flex gap-2"><span class="text-slate-500 select-none">Content-Type:</span> <span>application/json</span></div>
-                                    </div>
-                                </div>
-
-                                <!-- Body Section -->
-                                <div id="try-body-container" class="space-y-2">
-                                    <div class="flex items-center justify-between">
+                                <div class="bg-black/40 border border-white/5 rounded-2xl p-4 font-mono text-[11px] text-slate-400 space-y-2">
+                                    <div class="flex justify-between items-center group/token relative">
+                                        <span class="text-indigo-400/70 select-none">Authorization</span>
                                         <div class="flex items-center gap-2">
-                                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Request Body</label>
-                                            <button onclick="copyRequestBody(this)" class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-all group/copy" title="Copy Body">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                                </svg>
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        
-                                        <!-- Body Type Toggle -->
-                                        <div class="flex items-center bg-white/5 rounded-lg p-0.5 border border-white/5">
-                                            <button onclick="toggleBodyType('json')" id="btn-type-json" class="px-3 py-1 rounded-md text-[10px] font-bold transition-all bg-indigo-500 text-white shadow-sm">JSON</button>
-                                            <button onclick="toggleBodyType('form')" id="btn-type-form" class="px-3 py-1 rounded-md text-[10px] font-bold transition-all text-slate-400 hover:text-white">Form Data</button>
+                                            <span class="text-slate-500">Bearer</span>
+                                            <div class="relative flex items-center bg-white/5 rounded-lg px-2 py-1 border border-white/10 group/token-box">
+                                                <span class="text-slate-400 select-none tracking-widest">••••••••••••</span>
+                                                <span id="real-token" class="hidden"></span>
+                                                <button onclick="copyAuthToken(this)" class="ml-2 p-1 rounded hover:bg-white/10 text-slate-500 hover:text-white transition-all" title="Copy Token">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <!-- JSON Editor -->
-                                    <div id="body-editor-json" class="relative group">
-                                        <div id="ace-request-editor" class="w-full h-64 rounded-xl border border-white/10 overflow-hidden"></div>
-                                        <textarea id="try-body" class="hidden"></textarea> <!-- Hidden fallback/value store -->
+                                    <div class="flex justify-between items-center border-t border-white/5 pt-2">
+                                        <span class="text-indigo-400/70 select-none">Accept</span>
+                                        <span class="text-slate-200">application/json</span>
                                     </div>
+                                    <div id="header-content-type" class="flex justify-between items-center">
+                                        <span class="text-indigo-400/70 select-none">Content-Type</span>
+                                        <span class="text-slate-200">application/json</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <!-- Form Data Builder -->
-                                    <div id="body-editor-form" class="hidden space-y-3 bg-black/20 p-4 rounded-xl border border-white/5">
-                                        <div id="form-data-inputs" class="space-y-3">
-                                            <!-- Inputs injected via JS -->
+                            <!-- Step 3: Payload Body -->
+                            <div id="try-body-container" class="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-4 shadow-inner">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1.5 h-4 bg-amber-500 rounded-full"></div>
+                                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Payload Body</label>
+                                    </div>
+                                    
+                                    <!-- Body Type Toggle -->
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex items-center bg-black/40 rounded-xl p-1 border border-white/10">
+                                            <button onclick="toggleBodyType('json')" id="btn-type-json" class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all bg-indigo-500 text-white shadow-lg shadow-indigo-500/20">JSON</button>
+                                            <button onclick="toggleBodyType('form')" id="btn-type-form" class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all text-slate-500 hover:text-white">FORM</button>
                                         </div>
-                                        <button onclick="addFormDataField()" class="w-full py-2 rounded-lg border border-dashed border-white/20 text-slate-500 hover:text-white hover:border-white/40 text-xs font-bold transition-all flex items-center justify-center gap-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                            Add Field
+                                        <button onclick="copyRequestBody(this)" class="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-white transition-all border border-white/5 group/copy">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
                                         </button>
                                     </div>
                                 </div>
-                                
-                                <button onclick="executeTryRequest()" id="btn-execute" class="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 group">
-                                    <span>Send Request</span>
+
+                                <!-- JSON Editor -->
+                                <div id="body-editor-json" class="h-64 relative group">
+                                    <div id="ace-request-editor" class="absolute inset-0 w-full h-full rounded-2xl border border-white/5 overflow-hidden"></div>
+                                    <textarea id="try-body" class="hidden"></textarea>
+                                </div>
+
+                                <!-- Form Data Builder -->
+                                <div id="body-editor-form" class="hidden h-64 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-white/10">
+                                    <div id="form-data-inputs" class="space-y-3"></div>
+                                    <button onclick="addFormDataField()" class="w-full py-2.5 rounded-xl border border-dashed border-white/10 text-slate-500 hover:text-white hover:border-white/20 text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 bg-white/2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        Append Field
+                                    </button>
+                                </div>
+
+                                <button onclick="executeTryRequest()" id="btn-execute" class="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-500/30 flex items-center justify-center gap-3 group active:scale-[0.98]">
+                                    <span>Dispatch Request</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
                                 </button>
                             </div>
+                        </div>
 
-                            <!-- Response Panel -->
-                            <div class="space-y-4 flex flex-col h-full">
-                                 <div class="flex items-center justify-between">
-                                     <div class="flex items-center gap-2">
-                                         <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Response</label>
-                                         <button onclick="copyResponseBody(this)" class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-all group/copy" title="Copy Response">
-                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                             </svg>
-                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                             </svg>
-                                         </button>
-                                     </div>
-                                     <span id="try-status" class="px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-slate-500/20 text-slate-400">Ready</span>
-                                 </div>
-                                 <div class="relative flex-1 min-h-[400px]">
-                                     <div id="ace-response-viewer" class="w-full h-full rounded-xl border border-white/10 overflow-hidden min-h-[400px]"></div>
-                                     <pre id="try-response" class="hidden"></pre> <!-- Hidden fallback -->
-                                 </div>
+                        <!-- Full Width Response Panel -->
+                        <div class="space-y-4">
+                            <div class="p-1 rounded-3xl bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
+                                <div class="p-6 flex items-center justify-between border-b border-white/5 bg-white/2">
+                                    <div class="flex items-center gap-4">
+                                        <div class="p-2.5 rounded-xl bg-slate-500/10 text-slate-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xs font-black text-white uppercase tracking-widest">Network Response</h4>
+                                            <p class="text-[10px] text-slate-500 mt-0.5">Live execution output from the server</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span id="try-status" class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase bg-slate-500/20 text-slate-400 border border-white/5">Idle</span>
+                                        <button onclick="copyResponseBody(this)" class="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-white transition-all border border-white/5 group/copy">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 icon-copy" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500 hidden icon-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="relative min-h-[300px] lg:min-h-[400px]">
+                                    <div id="ace-response-viewer" class="absolute inset-0 w-full h-full border-0"></div>
+                                </div>
                             </div>
-                         </div>
+                        </div>
                     </div>
 
                     <!-- Usage Example (Initially Hidden) -->
@@ -232,8 +270,11 @@
         currentCodeData = { method, url, body };
         document.getElementById('code-modal-url').innerText = `${method} ${url}`;
         
-        // Ensure Ace is ready
-        setTimeout(initAceEditors, 100);
+        // Ensure modal is visible first so Ace can initialize correctly
+        document.getElementById('code-modal').classList.remove('hidden');
+
+        // Initialize Ace Editors
+        initAceEditors();
         
         // Reset Try Now inputs
         document.getElementById('try-method-badge').innerText = method;
@@ -247,9 +288,9 @@
 
         if (body) {
             formattedBody = JSON.stringify(body, null, 4);
-            // Check for file placeholders
+            // Check for file placeholders specifically
             const bodyStr = JSON.stringify(body);
-            if (bodyStr.includes('(File Object)') || bodyStr.includes('file')) {
+            if (bodyStr.includes('(File Object)')) {
                 isFormData = true;
             }
         }
@@ -257,9 +298,11 @@
         // Set Ace Value
         if (aceRequestEditor) {
             aceRequestEditor.setValue(formattedBody, -1); // -1 moves cursor to start
+            aceRequestEditor.resize();
         }
         if (aceResponseViewer) {
             aceResponseViewer.setValue('Click "Send Request" to see response...', -1);
+            aceResponseViewer.resize();
         }
         
         // Render Form Inputs always (in case user switches)
@@ -269,7 +312,33 @@
         toggleBodyType(isFormData ? 'form' : 'json');
 
         switchLanguage('docs');
-        document.getElementById('code-modal').classList.remove('hidden');
+
+        // Initialize token display
+        const token = getTokenForUrl(url);
+        const realTokenEl = document.getElementById('real-token');
+        if (realTokenEl) {
+            realTokenEl.innerText = token || 'NOT_FOUND';
+        }
+    }
+
+    function getTokenForUrl(url) {
+        let token = getCookie('admin_token');
+        if (!token || url.includes('/api/user') || url.includes('/api/auth/user')) {
+             const userToken = getCookie('user_token');
+             if (userToken) token = userToken;
+        }
+        return token;
+    }
+
+    function toggleTokenVisibility() {
+        // No longer used as per user request
+    }
+
+    function copyAuthToken(btn) {
+        const token = document.getElementById('real-token').innerText;
+        if (token && token !== 'NOT_FOUND') {
+            copyToClipboard(token, btn);
+        }
     }
 
     function toggleBodyType(type) {
@@ -431,11 +500,7 @@
             const url = currentCodeData.url;
             
             // Determine token based on URL path or context
-            let token = getCookie('admin_token');
-            if (!token || url.includes('/api/user') || url.includes('/api/auth/user')) {
-                 const userToken = getCookie('user_token');
-                 if (userToken) token = userToken;
-            }
+            let token = getTokenForUrl(url);
 
             const headers = {
                  'Accept': 'application/json',
@@ -501,9 +566,9 @@
             // Update Status Badge
             statusBadge.innerText = `${response.status} ${response.statusText}`;
             if (response.ok) {
-                statusBadge.className = "px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400";
+                statusBadge.className = "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/20";
             } else {
-                statusBadge.className = "px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-red-500/20 text-red-400";
+                statusBadge.className = "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase bg-red-500/20 text-red-400 border border-red-500/20";
             }
             
             // Update Response Display

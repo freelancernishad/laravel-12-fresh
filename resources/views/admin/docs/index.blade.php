@@ -212,8 +212,9 @@
                 description: 'Ticketing system for user support.',
                 endpoints: [
                     { method: 'GET', title: 'Admin: List Tickets', url: '/api/admin/support', description: 'View all tickets.', badge: 'Restricted' },
-                    { method: 'POST', title: 'Admin: Reply', url: '/api/admin/support/{ticket}/reply', description: 'Reply to a ticket.', body: { message: 'Hello...' }, badge: 'Restricted' },
-                    { method: 'PATCH', title: 'Admin: Update Status', url: '/api/admin/support/{ticket}/status', description: 'Change ticket status.', body: { status: 'closed' }, badge: 'Restricted' }
+                    { method: 'GET', title: 'Admin: Ticket Details', url: '/api/admin/support/{id}', description: 'Get details of a single ticket and its replies.', badge: 'Restricted' },
+                    { method: 'POST', title: 'Admin: Reply', url: '/api/admin/support/{id}/reply', description: 'Reply to a ticket.', body: { reply: '...', status: 'open', attachment: 'File (optional)' }, badge: 'Restricted' },
+                    { method: 'PATCH', title: 'Admin: Update Status', url: '/api/admin/support/{id}/status', description: 'Change ticket status.', body: { status: 'closed' }, badge: 'Restricted' }
                 ]
             },
             {
@@ -275,7 +276,9 @@
                 description: 'Manage personal support tickets.',
                 endpoints: [
                     { method: 'GET', title: 'User: My Tickets', url: '/api/user/support', description: 'List user tickets.', badge: 'Restricted' },
-                    { method: 'POST', title: 'User: Create Ticket', url: '/api/user/support', description: 'Open new ticket.', body: { subject: 'Help needed', message: '...' }, badge: 'Restricted' }
+                    { method: 'POST', title: 'User: Create Ticket', url: '/api/user/support', description: 'Open new ticket.', body: { subject: 'Help needed', message: '...', attachment: 'File (optional)' }, badge: 'Restricted' },
+                    { method: 'GET', title: 'User: Ticket Details', url: '/api/user/support/{id}', description: 'Get details of a single ticket and its replies.', badge: 'Restricted' },
+                    { method: 'POST', title: 'User: Send Reply', url: '/api/user/support/{id}/reply', description: 'Post a reply to a support ticket.', body: { reply: '...', attachment: 'File (optional)' }, badge: 'Restricted' }
                 ]
             }
         ];

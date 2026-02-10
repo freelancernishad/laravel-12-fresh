@@ -209,6 +209,13 @@
                 <span class="font-medium">Users</span>
             </a>
 
+            <a href="{{ route('admin.support.index') }}" class="nav-item flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all {{ request()->routeIs('admin.support.*') ? 'active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <span class="font-medium">Support Tickets</span>
+            </a>
+
             <div class="px-6 pt-4 pb-2">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Developer Resources</p>
             </div>

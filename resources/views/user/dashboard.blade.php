@@ -208,6 +208,148 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Developer API Documentation -->
+                <div class="mt-12 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl mb-12">
+                    <div class="p-8 border-b border-white/10 bg-indigo-500/5">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Developer API Documentation</h3>
+                                <p class="text-slate-400 text-sm">Use these endpoints to integrate support features into your own applications.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- My Tickets -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET Tickets</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/user/support', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/user/support</code>
+                            </div>
+                            <button onclick="showCodeExample('GET', '/api/user/support')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+
+                        <!-- Create Ticket -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-wider">POST Create</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/user/support', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/user/support</code>
+                            </div>
+                            <button onclick="showCodeExample('POST', '/api/user/support', { subject: 'Help needed', message: '...', attachment: 'File (optional)' })" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+
+                        <!-- Ticket Details -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">GET Details</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/user/support/{id}', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/user/support/{id}</code>
+                            </div>
+                            <button onclick="showCodeExample('GET', '/api/user/support/{id}')" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+
+                        <!-- Send Reply -->
+                        <div class="glass-dark rounded-3xl p-6 border border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-wider">POST Reply</span>
+                                <div class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">Auth Required</div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Endpoint</span>
+                                    <button onclick="copyToClipboard(window.location.origin + '/api/user/support/{id}/reply', this)" class="text-slate-600 hover:text-white transition-colors relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    </button>
+                                </div>
+                                <code class="text-[11px] font-mono text-indigo-300 block bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap">/api/user/support/{id}/reply</code>
+                            </div>
+                            <button onclick="showCodeExample('POST', '/api/user/support/{id}/reply', { reply: 'Your reply...', attachment: 'File (optional)' })" class="w-full py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all border border-indigo-500/20 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                View Full Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: Support Ticket Details -->
+            <div id="section-support-details" class="content-section hidden space-y-6 h-[calc(100vh-140px)] flex flex-col">
+                <div class="flex items-center gap-4 border-b border-white/5 pb-4 shrink-0">
+                    <button onclick="navigateTo('support')" class="p-2 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                    <div>
+                        <h2 id="detail-subject" class="text-xl font-black text-white">Loading...</h2>
+                        <div class="flex items-center gap-2 text-xs text-slate-500">
+                             <span id="detail-id" class="font-mono">#---</span>
+                             <span>•</span>
+                             <span id="detail-status" class="uppercase">---</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Container -->
+                <div id="ticket-chat-container" class="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                    <!-- Messages will be injected here -->
+                </div>
+
+                <!-- Reply Input -->
+                <div class="shrink-0 pt-4 border-t border-white/5">
+                    <form id="reply-form" class="flex gap-4">
+                        <label class="p-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white cursor-pointer hover:bg-white/10 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                            <input type="file" id="reply-attachment" class="hidden" onchange="document.getElementById('reply-file-name').innerText = this.files[0]?.name || ''">
+                        </label>
+                        <div class="flex-1 flex flex-col gap-1">
+                             <input type="text" id="reply-input" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="Type your reply..." required>
+                             <span id="reply-file-name" class="text-[10px] text-slate-400 pl-2 h-4"></span>
+                        </div>
+                        <button type="submit" class="px-6 py-3 h-fit rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20">Send</button>
+                    </form>
+                </div>
             </div>
 
             <!-- SECTION: Notifications -->
@@ -273,6 +415,10 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Message</label>
                     <textarea id="ticket-message" required rows="4" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="Describe your issue in detail..."></textarea>
                 </div>
+                <div>
+                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Attachment (Optional)</label>
+                     <input type="file" id="ticket-attachment" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20 transition-all">
+                </div>
                 <div class="flex items-center gap-4 pt-2">
                     <button type="button" onclick="document.getElementById('create-ticket-modal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white/5 text-slate-400 font-bold hover:bg-white/10 transition-all">Cancel</button>
                     <button type="submit" class="flex-1 py-3 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20">Submit Ticket</button>
@@ -285,6 +431,7 @@
     <script>
         const token = getCookie('user_token');
         let selectedPaymentType = 'subscription';
+        let currentTicketId = null;
 
         document.addEventListener('DOMContentLoaded', () => {
              if (!token) {
@@ -303,18 +450,21 @@
             // Init State from URL
             const params = new URLSearchParams(window.location.search);
             const section = params.get('section') || 'dashboard';
-            showSection(section, false); // Don't push state on initial load
+            const ticketId = params.get('ticket_id');
+            showSection(section, false, ticketId); // Pass ticketId on initial load
 
             document.getElementById('profile-form').addEventListener('submit', updateProfile);
             document.getElementById('password-form').addEventListener('submit', changePassword);
             document.getElementById('create-ticket-form').addEventListener('submit', createTicket);
+            document.getElementById('reply-form').addEventListener('submit', sendReply);
         });
 
         // Handle Back Button
         window.addEventListener('popstate', (event) => {
              const params = new URLSearchParams(window.location.search);
              const section = params.get('section') || 'dashboard';
-             showSection(section, false);
+             const ticketId = params.get('ticket_id');
+             showSection(section, false, ticketId);
         });
 
         function navigateTo(sectionId) {
@@ -328,10 +478,15 @@
             }
         }
 
-        function showSection(sectionId, pushState = true) {
+        function showSection(sectionId, pushState = true, ticketId = null) {
             // Hide all sections
             document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
-            
+
+            // Special handling for support ticket details
+            if (sectionId === 'support' && ticketId) {
+                viewTicket(ticketId, pushState);
+                return;
+            }
             // Remove active class from all nav items (desktop & mobile)
             document.querySelectorAll('.nav-item').forEach(el => {
                 el.classList.remove('active', 'bg-indigo-500', 'text-white', 'shadow-lg', 'shadow-indigo-500/20');
@@ -371,6 +526,7 @@
             if (pushState) {
                 const url = new URL(window.location);
                 url.searchParams.set('section', sectionId);
+                url.searchParams.delete('ticket_id'); // Clear ticket_id if navigating to another section
                 window.history.pushState({}, '', url);
             }
         }
@@ -730,7 +886,7 @@
                     headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
                 });
                 const result = await response.json();
-                const tickets = result.data || [];
+                const tickets = result.data || result;
 
                 if (tickets.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-500 text-sm">No support tickets found.</td></tr>`;
@@ -738,7 +894,7 @@
                 }
 
                 tbody.innerHTML = tickets.map(t => `
-                    <tr class="group hover:bg-white/5 transition-colors">
+                    <tr class="group hover:bg-white/5 transition-colors cursor-pointer" onclick="viewTicket(${t.id})">
                         <td class="py-4">
                             <div class="font-bold text-white text-sm">${t.subject}</div>
                             <div class="text-[10px] text-slate-500 font-mono">ID: ${t.id}</div>
@@ -765,16 +921,25 @@
 
             const subject = document.getElementById('ticket-subject').value;
             const message = document.getElementById('ticket-message').value;
+            const attachment = document.getElementById('ticket-attachment').files[0];
+
+            const formData = new FormData();
+            formData.append('subject', subject);
+            formData.append('message', message);
+            formData.append('priority', 'medium');
+            if (attachment) {
+                formData.append('attachment', attachment);
+            }
 
             try {
                 const response = await fetch('/api/user/support', {
                     method: 'POST',
                     headers: { 
-                        'Authorization': `Bearer ${token}`, 
-                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
+                        // Content-Type not set for FormData
                     },
-                    body: JSON.stringify({ subject, message, priority: 'medium' })
+                    body: formData
                 });
                 
                 if (response.ok) {
@@ -783,7 +948,8 @@
                     document.getElementById('create-ticket-form').reset();
                     fetchTickets();
                 } else {
-                    alert('Failed to create ticket');
+                    const data = await response.json();
+                    alert(data.message || 'Failed to create ticket');
                 }
             } catch (error) {
                 alert('Error creating ticket');
@@ -872,7 +1038,7 @@
                     headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
                 });
                 const result = await response.json();
-                const notifications = result.data || [];
+                const notifications = result.data || result;
 
                 if (notifications.length === 0) {
                      container.innerHTML = `
@@ -908,6 +1074,148 @@
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        async function viewTicket(id, pushState = true) {
+            currentTicketId = id;
+            document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('section-support-details').classList.remove('hidden');
+
+            if (pushState) {
+                const url = new URL(window.location);
+                url.searchParams.set('section', 'support');
+                url.searchParams.set('ticket_id', id);
+                window.history.pushState({}, '', url);
+            }
+            document.getElementById('detail-subject').innerText = 'Loading...';
+            document.getElementById('detail-id').innerText = '#' + id;
+            document.getElementById('detail-status').innerText = '---';
+            document.getElementById('ticket-chat-container').innerHTML = '<p class="text-center text-slate-500 py-8">Loading conversation...</p>';
+
+            try {
+                const response = await fetch(`/api/user/support/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const ticket = result.data || result;
+                
+                document.getElementById('detail-subject').innerText = ticket.subject;
+                document.getElementById('detail-id').innerText = '#' + ticket.id;
+                document.getElementById('detail-status').innerText = ticket.status;
+                
+                renderChat(ticket);
+
+            } catch (e) {
+                console.error('Failed to load ticket details', e);
+                document.getElementById('ticket-chat-container').innerHTML = '<p class="text-center text-red-400 py-8">Failed to load conversation.</p>';
+            }
+        }
+
+        function renderChat(ticket) {
+            const container = document.getElementById('ticket-chat-container');
+            let html = '';
+
+            const getAttachmentUrl = (path) => {
+                if (!path) return null;
+                return path.startsWith('http') ? path : `/storage/${path}`;
+            };
+
+            // Original Message (User)
+            html += `
+                <div class="flex flex-col items-end gap-1">
+                    <div class="bg-indigo-500 text-white px-4 py-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-lg shadow-indigo-500/10">
+                        <p class="text-sm">${ticket.message}</p>
+                        ${ticket.attachment ? `<div class="mt-2 pt-2 border-t border-white/20"><a href="${getAttachmentUrl(ticket.attachment)}" target="_blank" class="flex items-center gap-2 text-xs hover:underline"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> View Attachment</a></div>` : ''}
+                    </div>
+                    <span class="text-[10px] text-slate-500 mr-2">${new Date(ticket.created_at).toLocaleString()}</span>
+                </div>
+            `;
+
+            // Replies
+            if (ticket.replies && ticket.replies.length > 0) {
+                ticket.replies.forEach(reply => {
+                    // Check if reply is from user (has user_id and no admin_id)
+                    const isUser = reply.user_id && !reply.admin_id;
+                    
+                    if (isUser) {
+                        html += `
+                            <div class="flex flex-col items-end gap-1">
+                                <div class="bg-indigo-500 text-white px-4 py-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-lg shadow-indigo-500/10">
+                                    <p class="text-sm">${reply.reply}</p>
+                                    ${reply.attachment ? `<div class="mt-2 pt-2 border-t border-white/20"><a href="${getAttachmentUrl(reply.attachment)}" target="_blank" class="flex items-center gap-2 text-xs hover:underline"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> View Attachment</a></div>` : ''}
+                                </div>
+                                <span class="text-[10px] text-slate-500 mr-2">${new Date(reply.created_at).toLocaleString()}</span>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="flex flex-col items-start gap-1">
+                                <div class="bg-white/10 text-slate-200 px-4 py-3 rounded-2xl rounded-tl-none max-w-[80%] border border-white/5">
+                                    <p class="text-sm">${reply.reply}</p>
+                                    ${reply.attachment ? `<div class="mt-2 pt-2 border-t border-white/20"><a href="${getAttachmentUrl(reply.attachment)}" target="_blank" class="flex items-center gap-2 text-xs hover:underline"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> View Attachment</a></div>` : ''}
+                                </div>
+                                <span class="text-[10px] text-slate-500 ml-2">Support • ${new Date(reply.created_at).toLocaleString()}</span>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendReply(e) {
+            e.preventDefault();
+            if (!currentTicketId) return;
+
+            const input = document.getElementById('reply-input');
+            const message = input.value.trim();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+
+            if (!message) return;
+
+            btn.innerText = 'Sending...';
+            btn.disabled = true;
+
+            try {
+                const attachment = document.getElementById('reply-attachment').files[0];
+                const formData = new FormData();
+                formData.append('reply', message);
+                formData.append('status', 'open');
+                if(attachment) {
+                    formData.append('attachment', attachment);
+                }
+
+                const response = await fetch(`/api/user/support/${currentTicketId}/reply`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`, 
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    document.getElementById('reply-attachment').value = ''; // Reset file input
+                    document.getElementById('reply-file-name').innerText = ''; // Reset file name
+                    viewTicket(currentTicketId); // Refresh chat
+                } else {
+                    try {
+                         const err = await response.json();
+                         alert('Failed: ' + (err.message || 'Unknown error'));
+                    } catch(e) {
+                        alert('Failed to send reply');
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error sending reply');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

@@ -130,14 +130,43 @@ Route::prefix('admin')->group(function () {
             return view('admin.docs.index');
         })->name('admin.docs.index');
 
+        // Support Tickets
+        Route::get('/support', function() {
+            return view('admin.support.index');
+        })->name('admin.support.index');
+
     });
 });
 
 // User Side Routes
 Route::prefix('user')->group(function () {
     Route::get('/dashboard', function() {
-        return view('user.dashboard');
+        return view('user.index');
     })->name('user.dashboard');
+
+    Route::get('/plans', function() {
+        return view('user.plans');
+    })->name('user.plans');
+
+    Route::get('/billing', function() {
+        return view('user.billing');
+    })->name('user.billing');
+
+    Route::get('/support', function() {
+        return view('user.support');
+    })->name('user.support');
+
+    Route::get('/support/{id}', function($id) {
+        return view('user.support-details', compact('id'));
+    })->name('user.support.details');
+
+    Route::get('/notifications', function() {
+        return view('user.notifications');
+    })->name('user.notifications');
+
+    Route::get('/settings', function() {
+        return view('user.settings');
+    })->name('user.settings');
 
     Route::get('/docs', function() {
         return view('user.docs');
