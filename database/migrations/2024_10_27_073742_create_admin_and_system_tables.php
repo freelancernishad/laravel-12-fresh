@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -29,6 +30,26 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
+
+        Schema::create('system_settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('key')->unique();
+            $table->text('value')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('allowed_origins', function (Blueprint $table) {
+            $table->id();
+            $table->string('origin_url')->unique();
+            $table->timestamps();
+        });
+
+        // Insert default record for allowed_origins
+        DB::table('allowed_origins')->insert([
+            'origin_url' => 'postman',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**
@@ -36,6 +57,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('allowed_origins');
+        Schema::dropIfExists('system_settings');
         Schema::dropIfExists('admins');
     }
 };

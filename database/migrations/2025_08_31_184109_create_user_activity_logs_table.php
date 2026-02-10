@@ -20,8 +20,9 @@ return new class extends Migration
             $table->text('details')->nullable(); // JSON for extra info
             $table->boolean('is_success')->default(true); // success/failure
             $table->timestamps();
-
-            // $table->index(['user_id', 'activity', 'created_at']);
+            
+            // Index for querying logs
+            $table->index(['user_id', 'activity', 'created_at']);
         });
     }
 

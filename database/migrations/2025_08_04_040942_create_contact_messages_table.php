@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('contact_messages', function (Blueprint $table) {
+        Schema::create('contact_messages', function (Blueprint $table) {
             $table->id();
             $table->string('full_name');
             $table->string('email');
@@ -20,7 +20,6 @@ return new class extends Migration
             $table->boolean('email_sent')->default(false);
             $table->timestamps();
         });
-
     }
 
     /**

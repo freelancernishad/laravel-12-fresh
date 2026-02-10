@@ -11,6 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('email_templates', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('subject');
+            $table->longText('content_html')->nullable();
+            $table->longText('content_json')->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('email_logs', function (Blueprint $table) {
             $table->id();
             $table->string('recipient');
@@ -18,6 +27,9 @@ return new class extends Migration
             $table->string('status')->default('sent');
             $table->unsignedBigInteger('template_id')->nullable();
             $table->timestamps();
+            
+            // Foreign key to templates (optional, as logs might persist even if template deleted)
+             $table->foreign('template_id')->references('id')->on('email_templates')->onDelete('set null');
         });
     }
 
@@ -27,5 +39,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('email_logs');
+        Schema::dropIfExists('email_templates');
     }
 };
