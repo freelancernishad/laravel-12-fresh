@@ -60,6 +60,28 @@ class AdminSupportTicketApiController extends Controller
         // Save the ticket with the updated status
         $ticket->save();
 
+        // Send Global Notification to User if Admin replied
+        if (auth()->guard('admin')->check()) {
+            $user = $ticket->user;
+            if ($user) {
+                send_notification(
+                    $user,
+                    "New reply on ticket #{$ticket->id}.",
+                    "New Reply on Ticket #{$ticket->id}",
+                    'emails.tickets.reply',
+                    [
+                        'user_name' => $user->name,
+                        'ticket_id' => $ticket->id,
+                        'reply_content' => $reply->reply,
+                        'ticket_subject' => $ticket->subject,
+                        'ticket_status' => $ticket->status ?? 'Active',
+                    ],
+                     'SupportTicket',
+                     $ticket->id
+                );
+            }
+        }
+
         return response()->json([
             'message' => 'Reply sent successfully and ticket status updated.',
             'reply' => $reply

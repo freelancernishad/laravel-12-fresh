@@ -104,6 +104,34 @@ class StripeWebhookService
             
             // Dispatch generic event
             StripePaymentEvent::dispatch($eventType, $session->toArray(), 'success', $log->user_id);
+
+            // --- Send Global Notification & Email ---
+            if ($log->user_id) {
+                $user = \App\Models\User::find($log->user_id);
+                if ($user) {
+                    $planName = $log->product_name ?? 'Subscription';
+                    $amount = number_format($session->amount_total / 100, 2);
+                    
+                    send_notification(
+                        $user,
+                        "Your purchase of {$planName} was successful.",
+                        "Purchase Confirmation: {$planName}",
+                        'emails.plans.purchase_confirmation',
+                        [
+                            'user_name' => $user->name,
+                            'plan_name' => $planName,
+                            'interval' => $session->mode === 'subscription' ? ($log->interval ?? 'Recurring') : 'One-Time',
+                            'start_date' => now()->format('F j, Y'),
+                            'next_payment_date' => $updateData['next_payment_date'] ?? 'N/A',
+                            'amount' => $amount,
+                        ],
+                        'PlanSubscription',
+                        $session->subscription ?? $session->id
+                    );
+                    Log::info("Global notification sent to user {$user->id} for purchase of {$planName}");
+                }
+            }
+            // ----------------------------------------
         } else {
             Log::warning("StripeLog not found for session: {$session->id}");
             // Still dispatch event, but without user_id

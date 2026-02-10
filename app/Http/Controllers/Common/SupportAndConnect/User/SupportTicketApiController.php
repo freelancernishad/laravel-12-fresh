@@ -35,6 +35,23 @@ class SupportTicketApiController extends Controller
            $ticket->saveAttachment($request->file('attachment'));
         }
 
+        // Send Global Notification & Email
+        send_notification(
+            auth()->user(),
+            "We have received your ticket #{$ticket->id}. Subject: {$ticket->subject}",
+            "Ticket Received: #{$ticket->id}",
+            'emails.tickets.created',
+            [
+                'user_name' => auth()->user()->name,
+                'ticket_id' => $ticket->id,
+                'subject' => $ticket->subject,
+                'priority' => $ticket->priority,
+                'status' => 'Open',
+            ],
+            'SupportTicket',
+            $ticket->id
+        );
+
         return response()->json(['message' => 'Ticket created successfully.', 'ticket' => $ticket], 201);
     }
 
