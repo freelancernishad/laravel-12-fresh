@@ -392,7 +392,7 @@
             content = aceRequestEditor ? aceRequestEditor.getValue() : '';
         } else {
             // Generate Key-Value pairs for FormData
-            const inputs = document.querySelectorAll('#form-data-inputs .group\\/field');
+            const inputs = document.querySelectorAll('#form-data-inputs .form-data-row');
             let lines = [];
             
             inputs.forEach(row => {
@@ -436,7 +436,7 @@
         const isFile = typeof value === 'string' && value.includes('(File Object)');
         
         const div = document.createElement('div');
-        div.className = 'flex items-start gap-2 group/field';
+        div.className = 'flex items-start gap-2 form-data-row group/field';
         div.innerHTML = `
             <div class="flex-1 grid grid-cols-[1fr_auto_2fr] gap-2">
                 <input type="text" placeholder="Key" value="${key}" class="form-key bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500/50 placeholder:text-slate-600">
@@ -526,7 +526,7 @@
                 } else {
                     // Form Data Construction
                     const formData = new FormData();
-                    const inputs = document.querySelectorAll('#form-data-inputs .group\\\\/field');
+                    const inputs = document.querySelectorAll('#form-data-inputs .form-data-row');
                     
                     inputs.forEach(row => {
                         const key = row.querySelector('.form-key').value;
