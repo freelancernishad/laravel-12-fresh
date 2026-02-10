@@ -16,40 +16,51 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen flex text-sm">
+<body class="min-h-screen flex text-sm bg-[#0f172a]">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 w-full h-16 bg-[#0b1221] border-b border-white/5 z-30 flex items-center justify-between px-6">
+        <h1 class="text-lg font-bold text-white font-outfit">User Portal</h1>
+        <button onclick="toggleMobileMenu()" class="text-slate-400 hover:text-white focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+    </div>
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-[#0b1221] border-r border-white/5 flex-shrink-0 fixed h-full z-20 flex flex-col hidden md:flex">
-        <div class="h-20 flex items-center px-8 border-b border-white/5">
+    <aside id="sidebar" class="w-64 bg-[#0b1221] border-r border-white/5 flex-shrink-0 fixed h-full z-40 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <div class="h-20 flex items-center justify-between px-8 border-b border-white/5">
             <h1 class="text-xl font-bold text-white font-outfit tracking-tight">User Portal</h1>
+            <button onclick="toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-white focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
         </div>
         
         <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
-            <button onclick="showSection('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all active">
+            <button onclick="navigateTo('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all active">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
                 Overview
             </button>
-            <button onclick="showSection('plans')" id="nav-plans" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+            <button onclick="navigateTo('plans')" id="nav-plans" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
                 My Plan
             </button>
-            <button onclick="showSection('billing')" id="nav-billing" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+            <button onclick="navigateTo('billing')" id="nav-billing" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                 Billing & History
             </button>
             <div class="pt-4 border-t border-white/5 mt-4">
                 <p class="px-4 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Connect</p>
-                <button onclick="showSection('support')" id="nav-support" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+                <button onclick="navigateTo('support')" id="nav-support" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                     Support
                 </button>
-                <button onclick="showSection('notifications')" id="nav-notifications" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+                <button onclick="navigateTo('notifications')" id="nav-notifications" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                     Notifications
                 </button>
             </div>
              <div class="pt-4 mt-auto">
-                <button onclick="showSection('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
+                <button onclick="navigateTo('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     Settings
                 </button>
@@ -64,16 +75,19 @@
         </div>
     </aside>
 
+    <!-- Overlay -->
+    <div id="mobile-overlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden glass transition-opacity"></div>
+
     <!-- Main Content -->
-    <main class="flex-1 min-w-0 md:ml-64 p-8 lg:p-12">
+    <main class="flex-1 min-w-0 md:ml-64 p-4 lg:p-12 pt-20 md:pt-12">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div>
                 <h2 id="page-title" class="text-3xl font-black text-white">Dashboard</h2>
                 <p id="page-subtitle" class="text-slate-400 mt-1">Welcome back to your portal.</p>
             </div>
             <div class="flex items-center gap-4">
-                 <a href="{{ route('user.docs') }}" class="px-4 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-sm font-bold border border-indigo-500/20 transition-all hidden md:block">Developer API</a>
+                 <a href="{{ route('user.docs') }}" class="hidden md:flex px-4 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-sm font-bold border border-indigo-500/20 transition-all">Developer API</a>
                 <div class="flex items-center gap-3 pl-4 md:border-l border-white/10">
                     <div class="text-right hidden md:block">
                         <p id="display-name" class="text-sm font-bold text-white">Loading...</p>
@@ -98,11 +112,11 @@
                      <div class="glass p-6 rounded-3xl border-white/5">
                          <h3 class="text-lg font-bold text-white mb-4">Quick Actions</h3>
                          <div class="space-y-3">
-                             <button onclick="showSection('plans')" class="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 text-left flex items-center justify-between group transition-all">
+                             <button onclick="navigateTo('plans')" class="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 text-left flex items-center justify-between group transition-all">
                                  <span class="text-sm text-slate-300 group-hover:text-white">Upgrade Plan</span>
                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500 group-hover:text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
                              </button>
-                             <button onclick="showSection('support')" class="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 text-left flex items-center justify-between group transition-all">
+                             <button onclick="navigateTo('support')" class="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 text-left flex items-center justify-between group transition-all">
                                  <span class="text-sm text-slate-300 group-hover:text-white">Open Support Ticket</span>
                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500 group-hover:text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
                              </button>
@@ -144,7 +158,7 @@
                  <div class="glass p-8 rounded-[2rem] border-white/5">
                     <h2 class="text-xl font-black text-white mb-6">Subscription History</h2>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left">
+                        <table class="w-full text-left min-w-[600px]">
                             <thead class="border-b border-white/5">
                                 <tr><th class="py-3 text-xs font-black text-slate-500 uppercase">Plan</th><th class="py-3 text-xs font-black text-slate-500 uppercase">Dates</th><th class="py-3 text-xs font-black text-slate-500 uppercase text-right">Amount</th><th class="py-3 text-xs font-black text-slate-500 uppercase text-right">Status</th></tr>
                             </thead>
@@ -159,7 +173,7 @@
                  <div class="glass p-8 rounded-[2rem] border-white/5">
                     <h2 class="text-xl font-black text-white mb-6">Payment History</h2>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left">
+                        <table class="w-full text-left min-w-[600px]">
                             <thead class="border-b border-white/5">
                                 <tr><th class="py-3 text-xs font-black text-slate-500 uppercase">Description</th><th class="py-3 text-xs font-black text-slate-500 uppercase">Date</th><th class="py-3 text-xs font-black text-slate-500 uppercase text-right">Amount</th><th class="py-3 text-xs font-black text-slate-500 uppercase text-right">Status</th></tr>
                             </thead>
@@ -180,7 +194,7 @@
 
                 <div class="glass p-8 rounded-[2rem] border-white/5">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left">
+                        <table class="w-full text-left min-w-[600px]">
                             <thead class="border-b border-white/5">
                                 <tr>
                                     <th class="py-3 text-xs font-black text-slate-500 uppercase">Subject</th>
@@ -196,28 +210,6 @@
                 </div>
             </div>
 
-            <!-- Create Ticket Modal -->
-            <div id="create-ticket-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-                <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
-                <div class="glass p-8 rounded-[2rem] border-white/10 relative z-10 w-full max-w-lg mx-4">
-                    <h3 class="text-xl font-bold text-white mb-6">Create Support Ticket</h3>
-                    <form id="create-ticket-form" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Subject</label>
-                            <input type="text" id="ticket-subject" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="Brief summary of the issue">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Message</label>
-                            <textarea id="ticket-message" required rows="4" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="Describe your issue in detail..."></textarea>
-                        </div>
-                        <div class="flex items-center gap-4 pt-2">
-                            <button type="button" onclick="document.getElementById('create-ticket-modal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white/5 text-slate-400 font-bold hover:bg-white/10 transition-all">Cancel</button>
-                            <button type="submit" class="flex-1 py-3 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20">Submit Ticket</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
             <!-- SECTION: Notifications -->
             <div id="section-notifications" class="content-section hidden space-y-4">
                  <div class="glass p-8 rounded-[2rem] border-white/5 text-center py-12">
@@ -230,7 +222,7 @@
                  <div class="glass p-8 rounded-[2rem] border-white/5 max-w-2xl">
                      <h3 class="text-xl font-bold text-white mb-6">Profile Settings</h3>
                      <form id="profile-form" class="space-y-4">
-                         <div class="grid grid-cols-2 gap-4">
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                              <div>
                                  <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Full Name</label>
                                  <input type="text" id="input-name" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all">
@@ -267,27 +259,101 @@
         </div>
     </main>
 
+    <!-- Create Ticket Modal -->
+    <div id="create-ticket-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden px-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
+        <div class="glass p-8 rounded-[2rem] border-white/10 relative z-10 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-white mb-6">Create Support Ticket</h3>
+            <form id="create-ticket-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Subject</label>
+                    <input type="text" id="ticket-subject" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="Brief summary of the issue">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Message</label>
+                    <textarea id="ticket-message" required rows="4" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="Describe your issue in detail..."></textarea>
+                </div>
+                <div class="flex items-center gap-4 pt-2">
+                    <button type="button" onclick="document.getElementById('create-ticket-modal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white/5 text-slate-400 font-bold hover:bg-white/10 transition-all">Cancel</button>
+                    <button type="submit" class="flex-1 py-3 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20">Submit Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script>
         const token = getCookie('user_token');
         let selectedPaymentType = 'subscription';
 
-        function showSection(sectionId) {
+        document.addEventListener('DOMContentLoaded', () => {
+             if (!token) {
+                window.location.href = '/admin/users';
+                return;
+            }
+
+            fetchUserProfile();
+            fetchActivePlan();
+            fetchPaymentHistory();
+            fetchSubscriptionHistory();
+            fetchPlans();
+            fetchTickets();
+            fetchNotifications();
+
+            // Init State from URL
+            const params = new URLSearchParams(window.location.search);
+            const section = params.get('section') || 'dashboard';
+            showSection(section, false); // Don't push state on initial load
+
+            document.getElementById('profile-form').addEventListener('submit', updateProfile);
+            document.getElementById('password-form').addEventListener('submit', changePassword);
+            document.getElementById('create-ticket-form').addEventListener('submit', createTicket);
+        });
+
+        // Handle Back Button
+        window.addEventListener('popstate', (event) => {
+             const params = new URLSearchParams(window.location.search);
+             const section = params.get('section') || 'dashboard';
+             showSection(section, false);
+        });
+
+        function navigateTo(sectionId) {
+            showSection(sectionId, true);
+            // Close mobile menu if open
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+                 sidebar.classList.add('-translate-x-full');
+                 overlay.classList.add('hidden');
+            }
+        }
+
+        function showSection(sectionId, pushState = true) {
             // Hide all sections
             document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
-            // Remove active class from nav
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'bg-indigo-500', 'text-white', 'shadow-lg', 'shadow-indigo-500/20'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.add('text-slate-400'));
+            
+            // Remove active class from all nav items (desktop & mobile)
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active', 'bg-indigo-500', 'text-white', 'shadow-lg', 'shadow-indigo-500/20');
+                el.classList.add('text-slate-400');
+                // Remove hover bg if needed
+            });
 
             // Show selected section
-            document.getElementById(`section-${sectionId}`).classList.remove('hidden');
+            const targetSection = document.getElementById(`section-${sectionId}`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            } else {
+                document.getElementById('section-dashboard').classList.remove('hidden');
+                sectionId = 'dashboard';
+            }
             
             // Activate nav item
-            const navBtn = document.getElementById(`nav-${sectionId}`);
-            if (navBtn) {
-                navBtn.classList.add('active', 'bg-indigo-500', 'text-white', 'shadow-lg', 'shadow-indigo-500/20');
-                navBtn.classList.remove('text-slate-400', 'hover:bg-white/5');
-            }
+            const navTabs = document.querySelectorAll(`#nav-${sectionId}`);
+            navTabs.forEach(btn => {
+                btn.classList.add('active', 'bg-indigo-500', 'text-white', 'shadow-lg', 'shadow-indigo-500/20');
+                btn.classList.remove('text-slate-400');
+            });
 
             // Update Header Title
             const titles = {
@@ -298,7 +364,28 @@
                 'notifications': 'Notifications',
                 'settings': 'Account Settings'
             };
-            document.getElementById('page-title').innerText = titles[sectionId] || 'Dashboard';
+            const titleEl = document.getElementById('page-title');
+            if(titleEl) titleEl.innerText = titles[sectionId] || 'Dashboard';
+
+            // Push State
+            if (pushState) {
+                const url = new URL(window.location);
+                url.searchParams.set('section', sectionId);
+                window.history.pushState({}, '', url);
+            }
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
         }
 
         function setPaymentType(type) {
@@ -315,28 +402,276 @@
             }
         }
 
-        if (!token) {
-            window.location.href = '/admin/users';
+        // --- API Functions (Same as before) ---
+        
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch('/api/auth/user/me', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const user = result.data || result;
+                
+                document.getElementById('user-email').innerText = user.email;
+                document.getElementById('display-name').innerText = user.name;
+                document.getElementById('user-avatar').innerText = user.name.charAt(0);
+                
+                document.getElementById('input-name').value = user.name;
+                document.getElementById('input-phone').value = user.phone || '';
+                document.getElementById('input-email').value = user.email;
+
+            } catch (e) {
+                console.error('Failed to load user profile');
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchUserProfile();
-            fetchActivePlan();
-            fetchPaymentHistory();
-            fetchSubscriptionHistory();
-            fetchPlans();
-            fetchTickets();
-            fetchNotifications();
+        async function fetchActivePlan() {
+            const container = document.getElementById('dashboard-active-plan');
+            try {
+                const response = await fetch('/api/user/plan/active', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const sub = result.data || result;
 
-            document.getElementById('profile-form').addEventListener('submit', updateProfile);
-            document.getElementById('password-form').addEventListener('submit', changePassword);
-            document.getElementById('create-ticket-form').addEventListener('submit', createTicket);
-        });
+                if (!sub || !sub.plan) {
+                    container.innerHTML = `
+                         <div class="relative z-10 flex flex-col items-center justify-center text-center py-6">
+                            <h3 class="text-xl font-bold text-white mb-2">No Active Subscription</h3>
+                            <p class="text-slate-400 text-sm mb-6">Unlock premium features by upgrading your plan.</p>
+                            <button onclick="navigateTo('plans')" class="px-6 py-2 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-all">Browse Plans</button>
+                        </div>
+                    `;
+                    return;
+                }
 
-        // ... active plan, payment history, plans, subscription history functions ...
+                container.innerHTML = `
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-8">
+                             <div>
+                                <h2 class="text-2xl font-black text-white mb-1">Current Plan</h2>
+                                <p class="text-slate-400 text-sm">Valid until ${new Date(sub.ends_at).toLocaleDateString()}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-black uppercase tracking-widest border border-emerald-500/20">Active</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <h3 class="text-3xl font-black text-white">${sub.plan.name}</h3>
+                            <div class="text-right">
+                                 <div class="text-2xl font-black text-white">$${sub.price || sub.plan.monthly_price}</div>
+                                 <div class="text-slate-500 text-xs font-black uppercase tracking-widest">${sub.payment_method || 'stripe'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p class="text-red-400 text-sm">Failed to load subscription details.</p>';
+            }
+        }
+
+        async function fetchPaymentHistory() {
+             const tbody = document.getElementById('payment-history-body');
+             const miniBody = document.getElementById('mini-payment-history');
+             
+             try {
+                const response = await fetch('/api/user/payments?limit=5', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const payments = result.data.data || result.data || [];
+
+                if (payments.length === 0) {
+                    if(tbody) tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-500 text-xs">No payment history found.</td></tr>`;
+                    if(miniBody) miniBody.innerHTML = '<p class="text-slate-500 text-sm italic">No recent payments.</p>';
+                    return;
+                }
+
+                if(tbody) {
+                    tbody.innerHTML = payments.map(p => `
+                        <tr class="group hover:bg-white/5 transition-colors">
+                            <td class="py-4">
+                                <div class="font-bold text-white text-sm">${p.description || 'Subscription Payment'}</div>
+                                <div class="text-[10px] text-slate-500 font-mono">${p.transaction_id || 'ID: ---'}</div>
+                            </td>
+                            <td class="py-4 text-xs text-slate-400">${new Date(p.created_at).toLocaleDateString()}</td>
+                            <td class="py-4 text-right">
+                                <span class="font-bold text-white">$${p.amount}</span>
+                            </td>
+                            <td class="py-4 text-right">
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase">Paid</span>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                if(miniBody) {
+                    miniBody.innerHTML = payments.slice(0, 3).map(p => `
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                            <div>
+                                <p class="text-xs font-bold text-white">${p.description || 'Payment'}</p>
+                                <p class="text-[10px] text-slate-500">${new Date(p.created_at).toLocaleDateString()}</p>
+                            </div>
+                            <span class="font-bold text-white text-sm">$${p.amount}</span>
+                        </div>
+                    `).join('');
+                }
+
+             } catch (e) {
+                 console.error(e);
+             }
+        }
+
+        async function fetchSubscriptionHistory() {
+             const tbody = document.getElementById('subscription-history-body');
+             if(!tbody) return;
+             try {
+                const response = await fetch('/api/user/plan/history', {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                const subscriptions = result.data.data || result.data || [];
+
+                if (subscriptions.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-500 text-xs">No subscription history found.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = subscriptions.map(sub => `
+                    <tr class="group hover:bg-white/5 transition-colors">
+                        <td class="py-4">
+                            <div class="font-bold text-white text-sm">${sub.plan ? sub.plan.name : 'Unknown Plan'}</div>
+                            <div class="text-[10px] text-slate-500 font-mono capitalize">${sub.payment_method || 'stripe'}</div>
+                        </td>
+                        <td class="py-4 text-sm text-slate-400">
+                            <div class="flex flex-col">
+                                <span class="text-xs">Start: ${new Date(sub.starts_at || sub.created_at).toLocaleDateString()}</span>
+                                <span class="text-xs">End: ${sub.ends_at ? new Date(sub.ends_at).toLocaleDateString() : 'Lifetime'}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 text-right">
+                            <span class="font-bold text-white">$${sub.price || '0.00'}</span>
+                        </td>
+                        <td class="py-4 text-right">
+                            ${getStatusBadge(sub)}
+                        </td>
+                    </tr>
+                `).join('');
+
+             } catch (e) {
+                 console.error(e);
+             }
+        }
+
+        function getStatusBadge(sub) {
+            const now = new Date();
+            const end = sub.ends_at ? new Date(sub.ends_at) : null;
+            
+            let status = 'active';
+            let colorClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+            
+            if (end && end < now) {
+                status = 'expired';
+                colorClass = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+            } else if (sub.status === 'canceled') {
+                status = 'canceled';
+                colorClass = 'bg-red-500/10 text-red-400 border-red-500/20';
+            }
+
+            return `<span class="px-2 py-0.5 rounded bg-opacity-10 border ${colorClass} text-[10px] font-bold uppercase tracking-wider">${status}</span>`;
+        }
+
+        async function fetchPlans() {
+            try {
+                const response = await fetch('/api/plans/list');
+                const result = await response.json();
+                const plans = result.data || result.plans || [];
+                renderPlans(plans);
+            } catch (e) {
+                console.error('Failed to load plans');
+            }
+        }
+
+        function renderPlans(plans) {
+            const container = document.getElementById('plan-list');
+            if(!container) return;
+
+            if (plans.length === 0) {
+                container.innerHTML = '<p class="text-slate-500 italic">No plans available at the moment.</p>';
+                return;
+            }
+
+            container.innerHTML = plans.map(plan => `
+                <div class="glass p-8 rounded-[2rem] border-white/5 hover:border-indigo-500/30 transition-all flex flex-col group">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-black text-white mb-2">${plan.name}</h3>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-3xl font-black text-white">$${plan.monthly_price}</span>
+                            <span class="text-slate-500 text-sm font-medium">/ ${plan.duration || 'month'}</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-3 mb-8 flex-1">
+                        ${(plan.formatted_features || []).map(f => `
+                            <li class="flex items-start gap-2 text-sm text-slate-400 font-medium text-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>${f}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+
+                    <button onclick="purchasePlan(${plan.id})" class="purchase-btn w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest">
+                        Get Started
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function purchasePlan(planId) {
+            const couponCode = document.getElementById('coupon-code').value.trim();
+            const btn = event.currentTarget;
+            const originalText = btn.innerText;
+            
+            try {
+                btn.innerText = 'Redirecting...';
+                btn.disabled = true;
+
+                const response = await fetch('/api/user/plans/purchase', {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`, 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        plan_id: planId, 
+                        payment_type: selectedPaymentType,
+                        coupon_code: couponCode,
+                        success_url: window.location.origin + '/payment/success',
+                        cancel_url: window.location.origin + '/payment/cancel'
+                    })
+                });
+                const result = await response.json();
+                const purchaseData = result.data || result;
+                if (purchaseData.url) {
+                    window.location.href = purchaseData.url;
+                } else {
+                    alert(purchaseData.error || result.Message || 'Purchase failed');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                alert('Plan purchase failed');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
 
         async function fetchTickets() {
             const tbody = document.getElementById('tickets-body');
+            if(!tbody) return;
             try {
                 const response = await fetch('/api/user/support', {
                     headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
@@ -478,6 +813,7 @@
 
         async function fetchNotifications() {
             const container = document.getElementById('section-notifications');
+            if(!container) return;
             try {
                 const response = await fetch('/api/user/notifications', {
                     headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
@@ -507,274 +843,6 @@
 
             } catch (e) {
                 console.error('Failed to load notifications');
-            }
-        }
-
-        // ... existing functions ...
-        async function fetchSubscriptionHistory() {
-             const tbody = document.getElementById('subscription-history-body');
-             try {
-                const response = await fetch('/api/user/plan/history', {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-                });
-                const result = await response.json();
-                const subscriptions = result.data.data || result.data || [];
-
-                if (subscriptions.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-500 text-xs">No subscription history found.</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = subscriptions.map(sub => `
-                    <tr class="group hover:bg-white/5 transition-colors">
-                        <td class="py-4">
-                            <div class="font-bold text-white text-sm">${sub.plan ? sub.plan.name : 'Unknown Plan'}</div>
-                            <div class="text-[10px] text-slate-500 font-mono capitalize">${sub.payment_method || 'stripe'}</div>
-                        </td>
-                        <td class="py-4 text-sm text-slate-400">
-                            <div class="flex flex-col">
-                                <span class="text-xs">Start: ${new Date(sub.starts_at || sub.created_at).toLocaleDateString()}</span>
-                                <span class="text-xs">End: ${sub.ends_at ? new Date(sub.ends_at).toLocaleDateString() : 'Lifetime'}</span>
-                            </div>
-                        </td>
-                        <td class="py-4 text-right">
-                            <span class="font-bold text-white">$${sub.price || '0.00'}</span>
-                        </td>
-                        <td class="py-4 text-right">
-                            ${getStatusBadge(sub)}
-                        </td>
-                    </tr>
-                `).join('');
-
-             } catch (e) {
-                 console.error(e);
-                 tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-400 text-xs">Failed to load subscription history.</td></tr>`;
-             }
-        }
-
-        function getStatusBadge(sub) {
-            const now = new Date();
-            const end = sub.ends_at ? new Date(sub.ends_at) : null;
-            
-            let status = 'active';
-            let colorClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-            
-            if (end && end < now) {
-                status = 'expired';
-                colorClass = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
-            } else if (sub.status === 'canceled') {
-                status = 'canceled';
-                colorClass = 'bg-red-500/10 text-red-400 border-red-500/20';
-            }
-
-            return `<span class="px-2 py-0.5 rounded bg-opacity-10 border ${colorClass} text-[10px] font-bold uppercase tracking-wider">${status}</span>`;
-        }
-
-        async function fetchUserProfile() {
-            try {
-                const response = await fetch('/api/auth/user/me', {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-                });
-                const result = await response.json();
-                const user = result.data || result;
-                
-                // document.getElementById('welcome-text').innerText = `Welcome, ${user.name.split(' ')[0]}`; // Removed welcome text element
-                document.getElementById('user-email').innerText = user.email;
-                document.getElementById('display-name').innerText = user.name;
-                document.getElementById('user-avatar').innerText = user.name.charAt(0);
-                
-                // Populate settings form
-                document.getElementById('input-name').value = user.name;
-                document.getElementById('input-phone').value = user.phone || '';
-                document.getElementById('input-email').value = user.email;
-
-            } catch (e) {
-                console.error('Failed to load user profile');
-            }
-        }
-
-        async function fetchActivePlan() {
-            const container = document.getElementById('dashboard-active-plan');
-            
-            try {
-                const response = await fetch('/api/user/plan/active', {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-                });
-                const result = await response.json();
-                const sub = result.data || result;
-
-                if (!sub || !sub.plan) {
-                    container.innerHTML = `
-                         <div class="relative z-10 flex flex-col items-center justify-center text-center py-6">
-                            <h3 class="text-xl font-bold text-white mb-2">No Active Subscription</h3>
-                            <p class="text-slate-400 text-sm mb-6">Unlock premium features by upgrading your plan.</p>
-                            <button onclick="showSection('plans')" class="px-6 py-2 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-all">Browse Plans</button>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = `
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent"></div>
-                    <div class="relative z-10">
-                        <div class="flex items-center justify-between mb-8">
-                             <div>
-                                <h2 class="text-2xl font-black text-white mb-1">Current Plan</h2>
-                                <p class="text-slate-400 text-sm">Valid until ${new Date(sub.ends_at).toLocaleDateString()}</p>
-                            </div>
-                            <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-black uppercase tracking-widest border border-emerald-500/20">Active</span>
-                        </div>
-                        <div class="flex items-end justify-between">
-                            <h3 class="text-3xl font-black text-white">${sub.plan.name}</h3>
-                            <div class="text-right">
-                                 <div class="text-2xl font-black text-white">$${sub.price || sub.plan.monthly_price}</div>
-                                 <div class="text-slate-500 text-xs font-black uppercase tracking-widest">${sub.payment_method || 'stripe'}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } catch (e) {
-                console.error(e);
-                container.innerHTML = '<p class="text-red-400 text-sm">Failed to load subscription details.</p>';
-            }
-        }
-
-        async function fetchPaymentHistory() {
-             const tbody = document.getElementById('payment-history-body');
-             const miniBody = document.getElementById('mini-payment-history');
-             
-             try {
-                const response = await fetch('/api/user/payments?limit=5', {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-                });
-                const result = await response.json();
-                const payments = result.data.data || result.data || [];
-
-                if (payments.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-500 text-xs">No payment history found.</td></tr>`;
-                    if(miniBody) miniBody.innerHTML = '<p class="text-slate-500 text-sm italic">No recent payments.</p>';
-                    return;
-                }
-
-                // Full Table
-                tbody.innerHTML = payments.map(p => `
-                    <tr class="group hover:bg-white/5 transition-colors">
-                        <td class="py-4">
-                            <div class="font-bold text-white text-sm">${p.description || 'Subscription Payment'}</div>
-                            <div class="text-[10px] text-slate-500 font-mono">${p.transaction_id || 'ID: ---'}</div>
-                        </td>
-                        <td class="py-4 text-xs text-slate-400">${new Date(p.created_at).toLocaleDateString()}</td>
-                        <td class="py-4 text-right">
-                            <span class="font-bold text-white">$${p.amount}</span>
-                        </td>
-                        <td class="py-4 text-right">
-                            <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase">Paid</span>
-                        </td>
-                    </tr>
-                `).join('');
-
-                // Mini List for Dashboard
-                if(miniBody) {
-                    miniBody.innerHTML = payments.slice(0, 3).map(p => `
-                        <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
-                            <div>
-                                <p class="text-xs font-bold text-white">${p.description || 'Payment'}</p>
-                                <p class="text-[10px] text-slate-500">${new Date(p.created_at).toLocaleDateString()}</p>
-                            </div>
-                            <span class="font-bold text-white text-sm">$${p.amount}</span>
-                        </div>
-                    `).join('');
-                }
-
-             } catch (e) {
-                 console.error(e);
-                 tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-400 text-xs">Failed to load payment history.</td></tr>`;
-             }
-        }
-
-        async function fetchPlans() {
-            try {
-                const response = await fetch('/api/plans/list');
-                const result = await response.json();
-                const plans = result.data || result.plans || [];
-                renderPlans(plans);
-            } catch (e) {
-                document.getElementById('plan-list').innerHTML = '<p class="text-red-400">Failed to load plans.</p>';
-            }
-        }
-
-        function renderPlans(plans) {
-            const container = document.getElementById('plan-list');
-            if (plans.length === 0) {
-                container.innerHTML = '<p class="text-slate-500 italic">No plans available at the moment.</p>';
-                return;
-            }
-
-            container.innerHTML = plans.map(plan => `
-                <div class="glass p-8 rounded-[2rem] border-white/5 hover:border-indigo-500/30 transition-all flex flex-col group">
-                    <div class="mb-6">
-                        <h3 class="text-xl font-black text-white mb-2">${plan.name}</h3>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-3xl font-black text-white">$${plan.monthly_price}</span>
-                            <span class="text-slate-500 text-sm font-medium">/ ${plan.duration || 'month'}</span>
-                        </div>
-                    </div>
-                    
-                    <ul class="space-y-3 mb-8 flex-1">
-                        ${(plan.formatted_features || []).map(f => `
-                            <li class="flex items-start gap-2 text-sm text-slate-400 font-medium text-wrap">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                </svg>
-                                <span>${f}</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-
-                    <button onclick="purchasePlan(${plan.id})" class="purchase-btn w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest">
-                        Get Started
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        async function purchasePlan(planId) {
-            const couponCode = document.getElementById('coupon-code').value.trim();
-            const btn = event.currentTarget;
-            const originalText = btn.innerText;
-            
-            try {
-                btn.innerText = 'Redirecting...';
-                btn.disabled = true;
-
-                const response = await fetch('/api/user/plans/purchase', {
-                    method: 'POST',
-                    headers: { 
-                        'Authorization': `Bearer ${token}`, 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ 
-                        plan_id: planId, 
-                        payment_type: selectedPaymentType,
-                        coupon_code: couponCode,
-                        success_url: window.location.origin + '/payment/success',
-                        cancel_url: window.location.origin + '/payment/cancel'
-                    })
-                });
-                const result = await response.json();
-                const purchaseData = result.data || result;
-                if (purchaseData.url) {
-                    window.location.href = purchaseData.url;
-                } else {
-                    alert(purchaseData.error || result.Message || 'Purchase failed');
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                }
-            } catch (e) {
-                alert('Plan purchase failed');
-                btn.innerText = originalText;
-                btn.disabled = false;
             }
         }
 
