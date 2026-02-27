@@ -16,7 +16,18 @@ class AttachJwtFromCookie
      */
     public function handle(Request $request, Closure $next)
     {
-        $token = $request->cookie('admin_token') ?? $_COOKIE['admin_token'] ?? null;
+        $token = null;
+
+        if ($request->is('user') || $request->is('user/*')) {
+             $token = $request->cookie('user_token') ?? $_COOKIE['user_token'] ?? null;
+        } elseif ($request->is('admin') || $request->is('admin/*')) {
+             $token = $request->cookie('admin_token') ?? $_COOKIE['admin_token'] ?? null;
+        }
+
+        // Fallback or generic logic if needed
+        if (!$token) {
+             $token = $request->cookie('admin_token') ?? $_COOKIE['admin_token'] ?? $request->cookie('user_token') ?? $_COOKIE['user_token'] ?? null;
+        }
 
         if ($token && !$request->bearerToken()) {
             $request->headers->set('Authorization', 'Bearer ' . $token);

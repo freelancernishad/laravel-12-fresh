@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Middleware\AuthenticateAdmin;
 use App\Http\Middleware\AttachJwtFromCookie;
+use App\Http\Middleware\AuthenticateUser;
 use App\Http\Controllers\Admin\Auth\AdminAuthController as AdminViewAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 
@@ -48,7 +49,7 @@ Route::get('/db-check', function () {
     }
 });
 
-Route::get('/run-migrate', function() {
+Route::get('/run-migrate', function () {
     Artisan::call('migrate', ['--force' => true]);
     return "Migrations completed!";
 });
@@ -63,11 +64,11 @@ Route::get('/payment/test-intent', function () {
     return view('payment.stripe-intent', compact('stripeKey'));
 });
 
-Route::get('/payment/success', function() {
+Route::get('/payment/success', function () {
     return "<h1>Payment Successful!</h1><p>Thank you for your purchase. You can now close this window or return to your dashboard.</p><a href='/user/dashboard'>Back to Dashboard</a>";
 })->name('payment.success');
 
-Route::get('/payment/cancel', function() {
+Route::get('/payment/cancel', function () {
     return "<h1>Payment Cancelled</h1><p>Your payment process was cancelled. No charges were made.</p><a href='/user/dashboard'>Back to Dashboard</a>";
 })->name('payment.cancel');
 
@@ -76,62 +77,62 @@ Route::get('/payment/cancel', function() {
 
 // Admin Dashboard Views
 Route::prefix('admin')->group(function () {
-    
+
     // Login View
     Route::get('/login', [AdminViewAuthController::class, 'showLoginForm'])->name('admin.login.view');
 
     Route::middleware([AttachJwtFromCookie::class, AuthenticateAdmin::class])->group(function () {
-        
+
         // Dashboard
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-        
+
         // Settings View
         Route::get('/settings', [AdminDashboardController::class, 'settings'])->name('admin.settings');
-        
+
         // Allowed Origins View
-        Route::get('/origins', function() {
+        Route::get('/origins', function () {
             // Pass empty array, view will fetch via API
-            return view('admin.origins.index', ['origins' => []]); 
+            return view('admin.origins.index', ['origins' => []]);
         })->name('admin.origins.index');
 
         // Stripe Info View
         Route::get('/stripe/webhook', [AdminDashboardController::class, 'stripeInfo'])->name('admin.stripe.webhook');
 
         // Plans & Features Management Views
-        Route::get('/plan/features', function() {
+        Route::get('/plan/features', function () {
             return view('admin.plans.features');
         })->name('admin.plans.features');
 
-        Route::get('/plans', function() {
+        Route::get('/plans', function () {
             return view('admin.plans.index');
         })->name('admin.plans.index');
 
         // Coupons Management
-        Route::get('/coupons', function() {
+        Route::get('/coupons', function () {
             return view('admin.coupons.index');
         })->name('admin.coupons.index');
 
         // Subscriptions & Payments
-        Route::get('/subscriptions', function() {
+        Route::get('/subscriptions', function () {
             return view('admin.subscriptions.index');
         })->name('admin.subscriptions.index');
 
-        Route::get('/payments', function() {
+        Route::get('/payments', function () {
             return view('admin.payments.index');
         })->name('admin.payments.index');
 
         // User Management
-        Route::get('/users', function() {
+        Route::get('/users', function () {
             return view('admin.users.index');
         })->name('admin.users.index');
 
         // API Documentation
-        Route::get('/docs', function() {
+        Route::get('/docs', function () {
             return view('admin.docs.index');
         })->name('admin.docs.index');
 
         // Support Tickets
-        Route::get('/support', function() {
+        Route::get('/support', function () {
             return view('admin.support.index');
         })->name('admin.support.index');
 
@@ -145,44 +146,43 @@ Route::prefix('admin')->group(function () {
         Route::get('/email-history', [\App\Http\Controllers\Admins\EmailLogController::class, 'index'])->name('admin.email-logs.index');
 
         // Notifications View
-        Route::get('/notifications', function() {
+        Route::get('/notifications', function () {
             return view('admin.notifications.index');
         })->name('admin.notifications.index');
-
     });
 });
 
 // User Side Routes
-Route::prefix('user')->group(function () {
-    Route::get('/dashboard', function() {
+Route::prefix('user')->middleware([AttachJwtFromCookie::class, AuthenticateUser::class])->group(function () {
+    Route::get('/dashboard', function () {
         return view('user.index');
     })->name('user.dashboard');
 
-    Route::get('/plans', function() {
+    Route::get('/plans', function () {
         return view('user.plans');
     })->name('user.plans');
 
-    Route::get('/billing', function() {
+    Route::get('/billing', function () {
         return view('user.billing');
     })->name('user.billing');
 
-    Route::get('/support', function() {
+    Route::get('/support', function () {
         return view('user.support');
     })->name('user.support');
 
-    Route::get('/support/{id}', function($id) {
+    Route::get('/support/{id}', function ($id) {
         return view('user.support-details', compact('id'));
     })->name('user.support.details');
 
-    Route::get('/notifications', function() {
+    Route::get('/notifications', function () {
         return view('user.notifications');
     })->name('user.notifications');
 
-    Route::get('/settings', function() {
+    Route::get('/settings', function () {
         return view('user.settings');
     })->name('user.settings');
 
-    Route::get('/docs', function() {
+    Route::get('/docs', function () {
         return view('user.docs');
     })->name('user.docs');
 });
