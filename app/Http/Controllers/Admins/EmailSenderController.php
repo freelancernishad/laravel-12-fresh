@@ -66,18 +66,18 @@ class EmailSenderController extends Controller
         }
 
         if (empty($uniqueRecipients)) {
-            return back()->with('error', 'No valid recipients selected.');
+            return response()->json(['isError' => true, 'Message' => 'No valid recipients selected.']);
         }
 
         if (count($uniqueRecipients) > 1) {
             // Bulk sending via Queue
             SendBulkEmail::dispatch($uniqueRecipients, $template->subject, $template->content_html, $template->id);
-            return back()->with('success', 'Bulk emails have been queued for sending.');
+            return response()->json(['isError' => false, 'Message' => 'Bulk emails have been queued for sending.']);
         } else {
             // Single sending
             $recipient = $uniqueRecipients[0];
             Mail::to($recipient['email'])->send(new DynamicEmail($template->subject, $template->content_html, ['name' => $recipient['name']]));
-            
+
             // Log the single email
             \App\Models\EmailLog::create([
                 'recipient' => $recipient['email'],
@@ -86,7 +86,7 @@ class EmailSenderController extends Controller
                 'template_id' => $template->id,
             ]);
 
-            return back()->with('success', 'Email sent successfully.');
+            return response()->json(['isError' => false, 'Message' => 'Email sent successfully.']);
         }
     }
 

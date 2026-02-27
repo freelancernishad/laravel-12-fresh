@@ -26,21 +26,27 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Select System Users -->
                 <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-2">Select System Users (Bulk)</label>
-                    <select name="recipients[]" multiple class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all h-40">
-                        <option value="all" class="bg-slate-900 font-bold text-indigo-400">SELECT ALL USERS</option>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-medium text-slate-400">Select System Users (Bulk)</label>
+                        <button type="button" id="clear-users-btn" class="text-xs px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all font-medium flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            Clear All
+                        </button>
+                    </div>
+                    <select name="recipients[]" id="users-select" multiple class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all">
+                        <option value="all" class="font-bold text-indigo-400">SELECT ALL USERS</option>
                         @foreach($users as $user)
-                            <option value="{{ $user->id }}" class="bg-slate-900">{{ $user->name }} ({{ $user->email }})</option>
+                            <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
                         @endforeach
                     </select>
-                    <p class="text-[10px] text-slate-500 mt-2">Hold Ctrl (CMD) to select multiple users.</p>
+                    <p class="text-[10px] text-slate-500 mt-2">Search and select multiple users.</p>
                 </div>
 
                 <!-- Manual Emails -->
                 <div>
                     <label class="block text-sm font-medium text-slate-400 mb-2">Manual Email Addresses</label>
-                    <textarea name="manual_emails" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all h-40" placeholder="user@example.com, another@example.com"></textarea>
-                    <p class="text-[10px] text-slate-500 mt-2">Comma separated email addresses.</p>
+                    <input type="text" id="manual-emails-input" name="manual_emails" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="user@example.com, another@example.com">
+                    <p class="text-[10px] text-slate-500 mt-2">Type email addresses and press Enter or comma to add them.</p>
                 </div>
             </div>
 
@@ -108,7 +114,127 @@
 </div>
 
 @push('scripts')
+<!-- Tom Select CSS & JS -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<style>
+    /* Custom Tom Select Dark Theme to match the UI */
+    .ts-control {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+        border-radius: 0.75rem !important; /* rounded-xl */
+        padding: 0.75rem 1rem !important;
+        min-height: auto;
+    }
+    .ts-control.focus {
+        border-color: #6366f1 !important; /* focus:border-indigo-500 */
+        box-shadow: none !important;
+    }
+    .ts-control input {
+        color: #fff !important;
+    }
+    .ts-control input::placeholder {
+        color: #94a3b8 !important; /* text-slate-400 */
+    }
+    .ts-dropdown {
+        background: #0f172a !important; /* bg-slate-900 */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 0.75rem !important;
+        color: #fff !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+    }
+    .ts-dropdown .option {
+        padding: 0.5rem 1rem !important;
+    }
+    .ts-dropdown .option.active, .ts-dropdown .option:hover {
+        background: rgba(99, 102, 241, 0.2) !important; /* indigo-500/20 */
+        color: #fff !important;
+    }
+    /* Style selected items/tags */
+    .ts-control .item {
+        background: rgba(99, 102, 241, 0.2) !important;
+        border: 1px solid rgba(99, 102, 241, 0.3) !important;
+        color: #c7d2fe !important; /* text-indigo-200 */
+        border-radius: 0.5rem !important;
+        padding: 0.2rem 0.5rem !important;
+        margin: 2px 4px 2px 0 !important;
+        font-size: 0.875rem;
+    }
+    /* Tag removal button */
+    .ts-control .item .remove {
+        color: #a5b4fc !important;
+        border-left: 1px solid rgba(99, 102, 241, 0.3) !important;
+        margin-left: 5px;
+        padding-left: 5px;
+    }
+    .ts-control .item .remove:hover {
+        background: none !important;
+        color: #fff !important;
+    }
+    /* Clear All Button */
+    .ts-control .clear-button {
+        color: #ef4444 !important; /* red-500 */
+        opacity: 0.7;
+        margin-right: 8px;
+        transition: opacity 0.2s;
+    }
+    .ts-control .clear-button:hover {
+        opacity: 1;
+    }
+</style>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Tom Select for System Users
+        let usersSelect = new TomSelect("#users-select", {
+            plugins: ['remove_button'],
+            placeholder: 'Search and select users...',
+            maxOptions: null,
+            closeAfterSelect: false,
+            hideSelected: true,
+            onItemAdd: function(value) {
+                // If "SELECT ALL USERS" is clicked, select all other users
+                if (value === 'all') {
+                    // Get all available options
+                    let allOptions = Object.keys(this.options);
+                    
+                    // Filter out 'all' from the list of items to add
+                    let usersToAdd = allOptions.filter(opt => opt !== 'all');
+                    
+                    // Add all users
+                    usersToAdd.forEach(userId => {
+                        this.addItem(userId, true); // true = silent, don't trigger onChange
+                    });
+                    
+                    // Remove 'all' from selection so it's not actually submitted
+                    this.removeItem('all', true);
+                }
+            }
+        });
+
+        // External Clear All Button Logic
+        document.getElementById('clear-users-btn').addEventListener('click', function() {
+            usersSelect.clear();
+        });
+
+        // Initialize Tom Select for Manual Emails
+        new TomSelect("#manual-emails-input", {
+            plugins: ['remove_button'],
+            createOnBlur: true,
+            create: function(input) {
+                // Simple email validation regex before converting to tag
+                var regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+                if(input.match(regex)) {
+                    return {
+                        value: input,
+                        text: input
+                    }
+                }
+                return false;
+            },
+            placeholder: 'Type an email and press Enter...'
+        });
+    });
     // Template Preview Functionality
     const templateSelect = document.querySelector('select[name="template_id"]');
     const previewSection = document.getElementById('templatePreview');
@@ -180,6 +306,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify(data)

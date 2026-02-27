@@ -34,6 +34,14 @@ class EmailTemplateController extends Controller
         return response()->json(['success' => true, 'message' => 'Template saved successfully']);
     }
 
+    public function show(EmailTemplate $emailTemplate)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $emailTemplate
+        ]);
+    }
+
     public function edit(EmailTemplate $emailTemplate)
     {
         return view('admin.email-templates.builder', compact('emailTemplate'));
