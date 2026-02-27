@@ -44,9 +44,15 @@
 
                 <!-- Manual Emails -->
                 <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-2">Manual Email Addresses</label>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-medium text-slate-400">Manual Email Addresses</label>
+                        <button type="button" id="clear-manual-btn" class="text-xs px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all font-medium flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            Clear All
+                        </button>
+                    </div>
                     <input type="text" id="manual-emails-input" name="manual_emails" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all" placeholder="user@example.com, another@example.com">
-                    <p class="text-[10px] text-slate-500 mt-2">Type email addresses and press Enter or comma to add them.</p>
+                    <p class="text-[10px] text-slate-500 mt-2">Type email addresses and press Enter. (Validates automatically)</p>
                 </div>
             </div>
 
@@ -217,20 +223,67 @@
             usersSelect.clear();
         });
 
+        // External Clear All Button Logic (Manual Emails)
+        document.getElementById('clear-manual-btn').addEventListener('click', function() {
+            manualEmailsSelect.clear();
+        });
+
         // Initialize Tom Select for Manual Emails
-        new TomSelect("#manual-emails-input", {
+        let manualEmailsSelect = new TomSelect("#manual-emails-input", {
             plugins: ['remove_button'],
             createOnBlur: true,
-            create: function(input) {
-                // Simple email validation regex before converting to tag
+            createFilter: function(input) {
                 var regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-                if(input.match(regex)) {
-                    return {
-                        value: input,
-                        text: input
-                    }
+                return input.match(regex);
+            },
+            create: async function(input, callback) {
+                // First pass: formatting validation
+                var regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+                if(!input.match(regex)) {
+                    alert("Invalid email format.");
+                    return callback(false);
                 }
-                return false;
+
+                // Temporary loading indication
+                const btn = document.getElementById('clear-manual-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="animate-spin mr-1">↻</span> Checking...';
+                
+                try {
+                    // Backend Email Verification Check
+                    const response = await fetch('/api/admin/email-sender/validate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ email: input })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    btn.innerHTML = originalText;
+
+                    // Unpack the Laravel wrapped structure
+                    const validResponse = result.data ? result.data.valid : result.valid;
+                    const messageResponse = result.data ? result.data.message : result.message;
+
+                    if (response.ok && validResponse) {
+                        return callback({
+                            value: input,
+                            text: input
+                        });
+                    } else {
+                        alert(messageResponse || result.Message || "Email validation failed.");
+                        return callback(false);
+                    }
+                } catch (error) {
+                    btn.innerHTML = originalText;
+                    console.error('Validation error:', error);
+                    alert("Could not verify email at this time.");
+                    return callback(false);
+                }
             },
             placeholder: 'Type an email and press Enter...'
         });

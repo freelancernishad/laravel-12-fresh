@@ -24,6 +24,7 @@ Route::prefix('admin')->group(function () {
     // Email Sender API
     Route::post('/email-sender/send', [EmailSenderController::class, 'send'])->name('admin.email-sender.send');
     Route::post('/email-sender/test', [EmailSenderController::class, 'sendTest'])->name('admin.email-sender.test');
+    Route::post('/email-sender/validate', [EmailSenderController::class, 'validateEmail'])->name('admin.email-sender.validate');
 
     // Email Logs API
     Route::delete('/email-history/{emailLog}', [EmailLogController::class, 'destroy'])->name('admin.email-logs.destroy');

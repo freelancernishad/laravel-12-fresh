@@ -102,4 +102,73 @@ class EmailSenderController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Test email sent successfully to ' . $request->email]);
     }
+
+    public function validateEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $email = $request->email;
+        $isValidFormat = filter_var($email, FILTER_VALIDATE_EMAIL);
+
+        if (!$isValidFormat) {
+            return response()->json([
+                'success' => true,
+                'valid' => false,
+                'message' => 'Invalid email format.'
+            ]);
+        }
+
+        // Real Mailbox Verification using AbstractAPI (Free Tier)
+        // This physically connects to the SMTP server (like Gmail) and asks if the mailbox exists
+        try {
+            // Free API Key for Email Validation (Abstract API)
+            $apiKey = '5a6538af3e0b4b2fb4e0bfa9da1d2f63';
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->withoutVerifying()->get("https://emailvalidation.abstractapi.com/v1/?api_key={$apiKey}&email={$email}");
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                // Abstract API returns "DELIVERABLE" if the mailbox exists
+                $isDeliverable = isset($data['deliverability']) && $data['deliverability'] === 'DELIVERABLE';
+                $isCatchall = isset($data['is_catchall_email']) && $data['is_catchall_email']['value'] === true;
+                $isValidSMTP = isset($data['is_smtp_valid']) && $data['is_smtp_valid']['value'] === true;
+
+                // Gmail is strict about is_smtp_valid
+                if ($isDeliverable || ($isCatchall && $isValidSMTP)) {
+                    return response()->json([
+                        'success' => true,
+                        'valid' => true,
+                        'message' => 'Valid and deliverable email.'
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => true,
+                        'valid' => false,
+                        'message' => 'This email address does not exist.'
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            // Fallback if API is down or rate limited: Just check MX
+            \Illuminate\Support\Facades\Log::error('Abstract API Error: ' . $e->getMessage());
+        }
+
+        // Fallback: Check MX Records
+        $domain = substr(strrchr($email, "@"), 1);
+        if (checkdnsrr($domain, "MX")) {
+            return response()->json([
+                'success' => true,
+                'valid' => true, // Proceed anyway if API fails but domain is real
+                'message' => 'Domain is valid (Mailbox unverified).'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'valid' => false,
+            'message' => 'Email domain does not exist or cannot receive mail.'
+        ]);
+    }
 }
