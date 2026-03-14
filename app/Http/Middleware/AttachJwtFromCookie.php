@@ -18,9 +18,9 @@ class AttachJwtFromCookie
     {
         $token = null;
 
-        if ($request->is('user') || $request->is('user/*')) {
+        if ($request->is('user') || $request->is('user/*') || $request->is('api/user') || $request->is('api/user/*')) {
              $token = $request->cookie('user_token') ?? $_COOKIE['user_token'] ?? null;
-        } elseif ($request->is('admin') || $request->is('admin/*')) {
+        } elseif ($request->is('admin') || $request->is('admin/*') || $request->is('api/admin') || $request->is('api/admin/*')) {
              $token = $request->cookie('admin_token') ?? $_COOKIE['admin_token'] ?? null;
         }
 
