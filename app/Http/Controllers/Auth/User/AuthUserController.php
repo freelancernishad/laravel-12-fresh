@@ -93,27 +93,9 @@ public function register(RegisterRequest $request)
             );
         }
     } else {
-        $otp = random_int(100000, 999999);
-        $user->otp = Hash::make($otp);
-        $user->otp_expires_at = now()->addMinutes(5);
-        $user->save();
-
-        try {
-            Mail::to($user->email)->send(new OtpNotification($otp));
-            $emailMessage = 'Registration successful. OTP has been sent to your email.';
-        } catch (\Exception $e) {
-            $emailSent = false;
-            $emailMessage = 'Registration successful, but we could not send the OTP. Please try again later.';
-            Log::error('User OTP email failed: ' . $e->getMessage());
-            logUserActivity(
-                activity: 'OTP Email Failed',
-                category: 'Email',
-                userId: $user->id,
-                request: $request,
-                isSuccess: false,
-                extraDetails: ['error' => $e->getMessage()]
-            );
-        }
+        $otpResult = $this->sendOtp($user, $request, 'Registration');
+        $emailSent = $otpResult['emailSent'];
+        $emailMessage = $otpResult['emailMessage'];
     }
 
     return response()->json(new LoginRegisterUserResource($user, $token, $emailMessage, !$emailSent), 201);
@@ -170,6 +152,21 @@ public function login(LoginRequest $request)
     // Attempt authentication
     if (Auth::attempt($credentials)) {
         $user = Auth::user();
+
+        // Check if email is verified
+        if (!$user->hasVerifiedEmail()) {
+            $otpResult = $this->sendOtp($user, $request, 'Login');
+
+            logUserActivity('Login Failed - Unverified', 'Authentication', $user->id, $request, false, [
+                'reason' => 'Email not verified, OTP sent'
+            ]);
+
+            return response()->json([
+                'message' => 'Email is not verified. ' . $otpResult['emailMessage'],
+                'emailSent' => $otpResult['emailSent']
+            ], 403);
+        }
+
        $user->last_login_at = now();
         $user->save();
 
@@ -354,4 +351,45 @@ public function login(LoginRequest $request)
         }
     }
 
+    /**
+     * Helper function to generate and send OTP.
+     *
+     * @param User $user
+     * @param Request $request
+     * @param string $context
+     * @return array
+     */
+    private function sendOtp(User $user, Request $request, $context = 'Registration')
+    {
+        $otp = random_int(100000, 999999);
+        $user->otp = Hash::make($otp);
+        $user->otp_expires_at = now()->addMinutes(5);
+        $user->save();
+
+        $emailSent = true;
+        
+        $contextMessage = $context === 'Registration' ? 'Registration successful.' : 'Login attempt.';
+
+        try {
+            Mail::to($user->email)->send(new OtpNotification($otp));
+            $emailMessage = $contextMessage . ' OTP has been sent to your email.';
+        } catch (\Exception $e) {
+            $emailSent = false;
+            $emailMessage = $contextMessage . ' We could not send the OTP. Please try again later.';
+            Log::error('User OTP email failed: ' . $e->getMessage());
+            logUserActivity(
+                activity: 'OTP Email Failed',
+                category: 'Email',
+                userId: $user->id,
+                request: $request,
+                isSuccess: false,
+                extraDetails: ['error' => $e->getMessage()]
+            );
+        }
+
+        return [
+            'emailSent' => $emailSent,
+            'emailMessage' => $emailMessage
+        ];
+    }
 }
