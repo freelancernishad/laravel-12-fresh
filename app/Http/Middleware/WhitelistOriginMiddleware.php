@@ -16,42 +16,34 @@ class WhitelistOriginMiddleware
      */
     public function handle($request, Closure $next)
     {
+        $origin = $request->header('Origin');
+        $allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
 
-
-        $allowedAllOrigin = AllowedOrigin::where('origin_url', '*')->exists();
-        if($allowedAllOrigin){
+        // Handle OPTIONS request (preflight) - Already handled by Cors middleware but just in case
+        if ($request->isMethod('OPTIONS')) {
             return $next($request);
         }
 
-
-        // Get the 'Origin' header from the request
-        $origin = $request->header('Origin');
-
-        // If the origin is empty, check if there is a wildcard (empty string) in the allowed origins
-        if ($origin === '' || $origin === null) {
-            // Check if there's an empty string '' in the allowed origins
-            $allowedOrigin = AllowedOrigin::where('origin_url', 'postman')->exists();
-
-            // If empty origin is not allowed in the database, return a 403 response
-            if (!$allowedOrigin) {
-                return response()->json([
-                    'message' => 'Access denied. Empty origin is not allowed.',
-                ], 403);
-            }
-        } else {
-            // Check if the origin exists in the database for non-empty origins
-            $allowedOrigin = AllowedOrigin::where('origin_url', $origin)->exists();
-
-            // If the origin is not allowed, return a 403 response
-            if (!$allowedOrigin) {
-                return response()->json([
-                    'message' => 'Access denied. Your origin is not allowed.',
-                    'origin' => $origin,
-                ], 403);
-            }
+        $allowedAllOrigin = AllowedOrigin::where('origin_url', '*')->exists();
+        if ($allowedAllOrigin || in_array($origin, $allowedOrigins)) {
+            return $next($request);
         }
 
-        // If the origin is allowed, proceed with the request
-        return $next($request);
+        // Check if the origin exists in the database
+        $allowedDbOrigin = AllowedOrigin::where('origin_url', $origin)->exists();
+        
+        // Postman/Empty origin check
+        if (!$origin || $origin === 'postman') {
+            $allowedDbOrigin = AllowedOrigin::where('origin_url', 'postman')->exists();
+        }
+
+        if ($allowedDbOrigin) {
+            return $next($request);
+        }
+
+        return response()->json([
+            'message' => 'Access denied. Your origin is not allowed.',
+            'origin' => $origin,
+        ], 403);
     }
 }

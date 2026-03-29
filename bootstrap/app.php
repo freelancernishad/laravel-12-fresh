@@ -12,9 +12,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(\App\Http\Middleware\Cors::class);
         $middleware->append(\App\Http\Middleware\ApiResponse::class);
         $middleware->append(\App\Http\Middleware\CompressionMiddleware::class);
-        // $middleware->append(\App\Http\Middleware\Cors::class);
         $middleware->append(\App\Http\Middleware\WhitelistOriginMiddleware::class);
         $middleware->validateCsrfTokens(except: [
             '/api/stripe/webhook',
@@ -53,7 +53,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json([
-                    'message' => 'The ' . $request->getMethod() . ' method is not supported for this route. Supported methods: ' . implode(', ', $e->getAllowedMethods()) . '.',
+                    'message' => 'The ' . $request->getMethod() . ' method is not supported for this route. Supported methods: ' . (method_exists($e, 'getAllowedMethods') ? implode(', ', $e->getAllowedMethods()) : 'N/A') . '.',
                 ], 405);
             }
         });
