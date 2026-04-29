@@ -17,26 +17,36 @@ class WhitelistOriginMiddleware
     public function handle($request, Closure $next)
     {
         $origin = $request->header('Origin');
-        $allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
+        $allowedOrigins = [
+            'http://localhost:3000', 
+            'http://localhost:3001', 
+            'http://127.0.0.1:3000', 
+            'http://127.0.0.1:3001'
+        ];
 
-        // Handle OPTIONS request (preflight) - Already handled by Cors middleware but just in case
+        // Handle OPTIONS request (preflight)
         if ($request->isMethod('OPTIONS')) {
             return $next($request);
         }
 
-        $allowedAllOrigin = AllowedOrigin::where('origin_url', '*')->exists();
-        if ($allowedAllOrigin || in_array($origin, $allowedOrigins)) {
+        // Allow if no origin (e.g. server-to-server or direct hit)
+        if (!$origin) {
             return $next($request);
         }
 
-        // Check if the origin exists in the database
-        $allowedDbOrigin = AllowedOrigin::where('origin_url', $origin)->exists();
-        
-        // Postman/Empty origin check
-        if (!$origin || $origin === 'postman') {
-            $allowedDbOrigin = AllowedOrigin::where('origin_url', 'postman')->exists();
+        // Check whitelisted list
+        if (in_array($origin, $allowedOrigins)) {
+            return $next($request);
         }
 
+        // Check if all origins allowed in DB
+        $allowedAll = AllowedOrigin::where('origin_url', '*')->exists();
+        if ($allowedAll) {
+            return $next($request);
+        }
+
+        // Check specific origin in DB
+        $allowedDbOrigin = AllowedOrigin::where('origin_url', $origin)->exists();
         if ($allowedDbOrigin) {
             return $next($request);
         }
