@@ -9,6 +9,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Event;
 use App\Events\StripePaymentEvent;
 use App\Listeners\CheckStripePaymentStatus;
+use App\Events\EkpayPaymentEvent;
+use App\Listeners\ProcessEkpayPayment;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
                 $this->configureAwsSettings($settings);
                 $this->configureJwtSettings($settings);
                 $this->configureTwilioSettings($settings);
+                $this->configureEkpaySettings($settings);
             }
 
             // Configure Allowed Origins (CORS)
@@ -51,6 +54,12 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(
             StripePaymentEvent::class,
             [CheckStripePaymentStatus::class, 'handle']
+        );
+
+        // Register Ekpay Event Listener
+        Event::listen(
+            EkpayPaymentEvent::class,
+            [ProcessEkpayPayment::class, 'handle']
         );
     }
 
@@ -166,6 +175,31 @@ class AppServiceProvider extends ServiceProvider
             }
         } catch (\Exception $e) {
             \Log::error('Error loading allowed origins: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Configure Ekpay settings dynamically.
+     *
+     * @param \Illuminate\Support\Collection $settings
+     * @return void
+     */
+    protected function configureEkpaySettings($settings)
+    {
+        if ($settings->has('AKPAY_MER_REG_ID')) {
+            Config::set('services.ekpay.mer_reg_id', $settings->get('AKPAY_MER_REG_ID'));
+        }
+        if ($settings->has('AKPAY_MER_PASS_KEY')) {
+            Config::set('services.ekpay.mer_pass_key', $settings->get('AKPAY_MER_PASS_KEY'));
+        }
+        if ($settings->has('AKPAY_API_URL')) {
+            Config::set('services.ekpay.api_url', $settings->get('AKPAY_API_URL'));
+        }
+        if ($settings->has('AKPAY_IPN_URL')) {
+            Config::set('services.ekpay.ipn_url', $settings->get('AKPAY_IPN_URL'));
+        }
+        if ($settings->has('WHITE_LIST_IP')) {
+            Config::set('services.ekpay.whitelist_ip', $settings->get('WHITE_LIST_IP'));
         }
     }
 }

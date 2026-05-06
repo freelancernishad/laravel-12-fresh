@@ -123,6 +123,13 @@ if (file_exists($StripeRoutes = __DIR__.'/Gateways/stripe.php')) {
     });
 }
 
+// Load EkpayRoutes
+if (file_exists($EkpayRoutes = __DIR__.'/Gateways/ekpay.php')) {
+    Route::prefix('v1/payments/ekpay')->group(function () use ($EkpayRoutes) {
+        require $EkpayRoutes;
+    });
+}
+
 // Load EmailTemplateApiRoutes
 if (file_exists($EmailTemplateApiRoutes = __DIR__.'/Admins/EmailTemplates/EmailTemplateApiRoutes.php')) {
     require $EmailTemplateApiRoutes;

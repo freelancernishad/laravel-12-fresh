@@ -22,6 +22,8 @@ class Payment extends Model
         'stripe_invoice_id',
         'stripe_subscription_id',
         'status',
+        'date',
+        'time',
         'webhook_received_at',
         'webhook_status',
         'webhook_signature',
@@ -37,6 +39,11 @@ class Payment extends Model
     ];
 
     // Relationships
+    public function items()
+    {
+        return $this->hasMany(PaymentItem::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
