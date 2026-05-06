@@ -116,20 +116,6 @@ if (file_exists($BlogPostRoutes = __DIR__.'/Common/Blogs/BlogPostRoutes.php')) {
     require $BlogPostRoutes;
 }
 
-// Load StripeRoutes
-if (file_exists($StripeRoutes = __DIR__.'/Gateways/stripe.php')) {
-    Route::prefix('payment/stripe')->group(function () use ($StripeRoutes) {
-        require $StripeRoutes;
-    });
-}
-
-// Load EkpayRoutes
-if (file_exists($EkpayRoutes = __DIR__.'/Gateways/ekpay.php')) {
-    Route::prefix('v1/payments/ekpay')->group(function () use ($EkpayRoutes) {
-        require $EkpayRoutes;
-    });
-}
-
 // Load EmailTemplateApiRoutes
 if (file_exists($EmailTemplateApiRoutes = __DIR__.'/Admins/EmailTemplates/EmailTemplateApiRoutes.php')) {
     require $EmailTemplateApiRoutes;

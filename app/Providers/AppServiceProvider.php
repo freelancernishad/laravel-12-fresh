@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use App\Models\SystemSetting;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Event;
-use App\Events\StripePaymentEvent;
-use App\Listeners\CheckStripePaymentStatus;
-use App\Events\EkpayPaymentEvent;
-use App\Listeners\ProcessEkpayPayment;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -50,17 +45,8 @@ class AppServiceProvider extends ServiceProvider
             \Log::error('Unexpected error loading system settings: ' . $e->getMessage());
         }
 
-        // Register Stripe Event Listener
-        Event::listen(
-            StripePaymentEvent::class,
-            [CheckStripePaymentStatus::class, 'handle']
-        );
-
-        // Register Ekpay Event Listener
-        Event::listen(
-            EkpayPaymentEvent::class,
-            [ProcessEkpayPayment::class, 'handle']
-        );
+        // Configure Allowed Origins (CORS)
+        $this->configureCorsSettings();
     }
 
     /**
