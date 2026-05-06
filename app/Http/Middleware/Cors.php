@@ -18,7 +18,7 @@ class Cors
     public function handle(Request $request, Closure $next)
     {
         $origin = $request->header('Origin') ?: '*';
-        
+
         // Allowed origins for development
         $allowedOrigins = [
             'http://localhost:3000',
@@ -48,9 +48,9 @@ class Cors
         // Ensure headers are on EVERY response (Success, 401, 403, 500, etc.)
         if (method_exists($response, 'header')) {
             $response->header('Access-Control-Allow-Origin', $currentOrigin)
-                     ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-                     ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin')
-                     ->header('Access-Control-Allow-Credentials', 'true');
+                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin')
+                ->header('Access-Control-Allow-Credentials', 'true');
         }
 
         return $response;

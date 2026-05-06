@@ -17,7 +17,9 @@
         "maatwebsite/excel": "^3.1",
         "stripe/stripe-php": "^17.6",
         "twilio/sdk": "^8.7",
-        "tymon/jwt-auth": "^2.2"
+        "tymon/jwt-auth": "^2.2",
+        "freelancernishad/laravel-ekpay": "@dev",
+        "freelancernishad/laravel-stripe": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -84,6 +86,22 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/freelancernishad/laravel-ekpay",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/freelancernishad/laravel-stripe",
+            "options": {
+                "symlink": true
+            }
+        }
+    ]
 }

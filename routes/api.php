@@ -116,17 +116,13 @@ if (file_exists($BlogPostRoutes = __DIR__.'/Common/Blogs/BlogPostRoutes.php')) {
     require $BlogPostRoutes;
 }
 
-// Load StripeRoutes
-if (file_exists($StripeRoutes = __DIR__.'/Gateways/stripe.php')) {
-    Route::prefix('payment/stripe')->group(function () use ($StripeRoutes) {
-        require $StripeRoutes;
-    });
-}
-
 // Load EmailTemplateApiRoutes
 if (file_exists($EmailTemplateApiRoutes = __DIR__.'/Admins/EmailTemplates/EmailTemplateApiRoutes.php')) {
     require $EmailTemplateApiRoutes;
 }
 
-
+// Load NoticeRoutes
+if (file_exists($NoticeRoutes = __DIR__.'/Common/NoticeRoutes.php')) {
+    require $NoticeRoutes;
+}
 

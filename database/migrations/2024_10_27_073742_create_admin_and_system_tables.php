@@ -12,40 +12,46 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admins', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('username')->nullable()->unique();
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+        if (!Schema::hasTable('admins')) {
+            Schema::create('admins', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('username')->nullable()->unique();
+                $table->string('email')->unique();
+                $table->timestamp('email_verified_at')->nullable();
+                $table->string('password');
 
-            // OTP verification
-            $table->string('otp')->nullable();
-            $table->timestamp('otp_expires_at')->nullable();
+                // OTP verification
+                $table->string('otp')->nullable();
+                $table->timestamp('otp_expires_at')->nullable();
 
-            // Email verification hash for link
-            $table->string('email_verification_hash')->nullable()->unique();
+                // Email verification hash for link
+                $table->string('email_verification_hash')->nullable()->unique();
 
-            $table->rememberToken();
-            $table->timestamps();
-        });
+                $table->rememberToken();
+                $table->timestamps();
+            });
+        }
 
-        Schema::create('system_settings', function (Blueprint $table) {
-            $table->id();
-            $table->string('key')->unique();
-            $table->text('value')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('system_settings')) {
+            Schema::create('system_settings', function (Blueprint $table) {
+                $table->id();
+                $table->string('key')->unique();
+                $table->text('value')->nullable();
+                $table->timestamps();
+            });
+        }
 
-        Schema::create('allowed_origins', function (Blueprint $table) {
-            $table->id();
-            $table->string('origin_url')->unique();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('allowed_origins')) {
+            Schema::create('allowed_origins', function (Blueprint $table) {
+                $table->id();
+                $table->string('origin_url')->unique();
+                $table->timestamps();
+            });
+        }
 
         // Insert default record for allowed_origins
-        DB::table('allowed_origins')->insert([
+        DB::table('allowed_origins')->insertOrIgnore([
             'origin_url' => 'postman',
             'created_at' => now(),
             'updated_at' => now(),
