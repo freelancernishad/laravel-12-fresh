@@ -128,5 +128,8 @@ if (file_exists($EmailTemplateApiRoutes = __DIR__.'/Admins/EmailTemplates/EmailT
     require $EmailTemplateApiRoutes;
 }
 
-
+// Load NoticeRoutes
+if (file_exists($NoticeRoutes = __DIR__.'/Common/NoticeRoutes.php')) {
+    require $NoticeRoutes;
+}
 
