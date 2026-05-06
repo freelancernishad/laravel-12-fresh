@@ -161,9 +161,20 @@ class AppServiceProvider extends ServiceProvider
                 return \App\Models\AllowedOrigin::pluck('origin_url')->toArray();
             });
 
-            if (!empty($origins)) {
-                Config::set('cors.allowed_origins', $origins);
-            }
+            // Always allow local development origins
+            $localOrigins = [
+                'http://localhost:3000',
+                'http://localhost:3001',
+                'http://127.0.0.1:3000',
+                'http://127.0.0.1:3001',
+            ];
+
+            $allOrigins = array_unique(array_merge($origins, $localOrigins));
+
+            Config::set('cors.allowed_origins', $allOrigins);
+            Config::set('cors.supports_credentials', true);
+            Config::set('cors.allowed_methods', ['*']);
+            Config::set('cors.allowed_headers', ['*']);
         } catch (\Exception $e) {
             \Log::error('Error loading allowed origins: ' . $e->getMessage());
         }
