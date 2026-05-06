@@ -15,20 +15,18 @@ use App\Http\Controllers\Controller;
 
 class StripeWebhookController extends Controller
 {
-    public function handle(Request $request)
-{
-    $payload = $request->getContent();
-    $sigHeader = $request->header('Stripe-Signature');
-    $secret = config('STRIPE_WEBHOOK_SECRET');
+    protected $webhookService;
 
-    try {
-        $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $secret);
-    } catch (\Exception $e) {
-        return response('Invalid', 400);
+    public function __construct(\FreelancerNishad\Stripe\Services\StripeWebhookService $webhookService)
+    {
+        $this->webhookService = $webhookService;
     }
 
-    StripeWebhookRouter::dispatch($event->type, $event->data->object);
+    public function handle(Request $request)
+    {
+        $payload = $request->getContent();
+        $sigHeader = $request->header('Stripe-Signature');
 
-    return response('ok', 200);
-}
+        return $this->webhookService->handleWebhook($payload, $sigHeader);
+    }
 }

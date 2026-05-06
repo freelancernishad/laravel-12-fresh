@@ -16,7 +16,7 @@ use App\Http\Requests\User\Plan\Stripe\PurchasePlanRequest;
 
 class PlanSubscriptionController extends Controller
 {
-    public function PurchasePlan(PurchasePlanRequest $request, \App\Services\Gateways\StripeService $stripeService)
+    public function PurchasePlan(PurchasePlanRequest $request, \FreelancerNishad\Stripe\Services\StripeService $stripeService)
     {
         $plan = Plan::findOrFail($request->plan_id);
         $paymentType = $request->payment_type ?? 'single'; // single or recurring

@@ -90,18 +90,12 @@
     "prefer-stable": true,
     "repositories": [
         {
-            "type": "path",
-            "url": "packages/freelancernishad/laravel-ekpay",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/freelancernishad/laravel-ekpay"
         },
         {
-            "type": "path",
-            "url": "packages/freelancernishad/laravel-stripe",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/freelancernishad/laravel-stripe"
         }
     ]
 }

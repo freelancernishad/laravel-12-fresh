@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1bb528b50a0fee10caea88b445261aeb",
+    "content-hash": "4176332188305528e019d6e2b75f5fe6",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -878,16 +878,26 @@
         },
         {
             "name": "freelancernishad/laravel-ekpay",
-            "version": "dev-main",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/freelancernishad/laravel-ekpay.git",
+                "reference": "d2194f5979db023ce38d16acd755d16d936cd7d8"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/freelancernishad/laravel-ekpay",
-                "reference": "5c1f0f2d999e216e36608253c81de08e7599692b"
+                "type": "zip",
+                "url": "https://api.github.com/repos/freelancernishad/laravel-ekpay/zipball/d2194f5979db023ce38d16acd755d16d936cd7d8",
+                "reference": "d2194f5979db023ce38d16acd755d16d936cd7d8",
+                "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
                 "illuminate/support": "^11.0|^12.0",
                 "php": "^8.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^9.0|^10.0",
+                "phpunit/phpunit": "^10.0|^11.0"
             },
             "type": "library",
             "extra": {
@@ -902,6 +912,11 @@
                     "FreelancerNishad\\Ekpay\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "FreelancerNishad\\Ekpay\\Tests\\": "tests/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -912,23 +927,41 @@
                 }
             ],
             "description": "Ekpay Payment Gateway integration for Laravel",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "keywords": [
+                "bangladesh",
+                "ekpay",
+                "gateway",
+                "laravel",
+                "payment"
+            ],
+            "support": {
+                "source": "https://github.com/freelancernishad/laravel-ekpay/tree/v1.0.2",
+                "issues": "https://github.com/freelancernishad/laravel-ekpay/issues"
+            },
+            "time": "2026-05-06T11:36:48+00:00"
         },
         {
             "name": "freelancernishad/laravel-stripe",
-            "version": "dev-main",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/freelancernishad/laravel-stripe.git",
+                "reference": "7b3648779e68602ee97b04eb174fa1905c5451d4"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/freelancernishad/laravel-stripe",
-                "reference": "c9cf07e4a6952fd610eb76a2ed6edefab9cbc892"
+                "type": "zip",
+                "url": "https://api.github.com/repos/freelancernishad/laravel-stripe/zipball/7b3648779e68602ee97b04eb174fa1905c5451d4",
+                "reference": "7b3648779e68602ee97b04eb174fa1905c5451d4",
+                "shasum": ""
             },
             "require": {
                 "illuminate/support": "^11.0|^12.0",
                 "php": "^8.2",
                 "stripe/stripe-php": "^10.0|^13.0|^17.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^9.0|^10.0",
+                "phpunit/phpunit": "^10.0|^11.0"
             },
             "type": "library",
             "extra": {
@@ -943,6 +976,11 @@
                     "FreelancerNishad\\Stripe\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "FreelancerNishad\\Stripe\\Tests\\": "tests/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -953,10 +991,17 @@
                 }
             ],
             "description": "Stripe Payment Gateway integration for Laravel",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "keywords": [
+                "gateway",
+                "laravel",
+                "payment",
+                "stripe"
+            ],
+            "support": {
+                "source": "https://github.com/freelancernishad/laravel-stripe/tree/v1.0.1",
+                "issues": "https://github.com/freelancernishad/laravel-stripe/issues"
+            },
+            "time": "2026-05-06T10:58:05+00:00"
         },
         {
             "name": "fruitcake/php-cors",

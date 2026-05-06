@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Gateways;
 
 use App\Http\Controllers\Controller;
-use App\Services\Gateways\StripeWebhookService;
 use Illuminate\Http\Request;
 
 class StripeWebhookController extends Controller
 {
     protected $webhookService;
 
-    public function __construct(StripeWebhookService $webhookService)
+    public function __construct(\FreelancerNishad\Stripe\Services\StripeWebhookService $webhookService)
     {
         $this->webhookService = $webhookService;
     }
