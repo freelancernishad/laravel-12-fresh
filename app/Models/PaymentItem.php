@@ -11,15 +11,20 @@ class PaymentItem extends Model
 
     protected $fillable = [
         'payment_id',
-        'fee_master_id',
-        'fee_head',
-        'fee_type',
+        'item_id',
+        'name',
+        'type',
         'amount',
-        'fee_month',
-        'fee_year',
+        'quantity',
         'status',
+        'meta',
         'date',
         'time',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'meta' => 'array',
     ];
 
     public function payment()

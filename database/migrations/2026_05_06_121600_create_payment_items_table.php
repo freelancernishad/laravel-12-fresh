@@ -14,13 +14,17 @@ return new class extends Migration
         Schema::create('payment_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payment_id')->constrained()->onDelete('cascade');
-            $table->string('fee_master_id')->nullable(); // Original Fee ID
-            $table->string('fee_head')->nullable();
-            $table->string('fee_type')->nullable();
+            
+            $table->string('item_id')->nullable(); // Generic item ID (e.g. fee_id, product_id, service_id)
+            $table->string('name')->nullable();    // Generic item name (e.g. Tuition Fee, Web Hosting)
+            $table->string('type')->nullable();    // Generic item type
             $table->decimal('amount', 12, 2)->default(0);
-            $table->string('fee_month')->nullable();
-            $table->integer('fee_year')->nullable();
-            $table->string('status')->default('pending'); // Can mirror parent status
+            $table->integer('quantity')->default(1);
+            
+            $table->string('status')->default('pending'); // pending, Paid, failed
+            
+            $table->json('meta')->nullable();      // For project-specific data (e.g. month, year, variant)
+            
             $table->date('date')->nullable();
             $table->time('time')->nullable();
             $table->timestamps();
